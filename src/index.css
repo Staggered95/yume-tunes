@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+
+@theme {
+  /* Backgrounds */
+  --color-background-primary: #0f0f1a;    /* Deep dark base */
+  --color-background-secondary: #181828;  /* Slight contrast for panels */
+  --color-background-hover: #22223a;      /* Hovered cards/buttons */
+  --color-background-active: #2a2a44;     /* Active state */
+
+  /* Text */
+  --color-text-primary: #F2F2F5;          /* Main text */
+  --color-text-secondary: #A8A8C7;        /* Subtle text */
+  --color-text-muted: #6F6F89;            /* Disabled/muted */
+
+  /* Accents */
+  --color-accent-primary: #9D5CFA;        /* Main accent (purple) */
+  --color-accent-secondary: #E056FD;      /* Pink-violet secondary */
+  --color-accent-tertiary: #58E1FA;       /* Aqua/cyan for highlights */
+
+  /* States */
+  --color-accent-hover: #b47bff;          /* Lighter purple hover */
+  --color-accent-active: #7A3EF5;         /* Darker purple active */
+  --color-success: #4ADE80;               /* Green (e.g. play confirmed) */
+  --color-error: #F87171;                 /* Red (errors, delete) */
+  --color-warning: #FACC15;               /* Amber (alerts) */
+
+  /* Borders / Dividers */
+  --color-border: #2E2E46;
+  --color-border-hover: #3A3A5A;
+
+  /* Gradients */
+  --gradient-accent: linear-gradient(135deg, #E056FD, #8258fa);
+  --gradient-hover: linear-gradient(135deg, #9D5CFA, #58E1FA);
+
+  /* Logo */
+  --logo-color-start: #E056FD;
+  --logo-color-end: #8258FA;
+  --logo-text-color: #F2F2F5;
+}
+
+
+body {
+	@apply bg-background-primary text-text-primary transition-colors duration-300;
+}
