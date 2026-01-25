@@ -1,11 +1,18 @@
+import {useState} from 'react';
+import HamburgerButton from "../minicomps/HamburgerButton";
+import Logo from '../minicomps/Logo';
 
-
-export default function Navbar() 
+export default function Navbar({isSidebarOpen, toggleSidebar}) 
 {
+    
+    
     return (
     <>
     <nav className="flex items-center justify-between gap-4 p-6">
-        <div className="text-2xl lg:text-3xl font-extrabold text-text-primary">YumeTunes</div>
+        <div onClick={toggleSidebar} className='flex items-center gap-2'>
+            <Logo />       
+        <div  className="text-2xl lg:text-3xl font-extrabold text-text-primary">YumeTunes</div>
+        </div>
 
         <div className="relative left-3">
             <input type="text" 

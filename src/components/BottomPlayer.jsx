@@ -1,10 +1,11 @@
 import { useState, useEffect} from 'react';
-import MediaControllers from '../minicomps/MediaControllers';
+import MediaControllers from '../minicomps/MediaControllerIcons';
+import VolumeIcon from '../minicomps/VolumeIcons';
 import f2Image from '../assets/f2.png';
 
 export default function BottomPlayer()
 {
-    
+
     return (
         <div className='group fixed w-full bottom-4 rounded-lg z-10'>
         <div className="flex gap-4 items-center justify-between m-2  p-1 backdrop-blur-sm">
@@ -20,7 +21,8 @@ export default function BottomPlayer()
                 <MediaControllers/>
             </div>
 
-            <div className='hidden md:block'>
+            <div className='hidden md:flex items-center'>
+                <VolumeIcon/>
                 <div className='bg-background-active h-2 w-36 rounded-full'>
                     <div className="bg-accent-active h-2 w-1/2 rounded-full"></div>
                 </div>
