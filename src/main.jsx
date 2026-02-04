@@ -2,12 +2,15 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
-import { PlayerProvider } from './context/PlayerContext.jsx'
+import { SongProvider } from './context/SongContext.jsx'
+import { PlaybackProvider } from './context/PlaybackContext.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <PlayerProvider>
-      <App />
-    </PlayerProvider>
+    <PlaybackProvider>
+      <SongProvider>
+        <App />
+      </SongProvider>
+    </PlaybackProvider>
   </StrictMode>,
 )

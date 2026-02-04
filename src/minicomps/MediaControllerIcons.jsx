@@ -1,13 +1,14 @@
 import MorphingPlayPauseButton from './MorphingPlayPauseButton'
-import { usePlayer } from '../context/PlayerContext'
-
+import { useSongs } from '../context/SongContext';
+import { usePlayback } from '../context/PlaybackContext';
 
 const MediaControllers = () => {
-    const { isPlaying, togglePlay } = usePlayer();
-    
+    const { nextSong, prevSong}  = useSongs(); 
+    const { isPlaying, togglePlay } = usePlayback();
+
     return (
         <div className='flex gap-4 items-center justify-center text-text-primary'>
-                    <div>
+                    <div onClick={prevSong}>
                         <svg 
                           width="28" 
                           height="28" 
@@ -24,7 +25,7 @@ const MediaControllers = () => {
                           onToggle={togglePlay}
                         />
                     </div>
-                    <div>
+                    <div onClick={nextSong}>
                         <svg 
                           width="28" 
                           height="28" 

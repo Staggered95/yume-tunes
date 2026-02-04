@@ -1,13 +1,19 @@
-import React, { useState } from 'react';
+import Navbar from './components/Navbar';
+import Sidebar from './components/Sidebar';
 import HomePage from './pages/HomePage';
 
-function App() {
+const App = () => {
+
 
   return (
-    <div className="relative min-h-screen bg-background-primary">
-      
-     <HomePage/>
-    </div>
+    <>
+      <div className='relative'>
+        <Navbar/>
+        <HomePage/>
+        
+        <Sidebar/>
+      </div>
+    </>
   );
 }
 

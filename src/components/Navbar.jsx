@@ -8,7 +8,7 @@ export default function Navbar({isSidebarOpen, toggleSidebar})
     
     return (
     <>
-    <nav className="flex items-center justify-between gap-4 p-6">
+    <nav className=" flex items-center justify-between gap-4 p-6 ml-10">
         <div onClick={toggleSidebar} className='flex items-center gap-2'>
             <Logo />       
         <div  className="text-2xl lg:text-3xl font-extrabold text-text-primary">YumeTunes</div>

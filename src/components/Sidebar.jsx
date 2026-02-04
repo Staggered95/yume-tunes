@@ -1,59 +1,153 @@
-import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useEffect, useRef } from "react";
 
-// Placeholder icons
-const HomeIcon = () => <svg>...</svg>; 
-const SongsIcon = () => <svg>...</svg>;
+/* ---------- Prop-Aware Icons ---------- */
+// Every SVG now accepts a className prop to allow external styling.
+const HamburgerIcon = ({ className }) => (
+  <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
+    <path d="M3 6h18v2H3zM3 11h18v2H3zM3 16h18v2H3z" />
+  </svg>
+);
 
-const navItems = [
-  { name: 'Home', icon: <HomeIcon /> },
-  { name: 'Songs', icon: <SongsIcon /> },
-];
+const CloseIcon = ({ className }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={className}>
+    <path d="M6 6l12 12M6 18L18 6" />
+  </svg>
+);
 
-const Sidebar = ({ isExpanded }) => {
-  return (
-    <motion.div
-      initial={{ x: '-100%' }} 
-      // Animate properties based on the isExpanded prop
-      animate={{
-        // On mobile, slide in and out from the left
-        x: isExpanded ? 0 : '-100%',
-        // On desktop, expand and collapse width
-        width: isExpanded ? '16rem' : '5rem',
-      }}
-      transition={{ duration: 0.3, ease: 'easeInOut' }}
-      className="
-        fixed top-22 bottom-30 left-0 bg-background-secondary p-4 rounded-r-xl
-        flex flex-col z-20 
-        lg:translate-x-0
-      "
+const HomeIcon = ({ className }) => (
+  <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
+    <path d="M12 3l9 8h-3v10h-4v-6H10v6H6V11H3z" />
+  </svg>
+);
+
+const MusicIcon = ({ className }) => (
+  <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
+    <path d="M16 3v10.55A4 4 0 1 1 14 17V7h-4v8.55A4 4 0 1 1 8 19V5h8z" />
+  </svg>
+);
+
+const SettingsIcon = ({ className }) => (
+  <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
+    <path d="M12 8a4 4 0 100 8 4 4 0 000-8z" />
+    <path d="M2 12h2m16 0h2M12 2v2m0 16v2" />
+  </svg>
+);
+
+/* ---------- Optimized Sidebar Item ---------- */
+
+const SidebarItem = ({ icon: Icon, label, isOpen }) => (
+  <div 
+    className="flex items-center gap-4 px-5 py-3 text-zinc-300 hover:text-white hover:bg-white/5 cursor-pointer transition-colors overflow-hidden"
+    title={!isOpen ? label : ""} // Tooltip for compact mode
+  >
+    {/* Explicit size and shrink-0 ensures icons remain visible at w-16 */}
+    <Icon className="w-6 h-6 shrink-0" />
+
+    <span
+      className={`whitespace-nowrap transition-all duration-300 ease-in-out font-medium
+        ${isOpen
+          ? "opacity-100 translate-x-0"
+          : "opacity-0 -translate-x-10 pointer-events-none"
+        }`}
     >
-      {/* Navigation Links */}
-      <nav>
-        <ul className="space-y-4 mt-10">
-          {navItems.map((item) => (
-            <li key={item.name}>
-              <a href="#" className="flex items-center gap-4 p-2 rounded-md text-text-secondary hover:bg-background-hover hover:text-text-primary">
-                <div className="w-8 h-8 flex-shrink-0">{item.icon}</div>
-                <AnimatePresence>
-                  {isExpanded && (
-                    <motion.span
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="whitespace-nowrap"
-                    >
-                      {item.name}
-                    </motion.span>
-                  )}
-                </AnimatePresence>
-              </a>
-            </li>
-          ))}
-        </ul>
+      {label}
+    </span>
+  </div>
+);
+
+
+
+
+
+/* ---------- Main Sidebar Component ---------- */
+
+const Sidebar = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const sideBarRef = useRef(null);
+  const playlists = ["Chill Anime", "OP Bangers", "Late Night"];
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+        if (isOpen && sideBarRef.current && !sideBarRef.current.contains(event.target)) {
+          setIsOpen(prev => !prev);
+        }
+      }
+
+
+      document.addEventListener('mousedown', handleClickOutside);
+
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }, [isOpen]);
+
+  return (
+    
+    <aside ref={sideBarRef}
+      className={`fixed top-0 left-0 h-screen bg-zinc-950 border-r border-white/5
+        transition-all duration-300 ease-in-out z-50
+        ${isOpen ? "w-64" : "w-16"}`} // Rail to Drawer transition
+    >
+      {/* 1. Header & Toggle */}
+      <div className="p-4 h-16 flex items-center">
+        <button
+          onClick={() => setIsOpen(v => !v)}
+          className="relative w-8 h-8 text-white hover:text-red-400 transition-colors"
+        >
+          <span
+            className={`absolute inset-0 transition-all duration-300
+              ${isOpen ? "opacity-0 rotate-90 scale-50" : "opacity-100 rotate-0 scale-100"}`}
+          >
+            <HamburgerIcon className="w-full h-full" />
+          </span>
+
+          <span
+            className={`absolute inset-0 transition-all duration-300
+              ${isOpen ? "opacity-100 rotate-0 scale-100" : "opacity-0 -rotate-90 scale-50"}`}
+          >
+            <CloseIcon className="w-full h-full" />
+          </span>
+        </button>
+      </div>
+
+      {/* 2. Primary Navigation */}
+      <nav className="mt-4 space-y-1">
+        <SidebarItem icon={HomeIcon} label="Home" isOpen={isOpen} />
+        <SidebarItem icon={MusicIcon} label="Library" isOpen={isOpen} />
+        <SidebarItem icon={MusicIcon} label="Anime Osts" isOpen={isOpen} />
+
+        <hr className={`mx-4 my-4 border-white/5 transition-opacity ${isOpen ? "opacity-100" : "opacity-0"}`} />
+
+        {/* 3. Playlists Section */}
+        <div className="relative">
+          <SidebarItem icon={MusicIcon} label="Playlists" isOpen={isOpen} />
+
+          {isOpen && (
+            <div className="ml-14 mt-2 space-y-3 text-sm text-zinc-400">
+              {playlists.map(p => (
+                <div key={p} className="truncate hover:text-white transition-colors cursor-pointer">
+                  {p}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </nav>
-    </motion.div>
+
+      {/* 4. Footer Settings */}
+      <div className="absolute bottom-4 w-full">
+        <SidebarItem icon={SettingsIcon} label="Settings" isOpen={isOpen} />
+      </div>
+      {isOpen && (
+  <div 
+    className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 md:hidden" 
+    aria-hidden="true"
+  />
+)}
+    </aside>
+    
   );
+  
 };
 
 export default Sidebar;
