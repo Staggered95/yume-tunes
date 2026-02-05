@@ -1,7 +1,28 @@
 @import "tailwindcss";
 
 
+@font-face {
+  font-family: 'AlphaSlabOne';
+  src: url('./assets/fonts/alfa_slab/AlfaSlabOne-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'GravitasOne';
+  src: url('./assets/fonts/gravitas_one/GravitasOne-Regular.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'PlayWrite';
+  src: url('./assets/fonts/playwrite/Playwrite-Regular.ttf') format('truetype');
+}
+
 @theme {
+  /* fonts */
+  --font-alfa-slab: 'AlfaSlabOne', serif;
+  --font-gravitas: 'GravitasOne', serif;
+  --font-playwrite: 'Playwrite', cursive;
+
+  
   /* Backgrounds */
   --color-background-primary: #0f0f1a;    /* Deep dark base */
   --color-background-secondary: #181828;  /* Slight contrast for panels */

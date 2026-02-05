@@ -1,27 +1,30 @@
-export default function SectionRow({ title, type }) {
-  // Dummy items for UI placeholder
-  const items = [1, 2, 3, 4, 5, 6];
+import SongCard from './SongCard';
+
+export default function SectionRow({ title, type, properties, items = [] }) {
+  // Use 'type' as the 'shape' for the SongCard
+  const shapeMap = {
+    grid: 'square',
+    circle: 'circle',
+    wide: 'wide',
+    small_square: 'small_square',
+  };
 
   return (
-    <section>
+    <section className="animate-fade-in-up">
       <div className="flex justify-between items-end mb-4 px-2">
-        <h3 className="text-xl font-bold text-text-primary">{title}</h3>
-        <button className="text-xs uppercase font-bold tracking-widest text-text-muted hover:text-white">See More</button>
+        <h3 className="text-2xl font-bold text-text-primary tracking-tight">{title}</h3>
+        <button className="text-[10px] uppercase font-bold tracking-widest text-text-muted hover:text-white transition-colors">
+          See All
+        </button>
       </div>
 
-      <div className="flex gap-4 overflow-x-auto no-scrollbar pb-4">
-        {items.map((i) => (
-          <div key={i} className="flex-shrink-0 group cursor-pointer">
-            {type === 'circle' ? (
-              <div className="w-32 h-32 rounded-full bg-zinc-800 border border-white/5 group-hover:border-accent-active transition-all" />
-            ) : type === 'wide' ? (
-              <div className="w-64 h-32 rounded-xl bg-zinc-800 border border-white/5 group-hover:scale-[1.02] transition-all" />
-            ) : (
-              <div className="w-40 h-40 rounded-lg bg-zinc-800 border border-white/5 group-hover:shadow-[0_0_20px_rgba(255,255,255,0.05)] transition-all" />
-            )}
-            <div className="mt-2 text-sm font-semibold truncate w-32">Example Item {i}</div>
-            <div className="text-[10px] text-text-secondary uppercase">Description</div>
-          </div>
+      <div className={`${properties} gap-6 overflow-x-auto scrollbar-none pb-4 px-2`}>
+        {items.map((song) => (
+          <SongCard 
+            key={song.id} 
+            song={song} 
+            shape={shapeMap[type] || 'square'} 
+          />
         ))}
       </div>
     </section>

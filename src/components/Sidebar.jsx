@@ -15,14 +15,78 @@ const CloseIcon = ({ className }) => (
 );
 
 const HomeIcon = ({ className }) => (
-  <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
-    <path d="M12 3l9 8h-3v10h-4v-6H10v6H6V11H3z" />
+  <svg 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round" 
+    className={className}
+  >
+    {/* The House Structure */}
+    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+    {/* The Doorway */}
+    <polyline points="9 22 9 12 15 12 15 22" />
   </svg>
 );
 
-const MusicIcon = ({ className }) => (
-  <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
-    <path d="M16 3v10.55A4 4 0 1 1 14 17V7h-4v8.55A4 4 0 1 1 8 19V5h8z" />
+const LibraryIcon = ({ className }) => (
+  <svg 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round" 
+    className={className}
+  >
+    {/* Bottom layer */}
+    <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20" />
+    {/* Middle layer */}
+    <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15" />
+    {/* Top layer details */}
+    <path d="M10 10h6" />
+    <path d="M10 14h6" />
+    <path d="M10 6h6" />
+  </svg>
+);
+
+const AnimeIcon = ({ className }) => (
+  <svg 
+    viewBox="0 0 24 24" 
+    fill="none"
+    stroke="currentColor" 
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round"
+    className={className}
+  >
+    {/* The Screen */}
+    <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+    {/* The Stand */}
+    <path d="M8 21h8" />
+    <path d="M12 17v4" />
+    {/* The Play Button (Filled for contrast) */}
+    <path d="M10 8l6 3.5-6 3.5V8z" fill="currentColor" stroke="none" />
+  </svg>
+);
+
+const SongIcon = ({ className }) => (
+  <svg 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round" 
+    className={className}
+  >
+    {/* Note Heads */}
+    <circle cx="6" cy="18" r="3" />
+    <circle cx="18" cy="16" r="3" />
+    {/* Stems and Beam */}
+    <path d="M9 18V5l12-2v13" />
   </svg>
 );
 
@@ -113,14 +177,14 @@ const Sidebar = () => {
       {/* 2. Primary Navigation */}
       <nav className="mt-4 space-y-1">
         <SidebarItem icon={HomeIcon} label="Home" isOpen={isOpen} />
-        <SidebarItem icon={MusicIcon} label="Library" isOpen={isOpen} />
-        <SidebarItem icon={MusicIcon} label="Anime Osts" isOpen={isOpen} />
+        <SidebarItem icon={LibraryIcon} label="Library" isOpen={isOpen} />
+        <SidebarItem icon={AnimeIcon} label="Anime Osts" isOpen={isOpen} />
 
         <hr className={`mx-4 my-4 border-white/5 transition-opacity ${isOpen ? "opacity-100" : "opacity-0"}`} />
 
         {/* 3. Playlists Section */}
         <div className="relative">
-          <SidebarItem icon={MusicIcon} label="Playlists" isOpen={isOpen} />
+          <SidebarItem icon={SongIcon} label="Playlists" isOpen={isOpen} />
 
           {isOpen && (
             <div className="ml-14 mt-2 space-y-3 text-sm text-zinc-400">

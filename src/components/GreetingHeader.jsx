@@ -15,12 +15,12 @@ export default function GreetingHeader({ isLoggedIn }) {
   const quote = quoteSet[Math.floor(Math.random() * quoteSet.length)];
 
   return (
-    <header className="px-2">
-      <h1 className="text-3xl font-bold text-text-primary tracking-tight">{greeting}</h1>
-      <div className="mt-2 flex items-center gap-2 text-text-muted italic border-l-2 border-accent-secondary pl-4 py-1 bg-white/5 rounded-r-md">
-        <span className="text-lg">“</span>
+    <header className="px-2 flex justify-between">
+      <h1 className="text-3xl font-bold font-playwrite text-text-primary tracking-tight">{greeting}</h1>
+      <div className="hidden lg:flex items-center gap-2 text-text-muted italic pl-4 py-1">
+        <span className="text-lg">"</span>
         <p className="text-sm">
-          {quote.text} <span className="not-italic font-bold text-xs text-accent-hover ml-2">— {quote.author}</span>
+          {quote.text}<span className="text-lg">"</span> <span className="not-italic font-bold text-xs text-accent-hover ml-2">— {quote.author}</span>
         </p>
       </div>
     </header>
