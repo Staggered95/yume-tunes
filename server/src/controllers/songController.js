@@ -1,9 +1,15 @@
 import { query } from '../config/db.js';
 
 const getAllSongs = async (req, res) => {
-    const text = `SELECT * FROM songs';`
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const offset = (page-1)*limit;
+
+    const text = `SELECT * FROM songs LIMIT $1 OFFSET $2`
+    const values = [limit, offset];
+
     try {
-        const result = await query(text);
+        const result = await query(text, values);
         res.status(200).json({success: true, data: result.rows});
     } catch (err) {
         console.log("Error fetching the songs", err);
@@ -13,7 +19,7 @@ const getAllSongs = async (req, res) => {
 
 const getSongsByAnime = async (req, res) => {
     const title = req.query.title;
-    const text = `SELECT * FROM songs WHERE title ILIKE $1`;
+    const text = `SELECT s.id, s.title, s.genre, s.lyrics, s.file_path, s.cover_path FROM songs WHERE title ILIKE $1`;
     const values = [`%${title}%`];
 
     try {
@@ -42,8 +48,8 @@ const getSongsByArtist = async (req, res) => {
 const getSongsByGenre = async (req, res) => {
     //gives an array if multiple query (?genre=happy&genre=sad) otherwise single if one
     const genre = req.query.genre;
-    const text = `SELECT * FROM songs WHERE genre = ANY($1)`;
-    const values = Array.isArray(genre) ? genre : [genre];
+    const text = `SELECT * FROM songs WHERE genre = ANY($1::text[])`;
+    const values = [Array.isArray(genre) ? genre : [genre]];
 
     try {
         const result = await query(text, values);
