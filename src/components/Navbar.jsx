@@ -1,31 +1,23 @@
 import {useState} from 'react';
 import HamburgerButton from "../minicomps/HamburgerButton";
 import Logo from '../minicomps/Logo';
+import SearchAutocomplete from './SearchAutoComplete';
+import { useNavigate } from 'react-router-dom';
 
 export default function Navbar({isSidebarOpen, toggleSidebar}) 
 {
-    
+    const navigate = useNavigate();
     
     return (
     <>
     <nav className=" flex items-center justify-between gap-4 p-6 ml-10">
-        <div onClick={toggleSidebar} className='flex items-center gap-2'>
+        <div onClick={() => navigate('/')} className='flex items-center gap-2'>
             <Logo />       
-        <div  className="text-2xl lg:text-3xl font-extrabold text-text-primary">YumeTunes</div>
+        <div  className="text-2xl lg:text-3xl font-extrabold text-text-primary cursor-default">YumeTunes</div>
         </div>
 
-        <div className="relative left-3">
-            <input type="text" 
-                   className="bg-background-secondary focus:bg-background-active text-text-primary placeholder:text-text-secondary pl-10 lg:h-9 w-[33.33vw] hidden lg:inline md:inline h-8 rounded-lg outline-none transition-colors duration-300 ease-in-out"
-                   placeholder="Search"
-                   >
-            </input>
-            <svg className="hidden md:inline lg:inline absolute left-1 w-6 h-6 mt-1.5 ml-1 text-text-secondary font-light"
-                 fill="none"
-                 stroke="currentColor"
-                 viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M21 21l-4.35-4.35m1.35-5.65a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-            </svg>
-        </div>
+        
+        <SearchAutocomplete/>
 
         <div className="flex items-center gap-4">
         <div className="text-text-secondary h-6 lg:h-8 p-2 lg:p-3 text-sm lg:text-md flex justify-center items-center cursor-default hover:text-accent-primary transition-colors duration-300 ease-in-out">Log In</div>

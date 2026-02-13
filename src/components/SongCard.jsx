@@ -27,6 +27,12 @@ const SongCard = ({ song, shape = 'square' }) => {
     container: "w-72 flex flex-row items-center gap-4 bg-white/5 p-2 rounded-xl",
     image: "h-16 w-16 rounded-md shrink-0", // Prevent image from squishing
     text: "flex-1 min-w-0" // The MAGIC: min-w-0 allows the title to truncate
+  },
+  list: {
+    container: "w-full flex flex-row items-center gap-4 bg-background-secondary/40 hover:bg-background-active p-3 rounded-xl border border-white/5",
+    image: "h-14 w-14 rounded-md shrink-0 shadow-md",
+    text: "flex-1 min-w-0 flex flex-col justify-center",
+    meta: "hidden md:flex flex-col items-end gap-1 text-right shrink-0 px-4" // For Anime & Type info
   }
 };
 

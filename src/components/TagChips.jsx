@@ -1,3 +1,5 @@
+import { GENRES } from "../utils/constants";
+
 const tags = [{ tag: "Slow", 
                 className: "px-5 py-1.5 rounded-full border border-white/10 bg-accent-active/10 text-sm font-medium hover:bg-accent-hover hover:border-white/20 transition-all whitespace-nowrap",
                 },
@@ -31,12 +33,12 @@ const tags = [{ tag: "Slow",
 export default function TagChips() {
   return (
     <div className="flex gap-3 overflow-x-auto scrollbar-none py-2">
-      {tags.map((t) => (
+      {GENRES.map((t) => (
         <button 
           key={t.id}
-          className={t.className}
+          className="px-5 py-1.5 rounded-full border border-white/10 bg-accent-active/44 text-sm font-medium hover:bg-accent-hover hover:border-white/20 transition-all whitespace-nowrap"
         >
-          {t.tag}
+          {t}
         </button>
       ))}
       <button className="px-5 py-1.5 text-sm font-bold text-accent-active hover:underline whitespace-nowrap">

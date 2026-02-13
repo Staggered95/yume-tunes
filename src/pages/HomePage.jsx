@@ -11,7 +11,7 @@ function HomePage() {
   const {songs} = useSongs();
 
   return (
-    <div className="flex flex-col gap-8 pb-32 animate-fade-in ml-16">
+    <div className="flex flex-col gap-8 pb-32 animate-fade-in">
       {/* 1. Hero Section */}
       <HeroCarousel />
       <div className='flex flex-col mx-8 gap-20'>

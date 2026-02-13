@@ -13,9 +13,9 @@ export const SongProvider = ({children}) => {
     useEffect(() => {
         const fetchSongs = async () => {
             try {
-                const response = await fetch('http://localhost:5000/api/songs');
+                const response = await fetch('http://localhost:5000/songs/all');
                 const songs = await response.json();
-                setSongs(songs);
+                setSongs(songs.data);
                 setLoading(false);
             }catch (err) {
                 console.log("Error fetching the songs: ", err);
