@@ -7,3 +7,17 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+@layer utilities {
+  .translate-y-full {
+    transform: translateY(100%);
+  }
+  .translate-y-0 {
+    transform: translateY(0);
+  }
+}
+
+/* Custom Bezier for that "Spotify" feel */
+.transition-player {
+  transition: transform 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+}

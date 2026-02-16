@@ -1,47 +1,24 @@
+import { useNavigate } from "react-router-dom";
 import { GENRES } from "../utils/constants";
 
-const tags = [{ tag: "Slow", 
-                className: "px-5 py-1.5 rounded-full border border-white/10 bg-accent-active/10 text-sm font-medium hover:bg-accent-hover hover:border-white/20 transition-all whitespace-nowrap",
-                },
-              {  tag: "Soft", 
-                className: "px-5 py-1.5 rounded-full border border-white/10 bg-accent-active/14 text-sm font-medium hover:bg-accent-hover hover:border-white/20 transition-all whitespace-nowrap",
-                },
-              {  tag: "Instrumental", 
-                className: "px-5 py-1.5 rounded-full border border-white/10 bg-accent-active/18 text-sm font-medium hover:bg-accent-hover hover:border-white/20 transition-all whitespace-nowrap",
-                },
-              {  tag: "Lofi", 
-                className: "px-5 py-1.5 rounded-full border border-white/10 bg-accent-active/22 text-sm font-medium hover:bg-accent-hover hover:border-white/20 transition-all whitespace-nowrap",
-                },
-              {  tag: "Vocals", 
-                className: "px-5 py-1.5 rounded-full border border-white/10 bg-accent-active/26 text-sm font-medium hover:bg-accent-hover hover:border-white/20 transition-all whitespace-nowrap",
-                },
-              {  tag: "J-Pop", 
-                className: "px-5 py-1.5 rounded-full border border-white/10 bg-accent-active/30 text-sm font-medium hover:bg-accent-hover hover:border-white/20 transition-all whitespace-nowrap",
-                },
-              {  tag: "Sad", 
-                className: "px-5 py-1.5 rounded-full border border-white/10 bg-accent-active/34 text-sm font-medium hover:bg-accent-hover hover:border-white/20 transition-all whitespace-nowrap",
-                },
-              {  tag: "Banger", 
-                className: "px-5 py-1.5 rounded-full border border-white/10 bg-accent-active/40 text-sm font-medium hover:bg-accent-hover hover:border-white/20 transition-all whitespace-nowrap",
-                },
-              {  tag: "Naruto", 
-                className: "px-5 py-1.5 rounded-full border border-white/10 bg-accent-active/44 text-sm font-medium hover:bg-accent-hover hover:border-white/20 transition-all whitespace-nowrap",
-                }];
-
-
-
 export default function TagChips() {
+  const navigate = useNavigate();
+
   return (
-    <div className="flex gap-3 overflow-x-auto scrollbar-none py-2">
-      {GENRES.map((t) => (
+    <div className="flex gap-3 overflow-x-auto scrollbar-none py-2 px-6">
+      {GENRES.map((genre) => (
         <button 
-          key={t.id}
-          className="px-5 py-1.5 rounded-full border border-white/10 bg-accent-active/44 text-sm font-medium hover:bg-accent-hover hover:border-white/20 transition-all whitespace-nowrap"
+          key={genre}
+          onClick={() => navigate(`/genre/${encodeURIComponent(genre)}`)}
+          className="px-5 py-1.5 rounded-full border border-white/10 bg-white/5 text-sm font-medium hover:bg-accent-primary hover:border-accent-primary transition-all whitespace-nowrap text-text-primary"
         >
-          {t}
+          {genre}
         </button>
       ))}
-      <button className="px-5 py-1.5 text-sm font-bold text-accent-active hover:underline whitespace-nowrap">
+      <button 
+        onClick={() => navigate('/genres')}
+        className="px-5 py-1.5 text-sm font-bold text-accent-primary hover:underline whitespace-nowrap"
+      >
         Show all
       </button>
     </div>

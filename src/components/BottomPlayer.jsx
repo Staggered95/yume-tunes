@@ -7,7 +7,7 @@ import { usePlayback } from '../context/PlaybackContext';
 import { audio } from 'framer-motion/client';
 import ProgressBar from '../minicomps/ProgressBar';
 
-export default function BottomPlayer()
+export default function BottomPlayer({onExpand})
 {
     const {currentSong} = useSongs();
     const { isPlaying, duration, currentTime, volume, handleVolumeChange, handleSeek } = usePlayback();
@@ -30,10 +30,10 @@ export default function BottomPlayer()
     if (!currentSong) return null;
 
     return (
-        <div className='group fixed w-full bottom-4 rounded-lg z-50 bg-black/80'>
+        <div className='group fixed w-full bottom-4 rounded-lg bg-black/80'>
         <div className="flex gap-4 items-center justify-between m-2  p-1 backdrop-blur-sm">
             <div className='flex gap-4 items-center'>
-                <img src={currentSong.cover_path} alt={currentSong.title} className="w-14 h-14 object-cover rounded-md"/>
+                <img onClick={onExpand} src={currentSong.cover_path} alt={currentSong.title} className="w-14 h-14 object-cover rounded-md"/>
                 <div>
                     <div className="text-text-primary font-bold">{currentSong.title}</div>
                     <div className='text-text-secondary font-light'>{currentSong.artist}</div>
