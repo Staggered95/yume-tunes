@@ -13,6 +13,7 @@ public/images
 dist
 dist-ssr
 *.local
+server/src/.env
 server/.env
 
 # Editor directories and files
