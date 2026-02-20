@@ -32,11 +32,12 @@ const getAllSongs = async (req, res) => {
 };
 
 const getSongsByAnime = async (req, res) => {
-    const animeTitle = req.query.title;
+    const animeTitle = req.params.title; 
     const text = `${BASE_SONG_QUERY} WHERE a.title ILIKE $1 ${GROUP_BY_CLAUSE}`;
 
     try {
-        const result = await query(text, [`%${animeTitle}%`]);
+        // Pass the exact title here
+        const result = await query(text, [animeTitle]); 
         res.status(200).json({ success: true, data: result.rows });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
@@ -44,12 +45,12 @@ const getSongsByAnime = async (req, res) => {
 };
 
 const getSongsByArtist = async (req, res) => {
-    const artistName = req.query.artist;
+    const artistName = req.params.name;
     // We search the 'artists' table now, not 'songs'
     const text = `${BASE_SONG_QUERY} WHERE ar.name ILIKE $1 ${GROUP_BY_CLAUSE}`;
 
     try {
-        const result = await query(text, [`%${artistName}%`]);
+        const result = await query(text, [artistName]);
         res.status(200).json({ success: true, data: result.rows });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });

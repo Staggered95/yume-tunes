@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 
 /* ---------- Prop-Aware Icons ---------- */
 // Every SVG now accepts a className prop to allow external styling.
@@ -52,6 +53,24 @@ const LibraryIcon = ({ className }) => (
   </svg>
 );
 
+const ArtistIcon = ({ className }) => (
+  <svg 
+    viewBox="0 0 24 24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2" 
+    strokeLinecap="round" 
+    strokeLinejoin="round" 
+    className={className}
+   LucideArtist
+  >
+    {/* The Head */}
+    <circle cx="12" cy="7" r="4" />
+    {/* The Shoulders/Torso - Using an arc for a modern look */}
+    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+  </svg>
+);
+
 const AnimeIcon = ({ className }) => (
   <svg 
     viewBox="0 0 24 24" 
@@ -99,8 +118,9 @@ const SettingsIcon = ({ className }) => (
 
 /* ---------- Optimized Sidebar Item ---------- */
 
-const SidebarItem = ({ icon: Icon, label, isOpen }) => (
+const SidebarItem = ({ icon: Icon, label, isOpen, onClick }) => (
   <div 
+    onClick={onClick}
     className="flex items-center gap-4 px-5 py-3 text-zinc-300 hover:text-white hover:bg-white/5 cursor-pointer transition-colors overflow-hidden"
     title={!isOpen ? label : ""} // Tooltip for compact mode
   >
@@ -128,6 +148,7 @@ const SidebarItem = ({ icon: Icon, label, isOpen }) => (
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const sideBarRef = useRef(null);
+  const navigate = useNavigate();
   const playlists = ["Chill Anime", "OP Bangers", "Late Night"];
 
   useEffect(() => {
@@ -176,9 +197,10 @@ const Sidebar = () => {
 
       {/* 2. Primary Navigation */}
       <nav className="mt-4 space-y-1">
-        <SidebarItem icon={HomeIcon} label="Home" isOpen={isOpen} />
+        <SidebarItem icon={HomeIcon} label="Home" isOpen={isOpen} onClick={() => navigate('/')} />
         <SidebarItem icon={LibraryIcon} label="Library" isOpen={isOpen} />
-        <SidebarItem icon={AnimeIcon} label="Anime Osts" isOpen={isOpen} />
+        <SidebarItem icon={AnimeIcon} label="Anime Osts" isOpen={isOpen} onClick={() => navigate('/animes')}/>
+        <SidebarItem icon={ArtistIcon} label="Artists" isOpen={isOpen} onClick={() => navigate('/artists')} />
 
         <hr className={`mx-4 my-4 border-white/5 transition-opacity ${isOpen ? "opacity-100" : "opacity-0"}`} />
 
@@ -197,7 +219,7 @@ const Sidebar = () => {
           )}
         </div>
       </nav>
-
+        {/*Recent playlists;*/}
       {/* 4. Footer Settings */}
       <div className="absolute bottom-4 w-full">
         <SidebarItem icon={SettingsIcon} label="Settings" isOpen={isOpen} />
