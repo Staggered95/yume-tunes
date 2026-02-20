@@ -30,7 +30,7 @@ export default function BottomPlayer({onExpand})
     if (!currentSong) return null;
 
     return (
-        <div className='group fixed w-full bottom-4 rounded-lg bg-black/80'>
+        <div className='group fixed w-full bottom-4 rounded-lg bg-black/80 z-20'>
         <div className="flex gap-4 items-center justify-between m-2  p-1 backdrop-blur-sm">
             <div className='flex gap-4 items-center'>
                 <img onClick={onExpand} src={currentSong.cover_path} alt={currentSong.title} className="w-14 h-14 object-cover rounded-md"/>

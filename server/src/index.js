@@ -1,4 +1,5 @@
 import express from 'express';
+import 'dotenv/config';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -6,6 +7,7 @@ import songRoutes from './routes/songRoutes.js';
 import animeRoutes from './routes/animeRoute.js'
 import artistRoutes from './routes/artistRoute.js'
 import genreRoutes from './routes/genreRoute.js'
+import authRoutes from './routes/authRoute.js'
 
 const app = express();
 
@@ -25,6 +27,7 @@ app.use('/songs', songRoutes);
 app.use('/animes', animeRoutes);
 app.use('/artists', artistRoutes);
 app.use('/genres', genreRoutes);
+app.use('/auth', authRoutes);
 
 app.listen(5000, () => {
   console.log(`Server running on port ${port}`);

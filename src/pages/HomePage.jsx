@@ -4,10 +4,11 @@ import TagChips from '../components/TagChips';
 import GreetingHeader from '../components/GreetingHeader';
 import SectionRow from '../components/SectionRow';
 import { useSongs } from '../context/SongContext';
+import { useAuth } from '../context/AuthContext';
 
 function HomePage() {
   // Dummy State for now
-  const [isLoggedIn, setIsLoggedIn] = useState(true); 
+  const { isLoggedIn } = useAuth(); 
   const {songs} = useSongs();
 
   return (

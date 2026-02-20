@@ -169,7 +169,7 @@ const Sidebar = () => {
   return (
     
     <aside ref={sideBarRef}
-      className={`fixed top-0 left-0 h-screen bg-zinc-950 border-r border-white/5
+      className={`fixed top-0 left-0 h-screen bg-zinc-950 border-r border-white/5 z-10
         transition-all duration-300 ease-in-out
         ${isOpen ? "w-64" : "w-16"}`} // Rail to Drawer transition
     >

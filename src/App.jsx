@@ -14,6 +14,7 @@ import ArtistPage from './pages/ArtistPage';
 import BottomPlayer from './components/BottomPlayer'
 import FullscreenPlayer from './components/FullscreenPlayer';
 import { useSongs } from './context/SongContext';
+import AuthModal from './components/AuthModal';
 
 
 const App = () => {
@@ -52,6 +53,7 @@ const App = () => {
             song={currentSong} 
           />
       </div>
+      <AuthModal/>
     </>
   );
 }
