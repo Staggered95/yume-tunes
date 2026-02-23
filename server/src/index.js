@@ -4,10 +4,11 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import songRoutes from './routes/songRoutes.js';
-import animeRoutes from './routes/animeRoute.js'
-import artistRoutes from './routes/artistRoute.js'
-import genreRoutes from './routes/genreRoute.js'
-import authRoutes from './routes/authRoute.js'
+import animeRoutes from './routes/animeRoutes.js'
+import artistRoutes from './routes/artistRoutes.js'
+import genreRoutes from './routes/genreRoutes.js'
+import authRoutes from './routes/authRoutes.js'
+import playlistRoutes from './routes/playlistRoutes.js'
 
 const app = express();
 
@@ -28,6 +29,7 @@ app.use('/animes', animeRoutes);
 app.use('/artists', artistRoutes);
 app.use('/genres', genreRoutes);
 app.use('/auth', authRoutes);
+app.use('/playlists', playlistRoutes);
 
 app.listen(5000, () => {
   console.log(`Server running on port ${port}`);
