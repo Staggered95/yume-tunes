@@ -11,12 +11,26 @@ export default function SearchAutocomplete() {
     const navigate = useNavigate();
     const dropdownRef = useRef(null);
     const inputRef = useRef(null);
+    const itemRefs = useRef([]);
 
     const { selectSong } = useSongs();
 
     useEffect(() => {
         setFocusedIndex(-1);
     }, [query]);
+
+    useEffect(() => {
+        itemRefs.current = [];
+    }, [results]);
+
+    useEffect(() => {
+    if (focusedIndex >= 0 && itemRefs.current[focusedIndex]) {
+        itemRefs.current[focusedIndex].scrollIntoView({
+            block: "nearest",
+            behavior: "smooth"
+        });
+    }
+}, [focusedIndex]);
 
     // Debounce Logic: Prevents DDOSing your Arch server on every keystroke
     useEffect(() => {
@@ -106,10 +120,11 @@ export default function SearchAutocomplete() {
 
             {/* The Results Dropdown */}
             {showDropdown && results.length > 0 && (
-    <div className="absolute top-full left-0 mt-2 w-full bg-[#181818] border border-[#333] rounded-lg shadow-2xl z-[100] overflow-hidden">
+    <div className="absolute top-full left-0 mt-2 w-full max-h-96 bg-[#181818] border border-[#333] rounded-lg shadow-2xl z-20 overflow-y-auto scrollbar-none">
         {results.map((song, index) => (
             <div 
                 key={song.id} 
+                ref={el => itemRefs.current[index] = el}
                 onClick={() => { selectSong(song); setShowDropdown(false); }}
                 // THE KEY PART: Add conditional background for focus
                 className={`flex items-center gap-3 p-3 cursor-pointer transition-colors group

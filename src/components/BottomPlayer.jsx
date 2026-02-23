@@ -31,8 +31,8 @@ export default function BottomPlayer({onExpand})
 
     return (
         <div className='group fixed w-full bottom-4 rounded-lg bg-black/80 z-20'>
-        <div className="flex gap-4 items-center justify-between m-2  p-1 backdrop-blur-sm">
-            <div className='flex gap-4 items-center'>
+        <div className="flex gap-4 items-center m-2  p-1 backdrop-blur-sm">
+            <div className='flex flex-1 gap-4 items-center min-w-0'>
                 <img onClick={onExpand} src={currentSong.cover_path} alt={currentSong.title} className="w-14 h-14 object-cover rounded-md"/>
                 <div>
                     <div className="text-text-primary font-bold">{currentSong.title}</div>
@@ -40,11 +40,11 @@ export default function BottomPlayer({onExpand})
                 </div>
             </div>
 
-            <div>
+            <div className='flex-none'>
                 <MediaControllers/>
             </div>
 
-            <div className='hidden md:flex items-center'>
+            <div className='hidden md:flex flex-1 justify-end items-center'>
                 <VolumeIcon/>
                 {/*volume*/}
                 <div className='relative bg-background-active h-2 w-36 rounded-full'>
