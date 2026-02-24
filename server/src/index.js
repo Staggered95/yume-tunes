@@ -9,6 +9,7 @@ import artistRoutes from './routes/artistRoutes.js'
 import genreRoutes from './routes/genreRoutes.js'
 import authRoutes from './routes/authRoutes.js'
 import playlistRoutes from './routes/playlistRoutes.js'
+import userRoutes from './routes/userRoutes.js'
 
 const app = express();
 
@@ -30,6 +31,7 @@ app.use('/artists', artistRoutes);
 app.use('/genres', genreRoutes);
 app.use('/auth', authRoutes);
 app.use('/playlists', playlistRoutes);
+app.use('/user', userRoutes);
 
 app.listen(5000, () => {
   console.log(`Server running on port ${port}`);
