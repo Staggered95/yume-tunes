@@ -6,6 +6,7 @@ import App from './App.jsx'
 import { SongProvider } from './context/SongContext.jsx'
 import { PlaybackProvider } from './context/PlaybackContext.jsx'
 import { AuthProvider } from './context/AuthContext.jsx'
+import { UserProvider } from './context/UserContext.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -13,7 +14,9 @@ createRoot(document.getElementById('root')).render(
       <PlaybackProvider>
         <SongProvider>
           <AuthProvider>
-            <App />
+            <UserProvider>
+              <App />
+            </UserProvider>
           </AuthProvider>
         </SongProvider>
       </PlaybackProvider>

@@ -11,6 +11,10 @@ import AnimeListPage from './pages/AnimeListPage';
 import AnimePage from './pages/AnimePage';
 import ArtistListPage from './pages/ArtistListPage';
 import ArtistPage from './pages/ArtistPage';
+import UserPage from './pages/UserPage';
+import LibraryPage from './pages/LibraryPage';
+import PlaylistPage from './pages/PlaylistPage';
+import LikedSongsPage from './pages/LikedSongsPage';
 import BottomPlayer from './components/BottomPlayer'
 import FullscreenPlayer from './components/FullscreenPlayer';
 import { useSongs } from './context/SongContext';
@@ -35,6 +39,10 @@ const App = () => {
             <Route path="/artist/:artistName" element={<ArtistPage />} />
             <Route path="/genre/:genreName" element={<GenrePage />} />
             <Route path="/animes" element={<AnimeListPage />} />
+            <Route path="/user" element={<UserPage />} />
+            <Route path="/library" element={<LibraryPage/>} />
+            <Route path="/likedsongs" element={<LikedSongsPage/>} />
+            <Route path="/playlists/:id" element={<PlaylistPage/>} />
             
             {/* 2. The Dynamic Detail Page */}
             {/* The :title acts as a placeholder for whatever anime name you click */}

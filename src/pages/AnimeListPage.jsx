@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import AnimeCollage from '../minicomps/AnimeCollage';
+import Collage from '../minicomps/Collage';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 
@@ -36,7 +36,7 @@ const AnimeListPage = () => {
             key={anime.title}
             className="group relative bg-white/5 rounded-2xl overflow-hidden border border-white/5 hover:border-accent-primary/50 transition-all duration-300"
           >
-            <AnimeCollage covers={anime.collage_covers}/>
+            <Collage covers={anime.collage_covers}/>
             <div className="p-4 bg-gradient-to-t from-black to-transparent">
               <h3 className="font-bold text-sm truncate">{anime.title}</h3>
               <p className="text-[10px] text-white/80 uppercase tracking-widest mt-1">

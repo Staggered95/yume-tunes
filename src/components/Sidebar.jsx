@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from '../context/AuthContext';
 
 /* ---------- Prop-Aware Icons ---------- */
 // Every SVG now accepts a className prop to allow external styling.
@@ -149,15 +150,42 @@ const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const sideBarRef = useRef(null);
   const navigate = useNavigate();
-  const playlists = ["Chill Anime", "OP Bangers", "Late Night"];
+  
+  // 1. New State for actual data
+  const { isLoggedIn, authFetch } = useAuth();
+  const [userPlaylists, setUserPlaylists] = useState([]);
 
+  // 2. Fetch playlists from the backend
+  useEffect(() => {
+    // If they aren't logged in, clear the list and don't fetch
+    if (!isLoggedIn) {
+        setUserPlaylists([]);
+        return;
+    }
+
+    const fetchPlaylists = async () => {
+        try {
+            const response = await authFetch('/playlists');
+            const json = await response.json();
+            if (json.success) {
+                // Assuming your backend returns an array of objects: [{id: 1, name: "Chill Anime"}, ...]
+                setUserPlaylists(json.data);
+            }
+        } catch (error) {
+            console.error("Failed to fetch sidebar playlists", error);
+        }
+    };
+
+    fetchPlaylists();
+  }, [isLoggedIn, authFetch]);
+
+  // Click outside logic
   useEffect(() => {
     const handleClickOutside = (event) => {
         if (isOpen && sideBarRef.current && !sideBarRef.current.contains(event.target)) {
           setIsOpen(prev => !prev);
         }
       }
-
 
       document.addEventListener('mousedown', handleClickOutside);
 
@@ -167,7 +195,6 @@ const Sidebar = () => {
     }, [isOpen]);
 
   return (
-    
     <aside ref={sideBarRef}
       className={`fixed top-0 left-0 h-screen bg-zinc-950 border-r border-white/5 z-10
         transition-all duration-300 ease-in-out
@@ -198,7 +225,7 @@ const Sidebar = () => {
       {/* 2. Primary Navigation */}
       <nav className="mt-4 space-y-1">
         <SidebarItem icon={HomeIcon} label="Home" isOpen={isOpen} onClick={() => navigate('/')} />
-        <SidebarItem icon={LibraryIcon} label="Library" isOpen={isOpen} />
+        <SidebarItem icon={LibraryIcon} label="Library" isOpen={isOpen} onClick={() => navigate('/library')} />
         <SidebarItem icon={AnimeIcon} label="Anime Osts" isOpen={isOpen} onClick={() => navigate('/animes')}/>
         <SidebarItem icon={ArtistIcon} label="Artists" isOpen={isOpen} onClick={() => navigate('/artists')} />
 
@@ -206,34 +233,50 @@ const Sidebar = () => {
 
         {/* 3. Playlists Section */}
         <div className="relative">
-          <SidebarItem icon={SongIcon} label="Playlists" isOpen={isOpen} />
+          <SidebarItem icon={SongIcon} label="Playlists" isOpen={isOpen} onClick={() => navigate('/playlists')} />
 
           {isOpen && (
-            <div className="ml-14 mt-2 space-y-3 text-sm text-zinc-400">
-              {playlists.map(p => (
-                <div key={p} className="truncate hover:text-white transition-colors cursor-pointer">
-                  {p}
-                </div>
-              ))}
+            <div className="ml-14 mt-2 space-y-3 text-sm text-zinc-400 custom-scrollbar overflow-y-auto max-h-48 pr-2">
+              {/* Added a special link for Liked Songs at the top */}
+              <div 
+                onClick={() => navigate('/likedsongs')} 
+                className="truncate hover:text-accent-primary transition-colors cursor-pointer font-semibold text-white mb-2"
+              >
+                Liked Songs 💖
+              </div>
+
+              {/* 4. Map over the actual database data */}
+              {userPlaylists.length === 0 ? (
+                  <div className="text-zinc-600 italic">No playlists yet</div>
+              ) : (
+                  userPlaylists.map(p => (
+                    <div 
+                        key={p.id} 
+                        onClick={() => navigate(`/playlists/${p.id}`)}
+                        className="truncate hover:text-white transition-colors cursor-pointer"
+                    >
+                      {p.name}
+                    </div>
+                  ))
+              )}
             </div>
           )}
         </div>
       </nav>
-        {/*Recent playlists;*/}
-      {/* 4. Footer Settings */}
+        
+      {/* 5. Footer Settings */}
       <div className="absolute bottom-4 w-full">
         <SidebarItem icon={SettingsIcon} label="Settings" isOpen={isOpen} />
       </div>
+
       {isOpen && (
-  <div 
-    className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 md:hidden" 
-    aria-hidden="true"
-  />
-)}
+        <div 
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 md:hidden" 
+            aria-hidden="true"
+        />
+      )}
     </aside>
-    
   );
-  
 };
 
 export default Sidebar;

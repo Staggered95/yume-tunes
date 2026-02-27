@@ -6,6 +6,9 @@ import { useSongs } from '../context/SongContext';
 import { usePlayback } from '../context/PlaybackContext';
 import { audio } from 'framer-motion/client';
 import ProgressBar from '../minicomps/ProgressBar';
+import AddToPlaylistButton from '../minicomps/AddToPlaylistButton';
+
+
 
 export default function BottomPlayer({onExpand})
 {
@@ -22,10 +25,6 @@ export default function BottomPlayer({onExpand})
         return `${minutes}:${seconds.toString().padStart(2, '0')}`;
     }
     
-    
-    
-
-    
 
     if (!currentSong) return null;
 
@@ -38,6 +37,7 @@ export default function BottomPlayer({onExpand})
                     <div className="text-text-primary font-bold">{currentSong.title}</div>
                     <div className='text-text-secondary font-light'>{currentSong.artist}</div>
                 </div>
+                <div><AddToPlaylistButton songId={currentSong.id} variant='bottom'/></div>
             </div>
 
             <div className='flex-none'>

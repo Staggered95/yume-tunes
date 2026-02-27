@@ -7,7 +7,7 @@ router.use(verifyToken);
 
 router.post('/', playlistController.createPlaylist);
 router.get('/', playlistController.getPlaylists);
-router.get('/:playlistId/songs', playlistController.getSongsFromPlaylist);
+router.get('/:id', playlistController.getPlaylistById);
 router.post('/:playlistId/songs', playlistController.addToPlaylist);
 router.delete('/:playlistId/songs/:songId', playlistController.deleteFromPlaylist);
 router.delete('/:id', playlistController.deletePlaylist);

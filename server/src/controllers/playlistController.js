@@ -7,7 +7,7 @@ const createPlaylist = async (req, res) => {
     
     const text = `INSERT INTO playlists(user_id, name, description)
                   VALUES($1, $2, $3)
-                  RETURNING id`;
+                  RETURNING *`;
 
     const values = [userID, name, description];
 
@@ -22,42 +22,94 @@ const createPlaylist = async (req, res) => {
 
 const getPlaylists = async (req, res) => {
     const userID = req.user.id;
-    const text = `SELECT * FROM playlists WHERE user_id = $1 ORDER BY created_at DESC`;
+    const text = `
+        SELECT 
+            p.*,
+            (
+                SELECT json_agg(s.cover_path)
+                FROM (
+                    SELECT songs.cover_path
+                    FROM playlist_songs ps
+                    JOIN songs ON ps.song_id = songs.id
+                    WHERE ps.playlist_id = p.id
+                    ORDER BY ps.added_at ASC -- or position_order, depending on your schema
+                    LIMIT 4
+                ) s
+            ) AS auto_covers
+        FROM playlists p
+        WHERE p.user_id = $1
+        ORDER BY p.created_at DESC
+    `;
     const values = [userID];
 
     try {
         const result = await query(text, values);
-        res.status(200).json({ success: true, data: result.rows });
+        const formattedPlaylists = result.rows.map(playlist => ({
+            ...playlist,
+            auto_covers: playlist.auto_covers || [] 
+        }));
+        res.status(200).json({ success: true, data: formattedPlaylists });
     } catch (err) {
         console.error("Error fetching Playlists", err);
         res.status(500).json({ success: false, error: "Server error" });
     }
 }
 
-const getSongsFromPlaylist = async (req, res) => {
-    const playlistID = req.params.playlistId;
+// Replace getSongsFromPlaylist with this:
+const getPlaylistById = async (req, res) => {
+    const playlistID = req.params.id; // Make sure your route is router.get('/:id', ...)
     const userID = req.user.id;
 
     try {
-        // (If you want playlists to be public later, you can remove the user_id check here)
-        const ownershipCheck = await query("SELECT id FROM playlists WHERE id=$1 AND user_id=$2", [playlistID, userID]);
-        if (ownershipCheck.rows.length === 0) {
-            return res.status(403).json({ success: false, error: "Not authorized to view this playlist" });
+        // 1. Fetch the Playlist Meta (with the dynamic auto_covers!)
+        const metaText = `
+            SELECT 
+                p.*,
+                (
+                    SELECT json_agg(s.cover_path)
+                    FROM (
+                        SELECT songs.cover_path
+                        FROM playlist_songs ps
+                        JOIN songs ON ps.song_id = songs.id
+                        WHERE ps.playlist_id = p.id
+                        ORDER BY ps.added_at ASC
+                        LIMIT 4
+                    ) s
+                ) AS auto_covers
+            FROM playlists p
+            WHERE p.id = $1 AND p.user_id = $2
+        `;
+        const metaResult = await query(metaText, [playlistID, userID]);
+
+        if (metaResult.rows.length === 0) {
+            return res.status(404).json({ success: false, error: "Playlist not found or not authorized" });
         }
 
-        const text = `
-            SELECT s.*, ps.position_order, ps.added_at 
+        const playlistMeta = metaResult.rows[0];
+        playlistMeta.auto_covers = playlistMeta.auto_covers || [];
+
+        // 2. Fetch the Songs (We JOIN artists here so your React UI can display the artist name!)
+        const songsText = `
+            SELECT s.*, ps.position_order, ps.added_at, ar.name AS artist
             FROM songs s
             JOIN playlist_songs ps ON s.id = ps.song_id
+            JOIN artists ar ON s.artist_id = ar.id
             WHERE ps.playlist_id = $1
-            ORDER BY ps.position_order ASC
+            ORDER BY ps.added_at ASC
         `;
-        
-        const result = await query(text, [playlistID]);
-        
-        res.status(200).json({ success: true, data: result.rows });
+        const songsResult = await query(songsText, [playlistID]);
+
+        // 3. Return the exact JSON structure your React page is waiting for
+        res.status(200).json({ 
+            success: true, 
+            data: {
+                playlist: playlistMeta,
+                songs: songsResult.rows
+            } 
+        });
+
     } catch (err) {
-        console.error("Error fetching playlist songs", err);
+        console.error("Error fetching full playlist details:", err);
         res.status(500).json({ success: false, error: "Server error" });
     }
 }
@@ -132,4 +184,4 @@ const deletePlaylist = async (req, res) => {
     }
 }
 
-export default { createPlaylist, getPlaylists, getSongsFromPlaylist, addToPlaylist, deleteFromPlaylist, deletePlaylist };
+export default { createPlaylist, getPlaylists, getPlaylistById, addToPlaylist, deleteFromPlaylist, deletePlaylist };

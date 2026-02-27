@@ -1,3 +1,5 @@
+import { useUser } from "../context/UserContext";
+
 const quotes = {
   special: [
     { text: "Whatever you lose, you'll find it again.", author: "Kenshin Himura" },
@@ -10,7 +12,8 @@ const quotes = {
 };
 
 export default function GreetingHeader({ isLoggedIn }) {
-  const greeting = isLoggedIn ? "Okaeri, Shubham-san!" : "Irasshaimase!";
+  const { userProfile } = useUser();
+  const greeting = isLoggedIn ? `Okaeri, ${userProfile?.first_name} - sama` : "Irasshaimase!";
   const quoteSet = isLoggedIn ? quotes.special : quotes.normal;
   const quote = quoteSet[Math.floor(Math.random() * quoteSet.length)];
 

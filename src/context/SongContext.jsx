@@ -4,7 +4,7 @@ import { usePlayback } from "./PlaybackContext";
 const SongContext = createContext();
 
 export const SongProvider = ({children}) => {
-    const [songs, setSongs] = useState([]);
+    //const [songs, setSongs] = useState([]);
     const [currentSong, setCurrentSong] = useState(null);
     const [loading, setLoading] = useState(true);
 

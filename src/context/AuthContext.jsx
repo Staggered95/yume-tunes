@@ -23,7 +23,7 @@ export const AuthProvider = ({children}) => {
     }
 
     const authFetch = (url, options = {}) => {
-        return fetch(url, {
+        return fetch(`http://localhost:5000${url}`, {
             ...options, // Spread the incoming options (like method: 'POST', body: {...})
             headers: {
                 ...options.headers, // Keep any custom headers (like Content-Type)

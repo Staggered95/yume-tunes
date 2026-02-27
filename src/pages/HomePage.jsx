@@ -5,11 +5,14 @@ import GreetingHeader from '../components/GreetingHeader';
 import SectionRow from '../components/SectionRow';
 import { useSongs } from '../context/SongContext';
 import { useAuth } from '../context/AuthContext';
+import { useUser } from '../context/UserContext';
 
 function HomePage() {
   // Dummy State for now
   const { isLoggedIn } = useAuth(); 
   const {songs} = useSongs();
+  const { userProfile } = useUser();
+  console.log(userProfile);
 
   return (
     <div className="flex flex-col gap-8 pb-32 animate-fade-in">

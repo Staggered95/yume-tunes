@@ -38,4 +38,36 @@ const getLikedSongs = async (req, res) => {
     }
 }
 
-export default { toggleLikeSong, getLikedSongs };
+const getLikedSongsMinimalData = async (req, res) => {
+    const userID = req.user.id;
+    const text = `SELECT song_id AS id 
+                  FROM liked_songs 
+                  WHERE user_id = $1 
+                  ORDER BY liked_at DESC
+                `;
+
+    try {
+        const result = await query(text, [userID]);
+        const flatIds = result.rows.map(row => row.id);
+        res.status(200).json({ success: true, data: flatIds });
+    } catch (err) {
+        console.log("Error fetching the id of liked song", err);
+        res.status(500).json({ success: false, error: err });
+    }
+}
+
+const getUserDetails = async(req, res) => {
+    const userID = req.user.id;
+    const text = `SELECT first_name, last_name, username, email, created_at
+                  FROM users WHERE id=$1`;
+
+    try {
+        const result = await query(text, [userID]);
+        res.status(200).json({ success: true, data: result.rows });
+    } catch (err) {
+        console.log("Error fetching the user details", err);
+        res.status(500).json({ success: false, error: err });
+    }
+}
+
+export default { toggleLikeSong, getLikedSongs, getLikedSongsMinimalData, getUserDetails };
