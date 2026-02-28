@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom'; // 1. Import this!
 
 const BaseModal = ({ isOpen, onClose, title, children, maxWidth = "max-w-md" }) => {
-    // Close the modal if the user presses the Escape key
+    
     useEffect(() => {
         const handleEsc = (e) => {
             if (e.key === 'Escape') onClose();
@@ -12,18 +13,18 @@ const BaseModal = ({ isOpen, onClose, title, children, maxWidth = "max-w-md" }) 
 
     if (!isOpen) return null;
 
-    return (
-        <div className="fixed inset-0 z-[999] flex items-center justify-center p-4">
-            {/* 1. The Dark Blurred Backdrop */}
+    // 2. Wrap the return in createPortal and send it to document.body
+    return createPortal(
+        // Bumped z-index to 9999 just to be absolutely certain it clears everything
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+            
             <div 
                 className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in"
-                onClick={onClose} // Clicking the background closes the modal
+                onClick={onClose} 
             ></div>
 
-            {/* 2. The Modal Container (Using your custom animation!) */}
             <div className={`relative w-full ${maxWidth} bg-background-secondary border border-border rounded-2xl shadow-2xl animate-modal-pop overflow-hidden`}>
                 
-                {/* 3. The Header (Only renders if you provide a title) */}
                 {title && (
                     <div className="flex items-center justify-between p-5 border-b border-white/5">
                         <h2 className="text-xl font-bold text-text-primary">{title}</h2>
@@ -38,12 +39,12 @@ const BaseModal = ({ isOpen, onClose, title, children, maxWidth = "max-w-md" }) 
                     </div>
                 )}
 
-                {/* 4. The Magic "Children" Prop */}
                 <div className="p-5">
                     {children}
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body // 3. The escape hatch!
     );
 };
 
