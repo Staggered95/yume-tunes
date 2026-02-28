@@ -12,13 +12,13 @@ createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter> {/* 2. Wrap the app */}
       <PlaybackProvider>
-        <SongProvider>
-          <AuthProvider>
+        <AuthProvider>
+          <SongProvider>
             <UserProvider>
               <App />
             </UserProvider>
-          </AuthProvider>
-        </SongProvider>
+          </SongProvider>
+        </AuthProvider>
       </PlaybackProvider>
     </BrowserRouter>
   </StrictMode>,

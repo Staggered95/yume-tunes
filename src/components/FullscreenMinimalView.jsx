@@ -1,29 +1,26 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { usePlayback } from '../context/PlaybackContext';
 import { parseLRC } from '../utils/lyricsParser';
+import ProgressBar from '../minicomps/ProgressBar';
+import LiveLyrics from '../minicomps/LiveLyrics';
+import OptionsMenu from '../minicomps/OptionsMenu';
+import BottomPlayer from './BottomPlayer';
 
 const FullscreenMinimalView = ({ isOpen, onClose, onToggle, song }) => {
-  const { currentTime, duration, isPlaying, togglePlay, handleSeek } = usePlayback();
+  const { isPlaying, togglePlay } = usePlayback();
   const [lyrics, setLyrics] = useState([]);
   const lyricRefs = useRef([]);
-  const progressBarRef = useRef(null);
+
+  
+
+    console.log("Full screen player rendering");
 
   // 1. Sync Lyrics
   useEffect(() => {
     if (song?.lyrics) setLyrics(parseLRC(song.lyrics));
   }, [song]);
 
-  const activeIndex = lyrics.findLastIndex(line => currentTime >= line.time);
-
-  // 2. Auto-scroll
-  useEffect(() => {
-    if (activeIndex !== -1 && lyricRefs.current[activeIndex]) {
-      lyricRefs.current[activeIndex].scrollIntoView({
-        behavior: 'smooth',
-        block: 'center'
-      });
-    }
-  }, [activeIndex]);
+  
 
   // 3. Scroll & Key Hijacking
   useEffect(() => {
@@ -42,11 +39,7 @@ const FullscreenMinimalView = ({ isOpen, onClose, onToggle, song }) => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, togglePlay, onClose]);
 
-  const formatTime = (s) => {
-    const min = Math.floor(s / 60);
-    const sec = Math.floor(s % 60);
-    return `${min}:${sec < 10 ? '0' : ''}${sec}`;
-  };
+  
 
   return (
     <div className={`fixed inset-0 z-50 bg-[#050505] text-white flex flex-col p-6 md:p-12 transition-all duration-700 ease-[cubic-bezier(0.19,1,0.22,1)] ${
@@ -75,6 +68,7 @@ const FullscreenMinimalView = ({ isOpen, onClose, onToggle, song }) => {
         >
           Settings & Queue →
         </button>
+        <div> <OptionsMenu /> </div>
       </div>
 
       {/* 3. THE STAGE (Artwork & Lyrics) */}
@@ -92,20 +86,7 @@ const FullscreenMinimalView = ({ isOpen, onClose, onToggle, song }) => {
         </div>
 
         {/* Focused Lyrics */}
-        <div className="relative w-full h-full overflow-y-auto scrollbar-none px-4 md:px-10 py-[30vh] mask-fade-edges">
-          {lyrics.map((line, i) => (
-            <p 
-              key={i}
-              ref={el => lyricRefs.current[i] = el}
-              onClick={() => handleSeek(line.time)}
-              className={`text-2xl md:text-5xl font-black py-4 transition-all duration-700 cursor-pointer ${
-                activeIndex === i ? 'text-white scale-105 opacity-100 blur-0' : 'text-white/10 opacity-20 blur-[1px] hover:opacity-40 hover:blur-none'
-              }`}
-            >
-              {line.text}
-            </p>
-          ))}
-        </div>
+        <LiveLyrics lyrics={lyrics} />
       </div>
 
       {/* 4. ZEN CONTROLS (Bottom) */}
@@ -124,25 +105,7 @@ const FullscreenMinimalView = ({ isOpen, onClose, onToggle, song }) => {
           </button>
 
           {/* Thin minimalist progress bar */}
-          <div className="w-full space-y-2">
-            <div 
-              ref={progressBarRef}
-              onClick={(e) => {
-                const rect = progressBarRef.current.getBoundingClientRect();
-                handleSeek(((e.clientX - rect.left) / rect.width) * duration);
-              }}
-              className="h-1 w-full bg-white/10 rounded-full cursor-pointer relative group"
-            >
-              <div 
-                className="absolute top-0 left-0 h-full bg-white rounded-full" 
-                style={{ width: `${(currentTime / duration) * 100}%` }}
-              />
-            </div>
-            <div className="flex justify-between text-[10px] font-mono text-white/20">
-              <span>{formatTime(currentTime)}</span>
-              <span>{formatTime(duration)}</span>
-            </div>
-          </div>
+          <ProgressBar variant='fullscreen' />
         </div>
       </div>
     </div>

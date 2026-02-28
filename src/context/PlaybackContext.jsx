@@ -4,8 +4,8 @@ const PlaybackContext = createContext();
 
 export const PlaybackProvider = ({children}) => {
     const audioRef = useRef(new Audio());
-    const [currentTime, setCurrentTime] = useState(0);
-    const [duration, setDuration] = useState(0);
+    //const [currentTime, setCurrentTime] = useState(0);
+    //const [duration, setDuration] = useState(0);
     const [volume, setVolume] = useState(1.0);
     const [isPlaying, setIsPlaying] = useState(false);
     const [isEnded, setIsEnded] = useState(false);
@@ -14,21 +14,21 @@ export const PlaybackProvider = ({children}) => {
         const audio = audioRef.current;
         audio.volume = volume;
 
-        const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
-        const handleLoadedMetadata = () => setDuration(audio.duration);
+        //const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
+        //const handleLoadedMetadata = () => setDuration(audio.duration);
         const handlePlay = () => setIsPlaying(true);
         const handlePause = () => setIsPlaying(false);
         const handleEnded = () => { setIsPlaying(false); setIsEnded(true); };
 
-        audio.addEventListener("timeupdate", handleTimeUpdate);
-        audio.addEventListener("loadedmetadata", handleLoadedMetadata);
+        //audio.addEventListener("timeupdate", handleTimeUpdate);
+        //audio.addEventListener("loadedmetadata", handleLoadedMetadata);
         audio.addEventListener("play", handlePlay);
         audio.addEventListener("pause", handlePause);
         audio.addEventListener("ended", handleEnded);
 
         return () => {
-            audio.removeEventListener("timeupdate", handleTimeUpdate);
-            audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
+            //audio.removeEventListener("timeupdate", handleTimeUpdate);
+            //audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
             audio.removeEventListener("play", handlePlay);
             audio.removeEventListener("pause", handlePause);
             audio.removeEventListener("ended", handleEnded);
@@ -63,22 +63,17 @@ export const PlaybackProvider = ({children}) => {
         }
     }, []);
 
-    const handleSeek = useCallback((seconds) => {
-        audioRef.current.currentTime = seconds;
-        setCurrentTime(seconds); // Optimistic UI update for instant slider snapping
-    }, []);
+    
 
     const values = useMemo(() => ({
-        currentTime,
-        duration,
+        audioRef,
         isPlaying,
         volume,
         isEnded, 
         playSong,
         togglePlay,
-        handleSeek,
         handleVolumeChange
-    }), [currentTime, duration, isPlaying, volume, isEnded, playSong, togglePlay, handleSeek, handleVolumeChange]);
+    }), [isPlaying, volume, isEnded, playSong, togglePlay, handleVolumeChange]);
 
     return (
         <PlaybackContext.Provider value={values}>

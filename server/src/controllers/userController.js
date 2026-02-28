@@ -10,7 +10,7 @@ const toggleLikeSong = async (req, res) => {
         const addSong = "INSERT INTO liked_songs(user_id, song_id) VALUES($1, $2)";
         const removeSong = "DELETE FROM liked_songs WHERE user_id=$1 AND song_id=$2";
 
-        let status = checkPresence.rows.length > 0 ? "Removed from likes" : "Added to likes";
+        let status = checkPresence.rows.length > 0 ? "liked" : "disliked";
         let text = checkPresence.rows.length > 0 ? removeSong : addSong;
 
         const result = await query(text, [userID, songID]);

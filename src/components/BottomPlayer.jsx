@@ -6,16 +6,19 @@ import { useSongs } from '../context/SongContext';
 import { usePlayback } from '../context/PlaybackContext';
 import { audio } from 'framer-motion/client';
 import ProgressBar from '../minicomps/ProgressBar';
+import ShuffleButton from '../minicomps/ShuffleButton';
 import AddToPlaylistButton from '../minicomps/AddToPlaylistButton';
+import LikeButton from '../minicomps/LikeButton';
+import OptionsMenu from '../minicomps/OptionsMenu';
 
 
 
 export default function BottomPlayer({onExpand})
 {
-    const {currentSong} = useSongs();
-    const { isPlaying, duration, currentTime, volume, handleVolumeChange, handleSeek } = usePlayback();
+    const { currentSong } = useSongs();
+    const { volume, handleVolumeChange } = usePlayback();
     
-    const progressPercent = (currentTime/duration)*100 || 0;
+    
     const volumePercent = volume*100;
 
     const formatTime = (time) => {
@@ -37,7 +40,12 @@ export default function BottomPlayer({onExpand})
                     <div className="text-text-primary font-bold">{currentSong.title}</div>
                     <div className='text-text-secondary font-light'>{currentSong.artist}</div>
                 </div>
-                <div><AddToPlaylistButton songId={currentSong.id} variant='bottom'/></div>
+                <div>
+                    <AddToPlaylistButton songId={currentSong.id} variant='bottom'/>
+                </div>
+                <div><ShuffleButton/></div>
+                <div><LikeButton songId={currentSong.id} initialIsLiked={false} /></div>
+                <div><OptionsMenu /></div>
             </div>
 
             <div className='flex-none'>
@@ -59,23 +67,7 @@ export default function BottomPlayer({onExpand})
             </div>
         </div>
         {/*progress bar*/}
-        <div className="relative flex items-center h-1 bg-background-secondary mx-3 rounded-full">
-            <input
-                type="range"
-                min="0"
-                max={duration || 0}
-                value={currentTime}
-                onChange={(e) => handleSeek(Number(e.target.value))}
-                className='absolute h-full w-full inset-0 z-20 opacity-0 cursor-pointer'
-            />
-            <div className='h-1 bg-accent-secondary group-hover:bg-accent-hover transition-colors duration-200 ease-in-out w-1/3 rounded-full' style={{ width: `${progressPercent}%` }}></div>
-            <div className='absolute w-3 h-3 bg-text-secondary hover:bg-text-primary opacity-0 group-hover:opacity-100 rounded-full' style={{ left: `${progressPercent}%` }}></div>
-        </div>
-        <div className='flex justify-between mx-3 pt-1 text-sm text-text-secondary'>
-            <div>{formatTime(currentTime)}</div>
-            <div className='opacity-0 group-hover:opacity-80 text-text-muted'>▽</div>
-            <div>{formatTime(duration)}</div>
-        </div>
+        <ProgressBar variant='bottom' />
         
         </div>
     );
