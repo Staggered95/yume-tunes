@@ -27,6 +27,9 @@ const GenrePage = () => {
         fetchGenreSongs();
     }, [genreName]);
 
+    console.log(typeof songs);
+
+
     if (loading) return <div className="p-10 text-text-secondary">Loading {genreName} hits...</div>;
 
     return (
@@ -41,8 +44,8 @@ const GenrePage = () => {
             </header>
 
             <div className="grid gap-3 lg:grid-cols-5 md:grid-cols-3">
-                {songs.map(song => (
-                    <SongCard key={song.id} song={song} shape="square" />
+                {songs.map((song, index) => (
+                    <SongCard key={song.id} song={songs} index={index} shape="square" />
                 ))}
             </div>
         </div>

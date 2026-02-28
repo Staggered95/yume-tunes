@@ -5,54 +5,68 @@ const SongContext = createContext();
 
 export const SongProvider = ({children}) => {
     //const [songs, setSongs] = useState([]);
-    const [currentSong, setCurrentSong] = useState(null);
+    //const [currentSong, setCurrentSong] = useState(null);
+    const [queue, setQueue] = useState([]);
+    const [currentIndex, setCurrentIndex] = useState(-1);
     const [loading, setLoading] = useState(true);
+    const currentSong = queue[currentIndex] || null;
 
-    const { playSong } = usePlayback();
+    const { isEnded, playSong } = usePlayback();
 
-    useEffect(() => {
-        const fetchSongs = async () => {
-            try {
-                const response = await fetch('http://localhost:5000/songs/all');
-                const songs = await response.json();
-                setSongs(songs.data);
-                setLoading(false);
-            }catch (err) {
-                console.log("Error fetching the songs: ", err);
-                setLoading(false);
-            }
+    const playQueue = useCallback((newQueue, startingIndex = 0) => {
+        setQueue(newQueue);
+        setCurrentIndex(startingIndex);
+        
+        const songToPlay = newQueue[startingIndex];
+        if (songToPlay) {
+            const fullUrl = `http://localhost:5000${songToPlay.file_path}`;
+            playSong(fullUrl);
         }
-        fetchSongs();
-    }, [])
-
-    const selectSong = useCallback((song) => {
-        setCurrentSong(song);
-        const fullUrl = `http://localhost:5000${song.file_path}`;
-        playSong(fullUrl);
     }, [playSong]);
 
     const nextSong = useCallback(() => {
-        if (!currentSong) return;
-        const currentIndex = songs.findIndex(s => s.id === currentSong.id);
-        const nextIndex = (currentIndex+1)%songs.length;
-        selectSong(songs[nextIndex]);
-    }, [currentSong, songs, selectSong]);
+        if (queue.length === 0) return;
+        
+        setCurrentIndex((prevIndex) => {
+            const nextIdx = (prevIndex + 1) % queue.length; // Loops back to start
+            const nextSongObj = queue[nextIdx];
+            
+            const fullUrl = `http://localhost:5000${nextSongObj.file_path}`;
+            playSong(fullUrl);
+            
+            return nextIdx;
+        });
+    }, [queue, playSong]);
 
     const prevSong = useCallback(() => {
-        if (!currentSong) return;
-        const currentIndex = songs.findIndex(s => s.id === currentSong.id);
-        const prevIndex = (currentIndex-1+songs.length)%songs.length;
-        selectSong(songs[prevIndex]);
-    }, [currentSong, songs, selectSong]);
+        if (queue.length === 0) return;
+        
+        setCurrentIndex((prevIndex) => {
+            const prevIdx = (prevIndex - 1 + queue.length) % queue.length; // Loops to end
+            const prevSongObj = queue[prevIdx];
+            
+            const fullUrl = `http://localhost:5000${prevSongObj.file_path}`;
+            playSong(fullUrl);
+            
+            return prevIdx;
+        });
+    }, [queue, playSong]);
+
+    useEffect(() => {
+        if (isEnded) {
+            nextSong();
+        }
+    }, [isEnded, nextSong]);
 
     const values = useMemo(() => ({
-        songs, 
-        loading, 
-        currentSong, 
-        selectSong, 
+        queue, 
+        currentIndex,
+        currentSong,
+        loading,  
+        playQueue,
         nextSong, 
         prevSong
-    }), [songs, loading, currentSong, selectSong, nextSong, prevSong]);
+    }), [queue, currentIndex, currentSong, playQueue, nextSong, prevSong]);
 
     return (
         <SongContext.Provider value={values}>

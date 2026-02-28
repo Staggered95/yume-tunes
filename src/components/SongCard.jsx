@@ -1,12 +1,7 @@
 import React from 'react';
 import { useSongs } from '../context/SongContext';
 
-const SongCard = ({ song, shape = 'square' }) => {
-  const { selectSong } = useSongs();
-
-  if (!song) return null;
-
-  // Define shape-specific styles
+// Define shape-specific styles
   const styles = {
   square: {
     container: "w-54 flex flex-col items-start gap-2",
@@ -36,25 +31,33 @@ const SongCard = ({ song, shape = 'square' }) => {
   }
 };
 
+const SongCard = ({ song, index=0, shape = 'square' }) => {
+  const { playQueue } = useSongs();
+  if (!song) return null;
+  const songArray = Array.isArray(song) ? song : [song];
+  const track = songArray[index];
+  if (!track) return null;
+  
+
   const currentStyle = styles[shape] || styles.square;
 
   return (
     <div 
-      onClick={() => selectSong(song)} 
+      onClick={() => playQueue(songArray, index)} 
       className={`${currentStyle.container} group cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-95`}
     >
       <img 
-        src={song.cover_path} 
-        alt={song.title} 
+        src={track.cover_path} 
+        alt={track.title} 
         className={`${currentStyle.image} object-cover shadow-lg group-hover:shadow-accent-active/20`} 
       />
       
       <div className={`${currentStyle.text} overflow-hidden`}>
         <h3 className="font-bold text-text-primary truncate w-full group-hover:text-accent-active transition-colors">
-          {song.title}
+          {track.title}
         </h3>
         <p className="text-text-secondary text-xs truncate">
-          {song.artist}
+          {track.artist}
         </p>
       </div>
     </div>

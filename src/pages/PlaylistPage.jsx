@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useSongs } from '../context/SongContext';
 import AddToPlaylistButton from '../minicomps/AddToPlaylistButton';
 import Collage from '../minicomps/Collage';
 
 const PlaylistPage = () => {
     const { id } = useParams(); // Grabs the ID from the URL!
     const { authFetch } = useAuth();
+    const { playQueue } = useSongs();
     
     const [playlistMeta, setPlaylistMeta] = useState(null);
     const [songs, setSongs] = useState([]);
@@ -40,6 +42,8 @@ const PlaylistPage = () => {
         return `${mins}:${secs.toString().padStart(2, '0')}`;
     };
 
+    console.log(songs);
+
     if (isLoading) return <div className="min-h-screen bg-zinc-950 p-8 pt-24 text-white">Loading playlist...</div>;
     if (!playlistMeta) return <div className="min-h-screen bg-zinc-950 p-8 pt-24 text-white">Playlist not found.</div>;
 
@@ -65,7 +69,7 @@ const PlaylistPage = () => {
 
             {/* Action Row */}
             <div className="max-w-7xl mx-auto px-8 py-4 flex items-center gap-6">
-                <button className="w-14 h-14 bg-accent-primary rounded-full flex items-center justify-center hover:scale-105 transition-transform shadow-lg">
+                <button onClick={() => playQueue(songs, 0)} className="w-14 h-14 bg-accent-primary rounded-full flex items-center justify-center hover:scale-105 transition-transform shadow-lg">
                     <svg viewBox="0 0 24 24" className="w-6 h-6 text-white ml-1" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
                 </button>
             </div>
@@ -86,7 +90,7 @@ const PlaylistPage = () => {
                         <div className="text-zinc-500 py-8 px-4">No songs in this playlist yet.</div>
                     ) : (
                         songs.map((song, index) => (
-                            <div key={song.id} className="group grid grid-cols-[32px_1fr_auto_60px] gap-4 px-4 py-3 items-center rounded-md hover:bg-white/5 transition-colors cursor-pointer">
+                            <div onClick={() => playQueue(songs, index)} key={song.id} className="group grid grid-cols-[32px_1fr_auto_60px] gap-4 px-4 py-3 items-center rounded-md hover:bg-white/5 transition-colors cursor-pointer">
                                 <div className="text-zinc-400 text-center relative flex items-center justify-center">
                                     <span className="group-hover:opacity-0">{index + 1}</span>
                                     <svg viewBox="0 0 24 24" className="w-4 h-4 text-white absolute opacity-0 group-hover:opacity-100" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>

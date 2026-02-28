@@ -8,7 +8,7 @@ const AnimePage = () => {
   const { title } = useParams(); 
   const [songs, setSongs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { selectSong } = useSongs();
+  const { playQueue } = useSongs();
 
   useEffect(() => {
   const fetchSongs = async () => {
@@ -81,7 +81,7 @@ const AnimePage = () => {
           {songs.length > 0 ? songs.map((song, index) => (
             <div 
               key={song.id}
-              onClick={() => selectSong(song)}
+              onClick={() => playQueue(songs, index)}
               className="flex items-center gap-6 p-4 rounded-2xl hover:bg-white/[0.03] active:bg-white/[0.05] transition-all cursor-pointer group"
             >
               <span className="w-6 text-sm font-mono text-white/10 group-hover:text-accent-primary transition-colors">

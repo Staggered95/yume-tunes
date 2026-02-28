@@ -9,10 +9,38 @@ import { useUser } from '../context/UserContext';
 
 function HomePage() {
   // Dummy State for now
-  const { isLoggedIn } = useAuth(); 
-  const {songs} = useSongs();
+  const [songs, setSongs] = useState([]);
+
+   useEffect(() => {
+
+const fetchSongs = async () => {
+
+try {
+
+const response = await fetch('http://localhost:5000/songs/all');
+
+const songs = await response.json();
+
+setSongs(songs.data);
+
+
+}catch (err) {
+
+console.log("Error fetching the songs: ", err);
+
+
+}
+
+}
+
+fetchSongs();
+
+}, []) 
+
+  const { isLoggedIn } = useAuth();
   const { userProfile } = useUser();
-  console.log(userProfile);
+  console.log("type of songs collection (songs): ", typeof songs);
+  console.log("type of single song (songs[0]): ", typeof songs[0])
 
   return (
     <div className="flex flex-col gap-8 pb-32 animate-fade-in">

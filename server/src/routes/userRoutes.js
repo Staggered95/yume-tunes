@@ -1,12 +1,14 @@
 import express from 'express';
 import verifyToken from '../middleware/verifyToken.js';
 import userController from '../controllers/userController.js';
+import telemetryController from '../controllers/telemetryController.js';
 const router = express.Router();
 
 router.use(verifyToken);
 router.get('/likedsongs', userController.getLikedSongs);
 router.get('/likedsongs/minimal', userController.getLikedSongsMinimalData);
 router.get('/', userController.getUserDetails);
+router.post('/telemetry', telemetryController.logListenEvent);
 router.post('/likedsongs/:id', userController.toggleLikeSong);
 
 

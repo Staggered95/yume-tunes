@@ -9,6 +9,7 @@ const LibraryPage = () => {
     
     const [playlists, setPlaylists] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    
 
     useEffect(() => {
         if (!isLoggedIn) return;
@@ -32,6 +33,7 @@ const LibraryPage = () => {
 
         fetchLibrary();
     }, [isLoggedIn, authFetch]);
+
 
     if (!isLoggedIn) return null;
 
