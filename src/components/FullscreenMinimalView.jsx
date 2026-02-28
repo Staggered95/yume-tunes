@@ -5,6 +5,8 @@ import ProgressBar from '../minicomps/ProgressBar';
 import LiveLyrics from '../minicomps/LiveLyrics';
 import OptionsMenu from '../minicomps/OptionsMenu';
 import BottomPlayer from './BottomPlayer';
+import LikeButton from '../minicomps/LikeButton';
+import AddToPlaylistButton from '../minicomps/AddToPlaylistButton';
 
 const FullscreenMinimalView = ({ isOpen, onClose, onToggle, song }) => {
   const { isPlaying, togglePlay } = usePlayback();
@@ -68,6 +70,10 @@ const FullscreenMinimalView = ({ isOpen, onClose, onToggle, song }) => {
         >
           Settings & Queue →
         </button>
+        <div><LikeButton songId={song.id} /></div>
+        <div>
+                    <AddToPlaylistButton songId={song.id} variant='bottom'/>
+                </div>
         <div> <OptionsMenu /> </div>
       </div>
 

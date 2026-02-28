@@ -1,19 +1,30 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext'; // Assuming you have authFetch here
+import { useToast } from '../context/ToastContext';
 
 const LikeButton = ({ songId, initialIsLiked = false, className = "" }) => {
     const [isLiked, setIsLiked] = useState(initialIsLiked);
     const [isAnimating, setIsAnimating] = useState(false);
     const { authFetch, isLoggedIn } = useAuth(); // Or however you make API calls
+    const { addToast } = useToast();
 
+    //NOTE: use debounced for efficiency
     const toggleLike = async (e) => {
         if (!isLoggedIn) return;
         e.stopPropagation(); // Prevents clicking the heart from accidentally playing the song!
         
         // Optimistic UI Update: Flip it instantly for the user
-        setIsLiked(!isLiked);
+        const newLikeState = !isLiked;
+        setIsLiked(newLikeState);
         setIsAnimating(true);
-        setTimeout(() => setIsAnimating(false), 300); // Reset animation state
+        setTimeout(() => setIsAnimating(false), 300);
+
+        // 3. Fire the toast immediately for snappy UX!
+        if (newLikeState) {
+            addToast("Added to Liked Songs");
+        } else {
+            addToast("Removed from Liked Songs", "error"); // Optionally use 'error' to change color
+        }
 
         try {
             // Background API Call (Update this route to match your backend)
@@ -24,6 +35,7 @@ const LikeButton = ({ songId, initialIsLiked = false, className = "" }) => {
             console.error("Failed to toggle like status", error);
             // Revert UI if the database failed
             setIsLiked(isLiked); 
+            addToast("Failed to update server", "error");
         }
     };
 
