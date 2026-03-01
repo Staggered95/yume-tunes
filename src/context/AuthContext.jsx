@@ -8,6 +8,7 @@ export const AuthProvider = ({children}) => {
     const [isCheckingAuth, setIsCheckingAuth] = useState(true);
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
     const [authModalView, setAuthModalView] = useState('login');
+    const [likedSongIds, setLikedSongIds] = useState(new Set());
     
 
     useEffect(() => {
@@ -43,6 +44,43 @@ export const AuthProvider = ({children}) => {
 
         verifySession();
     }, [token]);
+
+    useEffect(() => {
+        if (!token) {
+            setLikedSongIds([]); // Clear if logged out
+            return;
+        }
+
+        const fetchLikedIds = async () => {
+            try {
+                // Point this to your getLikedSongsMinimalData route
+                const res = await fetch('http://localhost:5000/user/likedsongs/minimal', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const json = await res.json();
+                if (json.success) {
+                    setLikedSongIds(new Set(json.data));
+                }
+            } catch (err) {
+                console.error("Failed to fetch liked IDs", err);
+            }
+        };
+
+        fetchLikedIds();
+    }, [token]);
+
+    const updateLikedSongsState = (songId, isNowLiked) => {
+        setLikedSongIds(prev => {
+            // Create a copy of the Set (React requires new references for state updates)
+            const newSet = new Set(prev); 
+            if (isNowLiked) {
+                newSet.add(songId);
+            } else {
+                newSet.delete(songId);
+            }
+            return newSet;
+        });
+    };
 
     
     const login = (newToken) => {
@@ -91,7 +129,7 @@ export const AuthProvider = ({children}) => {
     }
 
     // FIX 2: Added 'token' to the exported values
-    const values = { isLoggedIn, user, token, isCheckingAuth, isAuthModalOpen, authModalView, login, logout, authFetch, openAuthModal, closeAuthModal }; 
+    const values = { isLoggedIn, user, token, likedSongIds, isCheckingAuth, isAuthModalOpen, authModalView, login, logout, authFetch, updateLikedSongsState, openAuthModal, closeAuthModal }; 
 
     return (
         <AuthContext.Provider value={values}>

@@ -1,47 +1,46 @@
 import React, { useState } from 'react';
-import { useAuth } from '../context/AuthContext'; // Assuming you have authFetch here
+import { useAuth } from '../context/AuthContext'; 
 import { useToast } from '../context/ToastContext';
 
-const LikeButton = ({ songId, initialIsLiked = false, className = "" }) => {
-    const [isLiked, setIsLiked] = useState(initialIsLiked);
-    const [isAnimating, setIsAnimating] = useState(false);
-    const { authFetch, isLoggedIn } = useAuth(); // Or however you make API calls
+const LikeButton = ({ songId, className = "" }) => {
+    // Grab the global array and the updater function
+    const { authFetch, token, likedSongIds, updateLikedSongsState } = useAuth(); 
     const { addToast } = useToast();
+    
+    const [isAnimating, setIsAnimating] = useState(false);
 
-    //NOTE: use debounced for efficiency
+    // MAGIC: We calculate the state dynamically.
+    // If songId 4 is in [2, 4, 6], this instantly evaluates to true!
+    const isLiked = likedSongIds.has(songId);
+
     const toggleLike = async (e) => {
-        if (!isLoggedIn) return;
-        e.stopPropagation(); // Prevents clicking the heart from accidentally playing the song!
+        if (!token) {
+            addToast("Please log in to like songs", "error");
+            return;
+        }
+        e.stopPropagation(); 
         
-        // Optimistic UI Update: Flip it instantly for the user
         const newLikeState = !isLiked;
-        setIsLiked(newLikeState);
+        
+        // Optimistic UI Update globally!
+        updateLikedSongsState(songId, newLikeState);
         setIsAnimating(true);
         setTimeout(() => setIsAnimating(false), 300);
 
-        // 3. Fire the toast immediately for snappy UX!
         if (newLikeState) {
-            addToast("Added to Liked Songs");
+            addToast("Added to Liked Songs", "success");
         } else {
-            addToast("Removed from Liked Songs", "error"); // Optionally use 'error' to change color
+            addToast("Removed from Liked Songs", "error"); 
         }
 
         try {
-            // Background API Call (Update this route to match your backend)
-            await authFetch(`/user/likedsongs/${songId}`, {
-                method: 'POST'
-            });
+            await authFetch(`/user/likedsongs/${songId}`, { method: 'POST' });
         } catch (error) {
-            console.error("Failed to toggle like status", error);
-            // Revert UI if the database failed
-            setIsLiked(isLiked); 
+            // Revert global state if the database failed
+            updateLikedSongsState(songId, !newLikeState); 
             addToast("Failed to update server", "error");
         }
     };
-
-    console.log(isLoggedIn);
-
-    
 
     return (
         <button 
@@ -54,7 +53,8 @@ const LikeButton = ({ songId, initialIsLiked = false, className = "" }) => {
             <svg 
                 xmlns="http://www.w3.org/2000/svg" 
                 viewBox="0 0 24 24" 
-                className="w-5 h-5 transition-colors duration-300"
+                // Color updates instantly based on the global array!
+                className={`w-5 h-5 transition-colors duration-300 ${isLiked ? 'text-accent-primary' : 'text-text-secondary'}`}
                 fill={isLiked ? "currentColor" : "none"}
                 stroke="currentColor" 
                 strokeWidth="2" 
