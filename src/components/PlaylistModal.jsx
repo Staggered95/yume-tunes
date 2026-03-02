@@ -51,6 +51,7 @@ const PlaylistModal = ({ isOpen, onClose, songId }) => {
                 onClose(); // Close instantly, let the toast linger
             } else {
                 addToast(json.error || 'Song already in playlist', "error");
+                onClose();
             }
         } catch (error) {
             addToast('Failed to add song.', "error");

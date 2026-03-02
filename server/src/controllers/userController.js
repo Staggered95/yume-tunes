@@ -77,7 +77,7 @@ const getContinueListening = async (req, res) => {
     // We use GROUP BY and MAX(created_at) to only get the most recent listen per song
     const text = `
         SELECT 
-            s.id, s.title, s.song_type, s.file_path, s.cover_path,
+            s.id, s.title, s.song_type, s.file_path, s.cover_path, s.lyrics,
             a.title AS anime,
             ar.name AS artist,
             MAX(lh.created_at) as last_listened

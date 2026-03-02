@@ -2,15 +2,11 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext'; 
 import { useToast } from '../context/ToastContext';
 
-const LikeButton = ({ songId, className = "" }) => {
-    // Grab the global array and the updater function
+const LikeButton = ({ songId, className = "", variant = "default" }) => {
     const { authFetch, token, likedSongIds, updateLikedSongsState } = useAuth(); 
     const { addToast } = useToast();
-    
     const [isAnimating, setIsAnimating] = useState(false);
 
-    // MAGIC: We calculate the state dynamically.
-    // If songId 4 is in [2, 4, 6], this instantly evaluates to true!
     const isLiked = likedSongIds.has(songId);
 
     const toggleLike = async (e) => {
@@ -21,9 +17,8 @@ const LikeButton = ({ songId, className = "" }) => {
         e.stopPropagation(); 
         
         const newLikeState = !isLiked;
-        
-        // Optimistic UI Update globally!
         updateLikedSongsState(songId, newLikeState);
+        
         setIsAnimating(true);
         setTimeout(() => setIsAnimating(false), 300);
 
@@ -36,11 +31,15 @@ const LikeButton = ({ songId, className = "" }) => {
         try {
             await authFetch(`/user/likedsongs/${songId}`, { method: 'POST' });
         } catch (error) {
-            // Revert global state if the database failed
             updateLikedSongsState(songId, !newLikeState); 
             addToast("Failed to update server", "error");
         }
     };
+
+    // Dynamically change the SVG size based on the variant prop
+    const iconStyles = variant === 'massive' 
+        ? `w-4/5 h-4/5 max-w-[200px] max-h-[200px] transition-colors duration-300 drop-shadow-2xl ${isLiked ? 'text-accent-primary fill-accent-primary' : 'text-white/60 fill-transparent'}`
+        : `w-5 h-5 transition-colors duration-300 ${isLiked ? 'text-accent-primary fill-accent-primary' : 'text-text-secondary fill-transparent'}`;
 
     return (
         <button 
@@ -53,11 +52,9 @@ const LikeButton = ({ songId, className = "" }) => {
             <svg 
                 xmlns="http://www.w3.org/2000/svg" 
                 viewBox="0 0 24 24" 
-                // Color updates instantly based on the global array!
-                className={`w-5 h-5 transition-colors duration-300 ${isLiked ? 'text-accent-primary' : 'text-text-secondary'}`}
-                fill={isLiked ? "currentColor" : "none"}
+                className={iconStyles}
                 stroke="currentColor" 
-                strokeWidth="2" 
+                strokeWidth={variant === 'massive' ? "1" : "2"} 
                 strokeLinecap="round" 
                 strokeLinejoin="round"
             >

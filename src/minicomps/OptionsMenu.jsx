@@ -1,12 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useSongs } from '../context/SongContext';
 import { useToast } from '../context/ToastContext';
-import PlaylistModal from '../components/PlaylistModal';
 import { useSmartPosition } from '../hooks/useSmartPosition'; 
+import PlaylistModal from '../components/PlaylistModal'; // Import the Modal directly!
+
 
 const OptionsMenu = ({ song, className = "" }) => {
+    if (!song) return null;
     const [isOpen, setIsOpen] = useState(false);
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    // 1. Bring back the modal state here so it survives the dropdown closing
+    const [isModalOpen, setIsModalOpen] = useState(false); 
+    
     const menuRef = useRef(null);
     const dropdownRef = useRef(null); 
     const { addToQueue, playNextInQueue } = useSongs();
@@ -45,9 +49,8 @@ const OptionsMenu = ({ song, className = "" }) => {
 
     const handleAddToPlaylist = (e) => {
         e.stopPropagation();
-        // TODO: Open Playlist Modal
-        setIsOpen(false);
-        setIsModalOpen(true);
+        setIsOpen(false); // 2. Close the dropdown menu instantly
+        setIsModalOpen(true); // 3. Open the modal safely
     };
 
     return (
@@ -64,6 +67,7 @@ const OptionsMenu = ({ song, className = "" }) => {
                 </svg>
             </button>
 
+            {/* The Dropdown Block (Unmounts when isOpen is false) */}
             {isOpen && (
                 <div 
                     ref={dropdownRef}
@@ -92,6 +96,7 @@ const OptionsMenu = ({ song, className = "" }) => {
                     
                     <div className="h-px bg-white/5 my-1 mx-2"></div>
                     
+                    {/* Reverted back to a standard button that triggers our new hoisted state */}
                     <button 
                         onClick={handleAddToPlaylist}
                         className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-text-primary hover:bg-white/10 transition-colors group"
@@ -101,15 +106,18 @@ const OptionsMenu = ({ song, className = "" }) => {
                         </svg>
                         Add to playlist
                     </button>
-                    <PlaylistModal 
+                </div>
+            )}
+
+            {/* 4. SAFE ZONE: The modal lives OUTSIDE the dropdown block!
+                It uses song.id so the database doesn't crash, and stays alive 
+                even when the dropdown closes. 
+            */}
+            <PlaylistModal 
                 isOpen={isModalOpen} 
                 onClose={() => setIsModalOpen(false)} 
-                songId={song} 
+                songId={song.id} 
             />
-                </div>
-
-                
-            )}
         </div>
     );
 };

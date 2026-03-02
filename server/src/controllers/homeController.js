@@ -3,7 +3,7 @@ import { query } from '../config/db.js';
 const getPublicHomeData = async (req, res) => {
     // Trending logic: Maybe songs with the most likes, or most listens globally
     const trendingQuery = `
-        SELECT s.id, s.title, s.cover_path, s.file_path, ar.name AS artist
+        SELECT s.id, s.title, s.cover_path, s.file_path, s.lyrics, ar.name AS artist
         FROM songs s
         JOIN artists ar ON s.artist_id = ar.id
         -- Example logic: order by highest ID for now, or join with likes table later
@@ -13,7 +13,7 @@ const getPublicHomeData = async (req, res) => {
 
     // This Season logic: You could filter by a specific anime season or year
     const seasonQuery = `
-        SELECT s.id, s.title, s.cover_path, s.file_path, ar.name AS artist
+        SELECT s.id, s.title, s.cover_path, s.file_path, s.lyrics, ar.name AS artist
         FROM songs s
         JOIN artists ar ON s.artist_id = ar.id
         -- Example logic: maybe OP/ED only, or a specific anime
