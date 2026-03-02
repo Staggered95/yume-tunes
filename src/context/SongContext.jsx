@@ -15,7 +15,7 @@ export const SongProvider = ({children}) => {
     const currentSong = queue[currentIndex] || null;
 
     const { authFetch } = useAuth();
-    const { audioRef, isEnded, playSong } = usePlayback();
+    const { audioRef, isEnded, playSong, togglePlay } = usePlayback();
 
     const logTelemetry = useCallback(async (song, listenedSecs, totalSecs, skipped) => {
         if (!song || listenedSecs < 5) return; 
@@ -37,12 +37,29 @@ export const SongProvider = ({children}) => {
         }
     }, [authFetch]);
 
-    const addToQueue = useCallback((song) => {
-        // Simply append the new song to both the active queue and the backup queue
-        setQueue(prev => [...prev, song]);
-        setOriginalQueue(prev => [...prev, song]);
-        // Optional: Add a little toast notification here later!
-    }, []);
+    const addToQueue = (song) => {
+    // If nothing is playing, just start playing it!
+    if (queue.length === 0) {
+      playQueue([song], 0);
+      return;
+    }
+
+    setQueue(prevQueue => {
+      // Check if it's already in the queue to prevent duplicates (optional)
+      const isDuplicate = prevQueue.some(s => s.id === song.id);
+      if (isDuplicate) return prevQueue;
+
+      return [...prevQueue, song];
+    });
+
+    setOriginalQueue(prevQueue => {
+      // Check if it's already in the queue to prevent duplicates (optional)
+      const isDuplicate = prevQueue.some(s => s.id === song.id);
+      if (isDuplicate) return prevQueue;
+
+      return [...prevQueue, song];
+    });
+  };
 
     const toggleShuffle = useCallback(() => {
         setIsShuffle(prev => {
@@ -89,6 +106,44 @@ export const SongProvider = ({children}) => {
             playSong(fullUrl);
         }
     }, [playSong]);
+
+    const playNextInQueue = (song) => {
+        if (queue.length === 0) {
+            playQueue([song], 0);
+            return;
+        }
+
+        // We use the current state directly to calculate both accurately
+        let newQueue = [...queue];
+        let newIndex = currentIndex;
+
+        // 1. Find if the song is already in the queue
+        const existingIndex = newQueue.findIndex(s => s.id === song.id);
+
+        if (existingIndex !== -1) {
+            // If they clicked "Play Next" on the song that is currently playing, ignore it
+            if (existingIndex === currentIndex) return; 
+            
+            // Remove it from its old position
+            newQueue.splice(existingIndex, 1);
+            
+            // CRITICAL FIX: If we removed a song from BEFORE the currently playing song,
+            // the whole array shifted left. We must shift our index left to keep holding the right song!
+            if (existingIndex < currentIndex) {
+                newIndex--;
+            }
+        }
+
+        // 2. Insert the song exactly one slot after the (potentially updated) playing index
+        newQueue.splice(newIndex + 1, 0, song);
+
+        // 3. Update both states at the exact same time
+        setQueue(newQueue);
+        if (newIndex !== currentIndex) {
+            setCurrentIndex(newIndex); // Make sure you have access to setCurrentIndex here!
+        }
+    };
+    
 
     const nextSong = useCallback((isManualSkip = true) => {
         if (queue.length === 0) return;
@@ -145,8 +200,56 @@ export const SongProvider = ({children}) => {
         nextSong, 
         prevSong,
         toggleShuffle,
-        addToQueue
+        addToQueue,
+        playNextInQueue
     }), [queue, currentIndex, currentSong, playQueue, nextSong, prevSong]);
+
+    // Add this inside your context or player component
+  useEffect(() => {
+    // 1. Check if the browser actually supports the Media Session API
+    if ('mediaSession' in navigator && currentSong) {
+      
+      // 2. Tell the OS what song is playing (Updates the Lock Screen / Media Hub)
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: currentSong.title,
+        artist: currentSong.artist,
+        album: currentSong.anime || 'YumeTunes',
+        artwork: [
+          // Make sure this path resolves correctly to your backend image!
+          { src: `http://localhost:5000${currentSong.cover_path}`, sizes: '512x512', type: 'image/jpeg' }
+        ]
+      });
+
+      // 3. Wire up the OS buttons to your React functions!
+      navigator.mediaSession.setActionHandler('play', () => {
+        // Call whatever function you use to resume playback
+        togglePlay(); 
+      });
+      
+      navigator.mediaSession.setActionHandler('pause', () => {
+        // Call whatever function you use to pause playback
+        togglePlay(); 
+      });
+      
+      navigator.mediaSession.setActionHandler('previoustrack', () => {
+        prevSong(); // Your existing function
+      });
+      
+      navigator.mediaSession.setActionHandler('nexttrack', () => {
+        nextSong(); // Your existing function
+      });
+    }
+
+    // Cleanup function when the song stops or unmounts
+    return () => {
+      if ('mediaSession' in navigator) {
+        navigator.mediaSession.setActionHandler('play', null);
+        navigator.mediaSession.setActionHandler('pause', null);
+        navigator.mediaSession.setActionHandler('previoustrack', null);
+        navigator.mediaSession.setActionHandler('nexttrack', null);
+      }
+    };
+  }, [currentSong]); // Re-run this whenever the song changes!
 
     return (
         <SongContext.Provider value={values}>

@@ -47,7 +47,7 @@ export const AuthProvider = ({children}) => {
 
     useEffect(() => {
         if (!token) {
-            setLikedSongIds([]); // Clear if logged out
+            setLikedSongIds(new Set()); // Clear if logged out
             return;
         }
 

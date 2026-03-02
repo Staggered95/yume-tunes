@@ -1,18 +1,19 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useSongs } from '../context/SongContext';
-import { useSmartPosition } from '../hooks/useSmartPosition'; // Import your new superpower
+import { useToast } from '../context/ToastContext';
+import PlaylistModal from '../components/PlaylistModal';
+import { useSmartPosition } from '../hooks/useSmartPosition'; 
 
 const OptionsMenu = ({ song, className = "" }) => {
     const [isOpen, setIsOpen] = useState(false);
-    
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const menuRef = useRef(null);
     const dropdownRef = useRef(null); 
-    const { addToQueue } = useSongs();
+    const { addToQueue, playNextInQueue } = useSongs();
+    const { addToast } = useToast();
 
-    // MAGIC: We hand the hook our state and refs, and it hands us the perfect inline styles
     const positionStyle = useSmartPosition(isOpen, menuRef, dropdownRef);
 
-    // Close on outside click
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -28,18 +29,33 @@ const OptionsMenu = ({ song, className = "" }) => {
         setIsOpen(!isOpen);
     };
 
+    const handlePlayNext = (e) => {
+        e.stopPropagation();
+        playNextInQueue(song);
+        addToast("Playing next", "success");
+        setIsOpen(false);
+    };
+
     const handleAddToQueue = (e) => {
         e.stopPropagation();
         addToQueue(song);
+        addToast("Added to queue", "success");
         setIsOpen(false);
+    };
+
+    const handleAddToPlaylist = (e) => {
+        e.stopPropagation();
+        // TODO: Open Playlist Modal
+        setIsOpen(false);
+        setIsModalOpen(true);
     };
 
     return (
         <div className={`relative inline-block ${className}`} ref={menuRef}>
-            {/* The 3-Dot Button */}
             <button 
                 onClick={handleToggle}
-                className="p-2 text-text-secondary hover:text-white transition-colors rounded-full hover:bg-white/5"
+                className="p-1.5 text-text-secondary hover:text-white transition-colors rounded-full hover:bg-white/10"
+                aria-label="More options"
             >
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="12" cy="12" r="1"></circle>
@@ -48,26 +64,51 @@ const OptionsMenu = ({ song, className = "" }) => {
                 </svg>
             </button>
 
-            {/* The Smart Dropdown Menu */}
             {isOpen && (
                 <div 
                     ref={dropdownRef}
-                    className="absolute w-48 bg-zinc-900 border border-white/10 rounded-md shadow-2xl py-1 z-[100] overflow-hidden"
-                    style={positionStyle} // Applied here!
+                    className="absolute w-56 bg-background-active border border-white/5 rounded-md shadow-2xl py-1.5 z-[100] overflow-hidden "
+                    style={positionStyle} 
                 >
                     <button 
-                        onClick={handleAddToQueue}
-                        className="w-full text-left px-4 py-3 text-sm text-text-primary hover:bg-white/10 transition-colors"
+                        onClick={handlePlayNext}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-text-primary hover:bg-white/10 transition-colors group"
                     >
+                        <svg className="w-4 h-4 text-text-secondary group-hover:text-white transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                        </svg>
+                        Play Next
+                    </button>
+                    
+                    <button 
+                        onClick={handleAddToQueue}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-text-primary hover:bg-white/10 transition-colors group"
+                    >
+                        <svg className="w-4 h-4 text-text-secondary group-hover:text-white transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h10m4-4v8m-4-4h8" />
+                        </svg>
                         Add to queue
                     </button>
+                    
+                    <div className="h-px bg-white/5 my-1 mx-2"></div>
+                    
                     <button 
-                        onClick={(e) => { e.stopPropagation(); setIsOpen(false); }}
-                        className="w-full text-left px-4 py-3 text-sm text-text-primary hover:bg-white/10 transition-colors"
+                        onClick={handleAddToPlaylist}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-text-primary hover:bg-white/10 transition-colors group"
                     >
+                        <svg className="w-4 h-4 text-text-secondary group-hover:text-white transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
                         Add to playlist
                     </button>
+                    <PlaylistModal 
+                isOpen={isModalOpen} 
+                onClose={() => setIsModalOpen(false)} 
+                songId={song} 
+            />
                 </div>
+
+                
             )}
         </div>
     );

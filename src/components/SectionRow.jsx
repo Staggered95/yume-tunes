@@ -9,6 +9,8 @@ export default function SectionRow({ title, type, properties, items = [] }) {
     small_square: 'small_square',
   };
 
+  console.log(items);
+
   return (
     <section className="animate-fade-in-up">
       <div className="flex justify-between items-end mb-4 px-2">
@@ -19,10 +21,11 @@ export default function SectionRow({ title, type, properties, items = [] }) {
       </div>
 
       <div className={`${properties} gap-6 overflow-x-auto scrollbar-none pb-4 px-2`}>
-        {items.map((song) => (
+        {items.map((song, index) => (
           <SongCard 
             key={song.id} 
-            song={song} 
+            song={items}
+            index={index} 
             shape={shapeMap[type] || 'square'} 
           />
         ))}

@@ -11,6 +11,7 @@ import authRoutes from './routes/authRoutes.js'
 import playlistRoutes from './routes/playlistRoutes.js'
 import userRoutes from './routes/userRoutes.js'
 import searchRoutes from './routes/searchRoutes.js'
+import homeRoutes from './routes/homeRoutes.js'
 
 const app = express();
 
@@ -34,6 +35,7 @@ app.use('/auth', authRoutes);
 app.use('/playlists', playlistRoutes);
 app.use('/user', userRoutes);
 app.use('/search', searchRoutes);
+app.use('/home', homeRoutes);
 
 app.listen(5000, () => {
   console.log(`Server running on port ${port}`);
