@@ -30,6 +30,7 @@ const FullscreenPlayer = ({ isOpen, onClose, song }) => {
       ) : (
         <UtilityView 
           song={song} 
+          isOpen={isOpen}
           onClose={onClose} 
           onToggle={() => setViewMode('minimal')} 
         />

@@ -36,7 +36,7 @@ const FullscreenMinimalView = ({ isOpen, onClose, onToggle, song }) => {
     const handleKeyDown = (e) => {
       if (!isOpen) return;
       if (e.key === 'Escape') onClose();
-      if (e.key === ' ') { e.preventDefault(); togglePlay(); }
+      //if (e.key === ' ') { e.preventDefault(); togglePlay(); }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
@@ -122,7 +122,7 @@ const FullscreenMinimalView = ({ isOpen, onClose, onToggle, song }) => {
 
           <div className="mt-6 md:mt-8 text-center md:text-left w-full flex flex-col items-center md:items-start">
             <div className="flex items-center justify-center md:justify-start gap-4 w-full">
-                <h1 className="text-2xl md:text-4xl lg:text-5xl xl:text-6xl font-black tracking-tighter truncate max-w-[85%]">{song?.title}</h1>
+                <h1 className="text-xl md:text-2xl lg:text-3xl xl:text-4xl font-black tracking-tighter truncate max-w-[85%]">{song?.title}</h1>
                 <div className="md:hidden mt-1">
                     <LikeButton songId={song?.id} />
                 </div>

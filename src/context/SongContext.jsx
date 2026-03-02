@@ -143,6 +143,32 @@ export const SongProvider = ({children}) => {
             setCurrentIndex(newIndex); // Make sure you have access to setCurrentIndex here!
         }
     };
+
+
+    const reorderQueue = (startIndex, endIndex) => {
+    if (startIndex === endIndex) return;
+
+    // 1. Update the Queue Array
+    setQueue(prevQueue => {
+        const newQueue = [...prevQueue];
+        const [draggedItem] = newQueue.splice(startIndex, 1);
+        newQueue.splice(endIndex, 0, draggedItem);
+        return newQueue;
+    });
+
+    // 2. Safely Update the Current Index
+    setCurrentIndex(prevIndex => {
+        let newIndex = prevIndex;
+        if (startIndex === prevIndex) {
+            newIndex = endIndex; // We dragged the currently playing song
+        } else if (startIndex < prevIndex && endIndex >= prevIndex) {
+            newIndex--; // We dragged a past song into the future
+        } else if (startIndex > prevIndex && endIndex <= prevIndex) {
+            newIndex++; // We dragged a future song into the past
+        }
+        return newIndex;
+    });
+  };
     
 
     const nextSong = useCallback((isManualSkip = true) => {
@@ -201,6 +227,7 @@ export const SongProvider = ({children}) => {
         prevSong,
         toggleShuffle,
         addToQueue,
+        reorderQueue,
         playNextInQueue
     }), [queue, currentIndex, currentSong, playQueue, nextSong, prevSong]);
 
