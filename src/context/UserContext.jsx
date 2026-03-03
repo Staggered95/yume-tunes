@@ -81,7 +81,7 @@ export const UserProvider = ({ children }) => {
             setUserProfile(null);
         }
     }, [isLoggedIn]);
-
+    console.log("userprofile console.logged from usercontext: ",userProfile);
     const values = { userProfile, likedSongIds, isLoading, toggleLike };
 
     return (

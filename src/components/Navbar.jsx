@@ -4,18 +4,21 @@ import HamburgerButton from "../minicomps/HamburgerButton";
 import Logo from '../minicomps/Logo';
 import SearchAutocomplete from './SearchAutoComplete';
 import { useAuth } from '../context/AuthContext';
-import ConfirmDialog from '../minicomps/ConfirmDialog'; // 1. Import your new tool!
+import { useUser } from '../context/UserContext';
+import ConfirmDialog from '../minicomps/ConfirmDialog'; 
+import UserMenu from './UserMenu'; // <-- Import the new menu
 
 export default function Navbar({ isSidebarOpen, toggleSidebar }) {
     const navigate = useNavigate();
     
+    // Grab 'user' from your AuthContext!
     const { token, logout, openAuthModal } = useAuth();
+    const { userProfile } = useUser();
+    console.log("userprofile consoole.logged from navbar: ",userProfile);
     
-    // 2. Add state to control the modal
     const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
     
     return (
-        // We wrap everything in a Fragment (<></>) so we can put the modal at the bottom
         <>
             <nav className="flex items-center justify-between gap-4 p-6 ml-10">
                 <div onClick={() => navigate('/')} className='flex items-center gap-2 cursor-pointer'>
@@ -44,41 +47,21 @@ export default function Navbar({ isSidebarOpen, toggleSidebar }) {
                         </>
                     ) : (
                         // --- LOGGED IN VIEW ---
-                        <>
-                            <div 
-                                // 3. Change this from logout() to opening the modal
-                                onClick={() => setIsLogoutModalOpen(true)} 
-                                className="text-text-secondary hover:text-rose-500 h-6 lg:h-8 p-2 lg:p-3 text-sm lg:text-md flex justify-center items-center cursor-pointer transition-colors duration-300 ease-in-out"
-                            >
-                                Log Out
-                            </div>
-                            <div className="cursor-pointer" title="Your Profile">
-                                <svg 
-                                    className="w-10 md:w-11 lg:w-12 h-10 md:h-11 lg:h-12 text-accent-primary hover:text-accent-hover transition-colors duration-300 ease-in-out"
-                                    xmlns="http://www.w3.org/2000/svg" 
-                                    viewBox="0 0 24 24" 
-                                    fill="currentColor" 
-                                    aria-hidden="true"
-                                >
-                                    <path 
-                                        fillRule="evenodd" 
-                                        d="M18.685 19.097A9.723 9.723 0 0021.75 12c0-5.385-4.365-9.75-9.75-9.75S2.25 6.615 2.25 12a9.723 9.723 0 003.065 7.097A9.716 9.716 0 0012 21.75a9.716 9.716 0 006.685-2.653zm-12.54-1.285A7.486 7.486 0 0112 15a7.486 7.486 0 015.855 2.812A8.224 8.224 0 0112 20.25a8.224 8.224 0 01-5.855-2.438zM15.75 9a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z" 
-                                        clipRule="evenodd" 
-                                    />
-                                </svg>
-                            </div>
-                        </>
+                        <UserMenu 
+                            user={userProfile} 
+                            onLogoutClick={() => setIsLogoutModalOpen(true)} 
+                        />
                     )}
                 </div>
             </nav>
 
-            {/* 4. Drop the ConfirmDialog here! */}
             <ConfirmDialog 
                 isOpen={isLogoutModalOpen}
                 onClose={() => setIsLogoutModalOpen(false)}
                 onConfirm={() => {
                     logout();
-                    navigate('/'); // Optional: send them back to the home page!
+                    setIsLogoutModalOpen(false); // Close the modal on confirm
+                    navigate('/'); 
                 }}
                 title="Log Out"
                 message="Are you sure you want to log out of YumeTunes?"

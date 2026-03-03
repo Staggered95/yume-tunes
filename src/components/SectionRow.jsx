@@ -9,7 +9,6 @@ export default function SectionRow({ title, type, properties, items = [] }) {
     small_square: 'small_square',
   };
 
-  console.log(items);
 
   return (
     <section className="animate-fade-in-up">
