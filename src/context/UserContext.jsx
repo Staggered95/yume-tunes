@@ -82,7 +82,7 @@ export const UserProvider = ({ children }) => {
         }
     }, [isLoggedIn]);
     console.log("userprofile console.logged from usercontext: ",userProfile);
-    const values = { userProfile, likedSongIds, isLoading, toggleLike };
+    const values = { userProfile, likedSongIds, isLoading, toggleLike, setUserProfile };
 
     return (
         <UserContext.Provider value={values}>

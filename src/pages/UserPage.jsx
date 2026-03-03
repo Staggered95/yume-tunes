@@ -44,6 +44,9 @@ const UserPage = () => {
         try {
             const res = await authFetch('/user/update', {
                 method: 'PUT',
+                headers: {
+        'Content-Type': 'application/json'
+    },
                 body: JSON.stringify(editForm)
             });
             const json = await res.json();
@@ -72,11 +75,10 @@ const UserPage = () => {
         setIsUploadingAvatar(true);
         const formData = new FormData();
         formData.append('user_image', file);
-
+        //console.log(userProfile);
         try {
             const res = await authFetch('/user/upload-avatar', {
                 method: 'POST',
-                headers: { 'Content-Type': null },
                 body: formData
             });
             const json = await res.json();
@@ -103,19 +105,22 @@ const UserPage = () => {
 
         setIsUploadingBanner(true);
         const formData = new FormData();
-        // We will tell Multer to look for 'background_image'
-        formData.append('background_image', file); 
+        // We will tell Multer to look for 'banner_image'
+        formData.append('banner_image', file); 
 
         try {
             // New endpoint specifically for the banner
             const res = await authFetch('/user/upload-banner', { 
                 method: 'POST',
-                headers: { 'Content-Type': null },
+                //file headers are automatically given by the browser
+                //headers: { 'Content-Type': null },
                 body: formData
             });
             const json = await res.json();
             if (json.success) {
-                setUserProfile(prev => ({ ...prev, background_image: json.imageUrl }));
+                console.log(json);
+                console.log(userProfile);
+                setUserProfile(prev => ({ ...prev, banner_image: json.imageUrl }));
                 addToast("Cover photo updated!", "success");
             } else addToast("Failed to upload cover photo", "error");
         } catch (err) {
@@ -131,11 +136,12 @@ const UserPage = () => {
         ? (userProfile.user_image.startsWith('http') ? userProfile.user_image : `http://localhost:5000${userProfile.user_image}`)
         : null;
 
-    const bannerSrc = userProfile?.background_image 
-        ? (userProfile.background_image.startsWith('http') ? userProfile.background_image : `http://localhost:5000${userProfile.background_image}`)
+    const bannerSrc = userProfile?.banner_image 
+        ? (userProfile.banner_image.startsWith('http') ? userProfile.banner_image : `http://localhost:5000${userProfile.banner_image}`)
         : null;
 
     const displayedHistory = showFullHistory ? DUMMY_HISTORY : DUMMY_HISTORY.slice(0, 3);
+    console.log(avatarSrc);
 
     return (
         <div className="min-h-screen bg-[#050505] text-white pb-24">
@@ -153,7 +159,7 @@ const UserPage = () => {
                 )}
                 
                 {/* A subtle dark overlay so the white text always stays readable regardless of the image uploaded */}
-                <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"></div>
+                <div className="absolute inset-0 bg-black/30"></div>
 
                 {/* Hover Edit Button (Top Right) */}
                 <div 

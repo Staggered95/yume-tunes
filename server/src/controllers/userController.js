@@ -58,7 +58,7 @@ const getLikedSongsMinimalData = async (req, res) => {
 
 const getUserDetails = async(req, res) => {
     const userID = req.user.id;
-    const text = `SELECT first_name, last_name, username, email, created_at
+    const text = `SELECT first_name, last_name, username, email, created_at, user_image, banner_image
                   FROM users WHERE id=$1`;
 
     try {
@@ -100,4 +100,65 @@ const getContinueListening = async (req, res) => {
     }
 };
 
-export default { toggleLikeSong, getLikedSongs, getLikedSongsMinimalData, getUserDetails, getContinueListening };
+const uploadAvatar = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ success: false, message: 'No file provided' });
+        }
+
+        const userId = req.user.id; // From your auth middleware
+        // Path relative to your frontend's 'public' folder or static serving route
+        const imagePath = `/images/users/${req.file.filename}`;
+
+        // Example PostgreSQL/MySQL DB query
+        const updateQuery = `UPDATE users SET user_image = $1 WHERE id = $2 RETURNING user_image`;
+        const result = await query(updateQuery, [imagePath, userId]);
+
+        return res.json({ 
+            success: true, 
+            imageUrl: imagePath 
+        });
+    } catch (error) {
+        console.error('Avatar upload error:', error);
+        res.status(500).json({ success: false, message: 'Server error during upload' });
+    }
+};
+
+const uploadBanner = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ success: false, message: 'No file provided' });
+        }
+
+        const userId = req.user.id;
+        const bannerPath = `/images/users/${req.file.filename}`;
+
+        const updateQuery = `UPDATE users SET banner_image = $1 WHERE id = $2 RETURNING banner_image`;
+        const result = await query(updateQuery, [bannerPath, userId]);
+
+        return res.json({ 
+            success: true, 
+            imageUrl: bannerPath 
+        });
+    } catch (error) {
+        console.error('Banner upload error:', error);
+        res.status(500).json({ success: false, message: 'Server error during upload' });
+    }
+};
+
+const updateProfile = async (req, res) => {
+    try {
+        const { first_name, last_name } = req.body;
+        const userId = req.user.id;
+
+        const updateQuery = `UPDATE users SET first_name = $1, last_name = $2 WHERE id = $3 RETURNING *`;
+        const result = await query(updateQuery, [first_name, last_name, userId]);
+
+        return res.json({ success: true, user: result.rows[0] });
+    } catch (error) {
+        console.error('Profile update error:', error);
+        res.status(500).json({ success: false, message: 'Server error updating profile' });
+    }
+};
+
+export default { toggleLikeSong, getLikedSongs, getLikedSongsMinimalData, getUserDetails, getContinueListening, uploadAvatar, uploadBanner, updateProfile };
