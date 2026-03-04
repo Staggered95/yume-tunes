@@ -15,6 +15,7 @@ import UserPage from './pages/UserPage';
 import LibraryPage from './pages/LibraryPage';
 import PlaylistPage from './pages/PlaylistPage';
 import LikedSongsPage from './pages/LikedSongsPage';
+import AdminPage from './pages/AdminPage';
 import BottomPlayer from './components/BottomPlayer'
 import FullscreenPlayer from './components/FullscreenPlayer';
 import { useSongs } from './context/SongContext';
@@ -42,6 +43,7 @@ const App = () => {
             <Route path="/user" element={<UserPage />} />
             <Route path="/library" element={<LibraryPage/>} />
             <Route path="/likedsongs" element={<LikedSongsPage/>} />
+            <Route path="/admin" element={<AdminPage/>} />
             <Route path="/playlists/:id" element={<PlaylistPage/>} />
             
             {/* 2. The Dynamic Detail Page */}

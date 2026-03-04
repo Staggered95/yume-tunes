@@ -12,6 +12,7 @@ import playlistRoutes from './routes/playlistRoutes.js'
 import userRoutes from './routes/userRoutes.js'
 import searchRoutes from './routes/searchRoutes.js'
 import homeRoutes from './routes/homeRoutes.js'
+import adminRoutes from './routes/adminRoutes.js'
 
 const app = express();
 
@@ -37,6 +38,7 @@ app.use('/playlists', playlistRoutes);
 app.use('/user', userRoutes);
 app.use('/search', searchRoutes);
 app.use('/home', homeRoutes);
+app.use('/admin', adminRoutes);
 
 app.listen(5000, () => {
   console.log(`Server running on port ${port}`);

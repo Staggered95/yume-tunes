@@ -100,6 +100,37 @@ const getContinueListening = async (req, res) => {
     }
 };
 
+const getListeningHistory = async (req, res) => {
+    const userID = req.user.id;
+    
+    // Grabbing the exact chronological ledger, joining artist and anime data
+    const text = `
+        SELECT 
+            lh.id AS history_id,
+            s.id AS song_id, 
+            s.title, 
+            s.cover_path,
+            ar.name AS artist, 
+            a.title AS anime, 
+            lh.created_at
+        FROM listening_history lh
+        JOIN songs s ON lh.song_id = s.id
+        JOIN artists ar ON s.artist_id = ar.id
+        LEFT JOIN animes a ON s.anime_id = a.id
+        WHERE lh.user_id = $1
+        ORDER BY lh.created_at DESC
+        LIMIT 50
+    `;
+
+    try {
+        const result = await query(text, [userID]);
+        res.status(200).json({ success: true, data: result.rows });
+    } catch (err) {
+        console.error("Error fetching chronological history:", err);
+        res.status(500).json({ success: false, error: err.message });
+    }
+};
+
 const uploadAvatar = async (req, res) => {
     try {
         if (!req.file) {
@@ -161,4 +192,4 @@ const updateProfile = async (req, res) => {
     }
 };
 
-export default { toggleLikeSong, getLikedSongs, getLikedSongsMinimalData, getUserDetails, getContinueListening, uploadAvatar, uploadBanner, updateProfile };
+export default { toggleLikeSong, getLikedSongs, getLikedSongsMinimalData, getUserDetails, getContinueListening, getListeningHistory, uploadAvatar, uploadBanner, updateProfile };

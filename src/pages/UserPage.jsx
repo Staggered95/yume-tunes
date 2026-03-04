@@ -21,6 +21,8 @@ const UserPage = () => {
     const [activeTab, setActiveTab] = useState('profile'); 
     const [isEditing, setIsEditing] = useState(false);
     const [showFullHistory, setShowFullHistory] = useState(false);
+    const [history, setHistory] = useState([]);
+const [isLoadingHistory, setIsLoadingHistory] = useState(true);
     
     // Form States
     const [editForm, setEditForm] = useState({ first_name: '', last_name: '' });
@@ -30,6 +32,43 @@ const UserPage = () => {
     const [isUploadingBanner, setIsUploadingBanner] = useState(false);
     const avatarInputRef = useRef(null);
     const bannerInputRef = useRef(null); // 1. New Ref for the Banner!
+
+    const getTimeAgo = (dateString) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const seconds = Math.floor((now - date) / 1000);
+    
+    if (seconds < 60) return 'Just now';
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+    const days = Math.floor(hours / 24);
+    if (days === 1) return 'Yesterday';
+    if (days < 7) return `${days} days ago`;
+    return date.toLocaleDateString(); // Fallback to standard date
+};
+
+    useEffect(() => {
+    const fetchHistory = async () => {
+        try {
+            const res = await authFetch('/user/history');
+            const json = await res.json();
+            if (json.success) {
+                setHistory(json.data);
+            }
+        } catch (err) {
+            console.error("Failed to load history", err);
+        } finally {
+            setIsLoadingHistory(false);
+        }
+    };
+
+    if (userProfile) {
+        fetchHistory();
+    }
+}, [userProfile, authFetch]);
+
 
     useEffect(() => {
         if (userProfile) {
@@ -140,7 +179,7 @@ const UserPage = () => {
         ? (userProfile.banner_image.startsWith('http') ? userProfile.banner_image : `http://localhost:5000${userProfile.banner_image}`)
         : null;
 
-    const displayedHistory = showFullHistory ? DUMMY_HISTORY : DUMMY_HISTORY.slice(0, 3);
+    const displayedHistory = showFullHistory ? history : history.slice(0, 5);
     console.log(avatarSrc);
 
     return (
@@ -256,29 +295,49 @@ const UserPage = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
                     <div className="lg:col-span-2">
                         {activeTab === 'profile' && (
-                            <section>
-                                <div className="flex items-center justify-between mb-6">
-                                    <h2 className="text-xl font-bold tracking-tight">Recent Listening History</h2>
-                                </div>
-                                <div className="bg-white/5 border border-white/5 rounded-2xl overflow-hidden">
-                                    {displayedHistory.map((track, idx) => (
-                                        <div key={track.id} className={`flex items-center gap-4 p-4 hover:bg-white/5 transition-colors cursor-pointer ${idx !== displayedHistory.length - 1 ? 'border-b border-white/5' : ''}`}>
-                                            <div className="w-12 h-12 bg-white/10 rounded-md flex items-center justify-center shrink-0">
-                                                <svg className="w-5 h-5 text-white/40" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <h3 className="font-bold text-white/90 truncate">{track.title}</h3>
-                                                <p className="text-xs text-white/50 truncate">{track.artist} • {track.anime}</p>
-                                            </div>
-                                            <div className="text-xs text-white/30 font-medium shrink-0">{track.time}</div>
-                                        </div>
-                                    ))}
-                                </div>
-                                <button onClick={() => setShowFullHistory(!showFullHistory)} className="mt-4 text-sm font-bold text-white/50 hover:text-white transition-colors uppercase tracking-widest">
-                                    {showFullHistory ? 'Show Less ↑' : 'Show All History ↓'}
-                                </button>
-                            </section>
-                        )}
+    <section>
+        <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold tracking-tight">Recent Listening History</h2>
+        </div>
+        
+        <div className="bg-white/5 border border-white/5 rounded-2xl overflow-hidden min-h-[100px]">
+            {isLoadingHistory ? (
+                <div className="p-6 text-center text-white/40 animate-pulse">Loading history...</div>
+            ) : history.length === 0 ? (
+                <div className="p-6 text-center text-white/40">No listening history yet. Start playing some music!</div>
+            ) : (
+                displayedHistory.map((track, idx) => (
+                    // Using history_id as the key since songs can repeat!
+                    <div key={track.history_id} className={`flex items-center gap-4 p-4 hover:bg-white/5 transition-colors cursor-pointer ${idx !== displayedHistory.length - 1 ? 'border-b border-white/5' : ''}`}>
+                        <div className="w-12 h-12 bg-white/10 rounded-md overflow-hidden shrink-0">
+                            {track.cover_path ? (
+                                <img src={`http://localhost:5000${track.cover_path}`} alt="cover" className="w-full h-full object-cover" />
+                            ) : (
+                                <svg className="w-5 h-5 text-white/40 m-auto mt-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+                            )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <h3 className="font-bold text-white/90 truncate">{track.title}</h3>
+                            <p className="text-xs text-white/50 truncate">{track.artist} {track.anime ? `• ${track.anime}` : ''}</p>
+                        </div>
+                        <div className="text-xs text-white/30 font-medium shrink-0">
+                            {getTimeAgo(track.created_at)}
+                        </div>
+                    </div>
+                ))
+            )}
+        </div>
+        
+        {history.length > 5 && (
+            <button 
+                onClick={() => setShowFullHistory(!showFullHistory)}
+                className="mt-4 text-sm font-bold text-white/50 hover:text-white transition-colors uppercase tracking-widest"
+            >
+                {showFullHistory ? 'Show Less ↑' : 'Show All History ↓'}
+            </button>
+        )}
+    </section>
+)}
 
                         {activeTab === 'settings' && (
                             <section className="flex flex-col gap-6">
