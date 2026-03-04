@@ -27,5 +27,6 @@ router.put('/songs/:id', uploadFields, adminController.updateSong);
 
 // DELETE a song
 router.delete('/songs/:id', adminController.deleteSong);
+router.put('/songs/:id/lyrics', adminController.updateLyrics);
 
 export default router;

@@ -3,7 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import ConfirmDialog from '../../minicomps/ConfirmDialog';
 
-const SongManager = ({ onAddNew, onEditSong }) => {
+const SongManager = ({ onAddNew, onEditSong, onSyncLyrics }) => {
     const { authFetch } = useAuth();
     const { addToast } = useToast();
 
@@ -127,7 +127,7 @@ const SongManager = ({ onAddNew, onEditSong }) => {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-white/5">
-                                {filteredSongs.map(song => (
+                                {filteredSongs.slice(0, 8).map(song => (
                                     <tr key={song.id} className="hover:bg-white/5 transition-colors group">
                                         
                                         <td className="p-4 flex items-center gap-4 min-w-[200px]">
@@ -151,6 +151,15 @@ const SongManager = ({ onAddNew, onEditSong }) => {
                                         
                                         <td className="p-4 text-right">
                                             <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                {/* Sync Lyrics Button */}
+                                                <button 
+                                                    onClick={() => onSyncLyrics(song)}
+                                                    className="p-2 text-white/40 hover:text-purple-400 hover:bg-purple-400/10 rounded-md transition-colors"
+                                                    title="Sync Lyrics"
+                                                >
+                                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19V6l12-3v13M9 19c-1.105 0-2-.895-2-2s.895-2 2-2 2 .895 2 2-.895 2-2 2zm12-3c-1.105 0-2-.895-2-2s.895-2 2-2 2 .895 2 2-.895 2-2 2zM9 10l12-3" /></svg>
+                                                </button>
+
                                                 <button 
                                                     onClick={() => onEditSong(song)}
                                                     className="p-2 text-white/40 hover:text-accent-primary hover:bg-accent-primary/10 rounded-md transition-colors"

@@ -45,7 +45,7 @@ const getAllSongs = async (req, res) => {
 // === 2. ADD A NEW SONG ===
 const addSong = async (req, res) => {
     // These come from the formData.append() in your React component
-    const { title, artist_name, anime_title, song_type } = req.body;
+    const { title, artist_name, anime_title, song_type, duration_seconds, genre } = req.body;
     
     try {
         if (!req.files || !req.files['audio_file']) {
@@ -80,10 +80,25 @@ const addSong = async (req, res) => {
 
         // 3. Insert SONG
         const songQuery = `
-            INSERT INTO songs (title, artist_id, anime_id, file_path, cover_path, song_type) 
-            VALUES ($1, $2, $3, $4, $5, $6) RETURNING id
+            INSERT INTO songs (title, artist_id, anime_id, file_path, cover_path, song_type, duration_seconds) 
+            VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id
         `;
-        await query(songQuery, [title, artistId, animeId, audioPath, coverPath, song_type]);
+        // Make sure to capture the songId so we can link the genre!
+        const songRes = await query(songQuery, [title, artistId, animeId, audioPath, coverPath, song_type, duration_seconds || null]);
+        const songId = songRes.rows[0].id;
+
+        if (genre && genre.trim() !== "") {
+            // Insert the genre into the 'genres' table
+            const genreQuery = `
+                INSERT INTO genres (name) VALUES ($1) 
+                ON CONFLICT (name) DO UPDATE SET name = EXCLUDED.name RETURNING id
+            `;
+            const genreRes = await query(genreQuery, [genre.trim()]);
+            const genreId = genreRes.rows[0].id;
+
+            // Link the song and the genre in the 'song_genres' table!
+            await query(`INSERT INTO song_genres (song_id, genre_id) VALUES ($1, $2)`, [songId, genreId]);
+        }
 
         // COMMIT TRANSACTION
         await query('COMMIT');
@@ -100,7 +115,7 @@ const addSong = async (req, res) => {
 // === 3. UPDATE AN EXISTING SONG ===
 const updateSong = async (req, res) => {
     const songId = req.params.id;
-    const { title, artist_name, anime_title, song_type } = req.body;
+    const { title, artist_name, anime_title, song_type, duration_seconds, genre } = req.body;
 
     try {
         // 1. Fetch the current song to get existing file paths
@@ -149,10 +164,22 @@ const updateSong = async (req, res) => {
         // 5. Update the SONG row
         const updateQuery = `
             UPDATE songs 
-            SET title = $1, artist_id = $2, anime_id = $3, file_path = $4, cover_path = $5, song_type = $6
-            WHERE id = $7
+            SET title = $1, artist_id = $2, anime_id = $3, file_path = $4, cover_path = $5, song_type = $6, duration_seconds=$7
+            WHERE id = $8
         `;
-        await query(updateQuery, [title, artistId, animeId, audioPath, coverPath, song_type, songId]);
+        await query(updateQuery, [title, artistId, animeId, audioPath, coverPath, song_type, duration_seconds, songId]);
+
+        await query(`DELETE FROM song_genres WHERE song_id = $1`, [songId]);
+        if (genre && genre.trim() !== "") {
+            const genreQuery = `
+                INSERT INTO genres (name) VALUES ($1) 
+                ON CONFLICT (name) DO UPDATE SET name = EXCLUDED.name RETURNING id
+            `;
+            const genreRes = await query(genreQuery, [genre.trim()]);
+            const genreId = genreRes.rows[0].id;
+
+            await query(`INSERT INTO song_genres (song_id, genre_id) VALUES ($1, $2)`, [songId, genreId]);
+        }
 
         // COMMIT TRANSACTION
         await query('COMMIT');
@@ -196,4 +223,21 @@ const deleteSong = async (req, res) => {
     }
 };
 
-export default { getAllSongs, addSong, updateSong, deleteSong };
+// === 5. UPDATE TIMED LYRICS ===
+const updateLyrics = async (req, res) => {
+    const songId = req.params.id;
+    const { lyrics } = req.body;
+
+    try {
+        const updateQuery = `UPDATE songs SET lyrics = $1 WHERE id = $2`;
+        await query(updateQuery, [lyrics, songId]);
+        
+        res.status(200).json({ success: true, message: 'Lyrics updated successfully' });
+    } catch (err) {
+        console.error("Error updating lyrics:", err);
+        res.status(500).json({ success: false, message: 'Server error updating lyrics' });
+    }
+};
+
+export default { getAllSongs, addSong, updateSong, deleteSong, updateLyrics };
+
