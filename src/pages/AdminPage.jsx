@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useUser } from '../context/UserContext';
 import SongManager from '../components/admin/SongManager';
 import SongEditor from '../components/admin/SongEditor';
+import LyricsSyncer from '../components/admin/LyricsSyncer';
 
 // ==========================================
 // PLACEHOLDER COMPONENTS (We will split these into separate files later)
@@ -48,20 +49,30 @@ const AdminPage = () => {
     
     const [activeTab, setActiveTab] = useState('songs');
     const [isEditingSong, setIsEditingSong] = useState(false);
+    const [isSyncingLyrics, setIsSyncingLyrics] = useState(false);
     const [currentSongData, setCurrentSongData] = useState(null);
 
     const handleEditSong = (songObj) => {
-        setCurrentSongData(songObj); // Pass the existing song data
-        setIsEditingSong(true);      // Switch to Editor view
+        setCurrentSongData(songObj);
+        setIsEditingSong(true);
+        setIsSyncingLyrics(false);
     };
 
     const handleAddNew = () => {
-        setCurrentSongData(null); // Null means "Blank Form"
-        setIsEditingSong(true);   // Switch to Editor view
+        setCurrentSongData(null);
+        setIsEditingSong(true);
+        setIsSyncingLyrics(false);
     };
 
-    const closeEditor = () => {
+    const handleSyncLyrics = (songObj) => {
+        setCurrentSongData(songObj);
+        setIsSyncingLyrics(true);
+        setIsEditingSong(false);
+    };
+
+    const closeSubViews = () => {
         setIsEditingSong(false); 
+        setIsSyncingLyrics(false);
         setCurrentSongData(null);
     };
 
@@ -74,14 +85,35 @@ const AdminPage = () => {
     }, [token, navigate]);
 
     const renderContent = () => {
-        if (activeTab === 'songs' && isEditingSong) {
-            return (
-                <SongEditor 
-                    initialData={currentSongData} 
-                    onCancel={closeEditor} 
-                    onSaveSuccess={closeEditor} 
-                />
-            );
+        if (activeTab === 'songs') {
+            // Priority 1: Lyrics Studio
+            if (isSyncingLyrics && currentSongData) {
+                return (
+                    <LyricsSyncer 
+                        songId={currentSongData.id}
+                        songTitle={currentSongData.title}     // <-- NEW
+                        songArtist={currentSongData.artist}   // <-- NEW
+                        audioUrl={currentSongData.file_path}
+                        initialLyrics={currentSongData.lyrics}
+                        onCancel={closeSubViews}
+                        onSaveSuccess={closeSubViews}
+                    />
+                );
+            }
+            
+            // Priority 2: Edit/Add Form
+            if (isEditingSong) {
+                return (
+                    <SongEditor 
+                        initialData={currentSongData} 
+                        onCancel={closeSubViews} 
+                        onSaveSuccess={closeSubViews} 
+                    />
+                );
+            }
+
+            // Fallback: The Data Table
+            return <SongManager onAddNew={handleAddNew} onEditSong={handleEditSong} onSyncLyrics={handleSyncLyrics} />;
         }
         
         switch (activeTab) {

@@ -28,5 +28,8 @@ router.put('/songs/:id', uploadFields, adminController.updateSong);
 // DELETE a song
 router.delete('/songs/:id', adminController.deleteSong);
 router.put('/songs/:id/lyrics', adminController.updateLyrics);
+router.get('/songs/auto-lyrics', adminController.autoGenerateLyrics);
+router.get('/users', adminController.getAllUsers);
+router.put('/users/:id/role', adminController.updateUserRole);
 
 export default router;

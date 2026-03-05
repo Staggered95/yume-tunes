@@ -28,7 +28,7 @@ const deletePhysicalFile = (relativePath) => {
 const getAllSongs = async (req, res) => {
     try {
         const text = `
-            SELECT s.id, s.title, s.cover_path, s.song_type, ar.name AS artist, a.title AS anime 
+            SELECT s.id, s.title, s.file_path, s.cover_path, s.song_type, s.lyrics, ar.name AS artist, a.title AS anime 
             FROM songs s
             JOIN artists ar ON s.artist_id = ar.id
             LEFT JOIN animes a ON s.anime_id = a.id
@@ -239,5 +239,83 @@ const updateLyrics = async (req, res) => {
     }
 };
 
-export default { getAllSongs, addSong, updateSong, deleteSong, updateLyrics };
+// === 6. AUTO-GENERATE LYRICS VIA LRCLIB ===
+const autoGenerateLyrics = async (req, res) => {
+    // We grab these straight from the URL now!
+    const { title, artist } = req.query;
+
+    if (!title || !artist) {
+        return res.status(400).json({ success: false, message: 'Title and artist are required' });
+    }
+
+    try {
+        // Fetch directly from LRCLIB using the provided data
+        const searchUrl = `https://lrclib.net/api/search?track_name=${encodeURIComponent(title)}&artist_name=${encodeURIComponent(artist)}`;
+        
+        const response = await fetch(searchUrl, {
+            headers: {
+                'User-Agent': 'YumeTunes/1.0 (Admin Panel)' 
+            }
+        });
+        
+        const data = await response.json();
+
+        if (!data || data.length === 0) {
+            return res.status(404).json({ success: false, message: 'No lyrics found on LRCLIB for this track.' });
+        }
+
+        const bestMatch = data[0];
+        const lyricsToReturn = bestMatch.syncedLyrics || bestMatch.plainLyrics;
+
+        if (!lyricsToReturn) {
+            return res.status(404).json({ success: false, message: 'Track found, but no lyrics available.' });
+        }
+
+        res.status(200).json({ success: true, lyrics: lyricsToReturn });
+
+    } catch (err) {
+        console.error("Error fetching from LRCLIB:", err);
+        res.status(500).json({ success: false, message: 'Server error fetching auto-lyrics' });
+    }
+};
+
+
+//user management
+const getAllUsers = async (req, res) => {
+    try {
+        // We do NOT select passwords here! Just the safe data.
+        const result = await query(`
+            SELECT id, username, email, role, created_at 
+            FROM users 
+            ORDER BY created_at DESC
+        `);
+        res.status(200).json({ success: true, data: result.rows });
+    } catch (err) {
+        console.error("Error fetching users:", err);
+        res.status(500).json({ success: false, message: 'Server error fetching users' });
+    }
+};
+
+// === 8. UPDATE USER ROLE ===
+const updateUserRole = async (req, res) => {
+    const targetUserId = req.params.id;
+    const { newRole } = req.body;
+
+    // Optional but highly recommended: Prevent the admin from accidentally demoting themselves!
+    // If you have the logged-in user's ID attached to req.user via your verifyToken middleware:
+    if (req.user && req.user.id === parseInt(targetUserId)) {
+        return res.status(400).json({ success: false, message: "You cannot change your own role." });
+    }
+
+    try {
+        await query(`UPDATE users SET role = $1 WHERE id = $2`, [newRole, targetUserId]);
+        res.status(200).json({ success: true, message: 'User role updated successfully' });
+    } catch (err) {
+        console.error("Error updating user role:", err);
+        res.status(500).json({ success: false, message: 'Server error updating role' });
+    }
+};
+
+
+export default { getAllSongs, addSong, updateSong, deleteSong, updateLyrics, autoGenerateLyrics, getAllUsers, updateUserRole };
 

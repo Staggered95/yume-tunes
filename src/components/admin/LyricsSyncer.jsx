@@ -2,59 +2,102 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 
-// Helper to format seconds into standard LRC format: [mm:ss.xx]
+// --- UTILITIES ---
 const formatLrcTime = (timeInSeconds) => {
     const min = Math.floor(timeInSeconds / 60);
     const sec = (timeInSeconds % 60).toFixed(2);
     return `[${min.toString().padStart(2, '0')}:${sec.padStart(5, '0')}]`;
 };
 
-const LyricsSyncer = ({ songId, audioUrl, initialLyrics, onCancel, onSaveSuccess }) => {
+// New: Smart parser that detects if the text already has [mm:ss.xx] timestamps
+const parseLrcText = (rawText) => {
+    const lines = rawText.split('\n');
+    const parsed = [];
+    const lrcRegex = /^\[(\d{2}):(\d{2}\.\d{2,3})\](.*)/;
+
+    lines.forEach(line => {
+        const match = line.match(lrcRegex);
+        if (match) {
+            // It's an existing timed line!
+            const minutes = parseInt(match[1], 10);
+            const seconds = parseFloat(match[2]);
+            parsed.push({ 
+                time: (minutes * 60) + seconds, 
+                text: match[3].trim() 
+            });
+        } else if (line.trim().length > 0) {
+            // It's just a raw text line
+            parsed.push({ time: null, text: line.trim() });
+        }
+    });
+
+    return parsed;
+};
+
+const LyricsSyncer = ({ songId, songTitle, songArtist, audioUrl, initialLyrics, onCancel, onSaveSuccess }) => {
     const { authFetch } = useAuth();
     const { addToast } = useToast();
 
-    // App Phases: 1 = Paste Text, 2 = Sync Timing
     const [phase, setPhase] = useState(1);
     const [rawText, setRawText] = useState(initialLyrics || '');
     
-    // Syncing States
     const [syncLines, setSyncLines] = useState([]);
     const [activeIndex, setActiveIndex] = useState(0);
     const [isPlaying, setIsPlaying] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+    const [isGenerating, setIsGenerating] = useState(false);
 
     const audioRef = useRef(null);
-    const activeLineRef = useRef(null); // Used to auto-scroll
+    const activeLineRef = useRef(null);
 
-    // --- PHASE 1: PREPARATION ---
+    // --- PHASE 1: PARSE AND START ---
     const handleStartSync = () => {
         if (!rawText.trim()) return addToast("Please paste some lyrics first", "error");
 
-        // Split text by newlines, remove totally empty lines, and format as objects
-        const lines = rawText.split('\n')
-            .map(line => line.trim())
-            .filter(line => line.length > 0)
-            .map(line => ({ text: line, time: null }));
+        const parsedLines = parseLrcText(rawText);
+        setSyncLines(parsedLines);
 
-        setSyncLines(lines);
-        setActiveIndex(0);
+        // Smart Indexing: Find the first line that doesn't have a timestamp yet
+        const firstUnsynced = parsedLines.findIndex(l => l.time === null);
+        
+        // If all lines are already synced (e.g. from AI), put cursor at the end so they can just review
+        setActiveIndex(firstUnsynced !== -1 ? firstUnsynced : parsedLines.length);
+        
         setPhase(2);
     };
 
-    // --- PHASE 2: THE SYNC STUDIO ---
-    // Auto-scroll to the active line so the admin doesn't have to scroll manually!
+    // --- PHASE 2: THE STUDIO & KEYBOARD SHORTCUTS ---
     useEffect(() => {
         if (activeLineRef.current) {
             activeLineRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
     }, [activeIndex]);
 
-    // Listen for the Spacebar to stamp the time
     useEffect(() => {
         const handleKeyDown = (e) => {
-            if (phase !== 2 || activeIndex >= syncLines.length) return;
+            if (phase !== 2) return;
             
-            // Prevent spacebar from scrolling the page
+            // 1. Audio Scrubbing (Left/Right Arrows for -5s / +5s)
+            if (e.code === 'ArrowLeft') {
+                e.preventDefault();
+                if (audioRef.current) audioRef.current.currentTime = Math.max(0, audioRef.current.currentTime - 5);
+            }
+            if (e.code === 'ArrowRight') {
+                e.preventDefault();
+                if (audioRef.current) audioRef.current.currentTime = Math.min(audioRef.current.duration, audioRef.current.currentTime + 5);
+            }
+
+            // 2. Line Navigation (Up/Down Arrows to manually change the active line!)
+            if (e.code === 'ArrowUp') {
+                e.preventDefault();
+                setActiveIndex(prev => Math.max(0, prev - 1));
+            }
+            if (e.code === 'ArrowDown') {
+                e.preventDefault();
+                setActiveIndex(prev => Math.min(syncLines.length - 1, prev + 1));
+            }
+
+            // 3. Stamping Time (Spacebar)
             if (e.code === 'Space') {
                 e.preventDefault(); 
                 
@@ -64,7 +107,9 @@ const LyricsSyncer = ({ songId, audioUrl, initialLyrics, onCancel, onSaveSuccess
                     return;
                 }
 
-                stampTime();
+                if (activeIndex < syncLines.length) {
+                    stampTime();
+                }
             }
         };
 
@@ -83,7 +128,7 @@ const LyricsSyncer = ({ songId, audioUrl, initialLyrics, onCancel, onSaveSuccess
             return newLines;
         });
         
-        setActiveIndex(prev => prev + 1); // Move to next line
+        setActiveIndex(prev => prev + 1); 
     };
 
     const togglePlay = () => {
@@ -96,29 +141,46 @@ const LyricsSyncer = ({ songId, audioUrl, initialLyrics, onCancel, onSaveSuccess
         setIsPlaying(!isPlaying);
     };
 
-    const resetSync = () => {
-        setSyncLines(syncLines.map(l => ({ ...l, time: null })));
-        setActiveIndex(0);
-        if (audioRef.current) {
-            audioRef.current.pause();
-            audioRef.current.currentTime = 0;
-            setIsPlaying(false);
+    const handleAutoGenerate = async () => {
+        setIsGenerating(true);
+        addToast("Summoning lyrics...", "info");
+        
+        try {
+            // Build safe URL query parameters
+            const queryParams = new URLSearchParams({ 
+                title: songTitle, 
+                artist: songArtist 
+            }).toString();
+
+            // Append them to the GET request!
+            const res = await authFetch(`/admin/songs/auto-lyrics?${queryParams}`);
+            const json = await res.json();
+            console.log(json);
+            if (json.success && json.lyrics) {
+                setRawText(json.lyrics); 
+                addToast("Lyrics successfully generated!", "success");
+            } else {
+                addToast(json.message || "Could not find/generate lyrics", "error");
+            }
+        } catch (err) {
+            addToast("Network error during generation", "error");
+        } finally {
+            setIsGenerating(false);
         }
     };
 
-    // --- PHASE 3: SAVING ---
+    // --- PHASE 3: SAVE TO DB ---
     const handleSave = async () => {
         setIsSaving(true);
         
-        // Generate the final LRC string
         const finalLrc = syncLines
             .map(line => `${formatLrcTime(line.time || 0)} ${line.text}`)
             .join('\n');
 
         try {
-            // Send to a specialized backend endpoint
             const res = await authFetch(`/admin/songs/${songId}/lyrics`, {
                 method: 'PUT',
+                headers: { 'Content-Type': 'application/json' }, // We DO need JSON header here!
                 body: JSON.stringify({ lyrics: finalLrc })
             });
             const json = await res.json();
@@ -143,24 +205,30 @@ const LyricsSyncer = ({ songId, audioUrl, initialLyrics, onCancel, onSaveSuccess
                 <button onClick={onCancel} className="text-white/50 hover:text-white">Close</button>
             </div>
 
-            {/* Hidden Audio Element */}
             <audio 
                 ref={audioRef} 
-                src={`http://localhost:5000${audioUrl}`} 
+                src={audioUrl.startsWith('http') ? audioUrl : `http://localhost:5000${audioUrl}`} 
                 onEnded={() => setIsPlaying(false)} 
             />
 
             {phase === 1 && (
                 <div className="flex flex-col gap-4">
-                    <p className="text-sm text-white/50">Paste the raw text of the song here. Make sure each phrase is on its own line.</p>
+                    <p className="text-sm text-white/50">Paste raw text OR existing .lrc data here. We will auto-detect timestamps.</p>
+                    <button 
+        onClick={handleAutoGenerate} 
+        disabled={isGenerating}
+        className="text-xs bg-purple-500/20 text-purple-300 px-4 py-2 rounded-md hover:bg-purple-500/30 transition-colors flex items-center gap-2 font-bold"
+    >
+        {isGenerating ? '⏳ Processing...' : '✨ Auto-Generate'}
+    </button>
                     <textarea 
                         value={rawText}
                         onChange={(e) => setRawText(e.target.value)}
-                        placeholder="Oshiete oshiete yo sono shikumi wo..."
+                        placeholder="[00:15.30] Oshiete oshiete yo..."
                         className="w-full h-96 bg-black/40 border border-white/10 rounded-xl p-4 text-white focus:border-accent-primary outline-none resize-none font-mono text-sm leading-relaxed"
                     />
-                    <button onClick={handleStartSync} className="bg-accent-primary text-black py-3 rounded-full font-bold hover:bg-accent-hover self-end px-8">
-                        Proceed to Sync Studio →
+                    <button onClick={handleStartSync} className="bg-accent-primary text-black py-3 rounded-full font-bold hover:bg-accent-hover self-end px-8 transition-transform active:scale-95">
+                        Proceed to Studio →
                     </button>
                 </div>
             )}
@@ -168,35 +236,32 @@ const LyricsSyncer = ({ songId, audioUrl, initialLyrics, onCancel, onSaveSuccess
             {phase === 2 && (
                 <div className="flex flex-col h-[600px]">
                     
-                    {/* Controls Header */}
-                    <div className="flex justify-between items-center bg-black/40 p-4 rounded-xl mb-4 border border-white/10 shrink-0">
+                    <div className="flex justify-between items-start bg-black/40 p-4 rounded-xl mb-4 border border-white/10 shrink-0">
                         <div className="flex gap-4">
-                            <button onClick={togglePlay} className="px-6 py-2 bg-white/10 hover:bg-white/20 rounded-lg font-bold">
+                            <button onClick={togglePlay} className="px-6 py-2 bg-white/10 hover:bg-white/20 rounded-lg font-bold transition-colors">
                                 {isPlaying ? '⏸ Pause' : '▶️ Play'}
                             </button>
-                            <button onClick={resetSync} className="px-4 py-2 text-white/50 hover:text-white">
-                                ↺ Reset Time
-                            </button>
                         </div>
-                        <div className="text-right">
-                            <p className="text-xs text-white/50 uppercase tracking-widest font-bold">Instructions</p>
-                            <p className="text-sm">Press <kbd className="bg-white/10 px-2 py-1 rounded text-accent-primary font-mono">SPACE</kbd> exactly when the highlighted line is sung.</p>
+                        <div className="text-right flex flex-col gap-1 text-sm text-white/60">
+                            <p><kbd className="bg-white/10 px-2 rounded text-accent-primary font-mono">SPACE</kbd> Stamp Line</p>
+                            <p><kbd className="bg-white/10 px-2 rounded text-accent-primary font-mono">◀</kbd> <kbd className="bg-white/10 px-2 rounded text-accent-primary font-mono">▶</kbd> Scrub ±5s</p>
+                            <p><kbd className="bg-white/10 px-2 rounded text-accent-primary font-mono">▲</kbd> <kbd className="bg-white/10 px-2 rounded text-accent-primary font-mono">▼</kbd> Move Cursor</p>
                         </div>
                     </div>
 
-                    {/* Scrolling Lyrics Area */}
                     <div className="flex-1 overflow-y-auto bg-black/20 rounded-xl p-6 space-y-4 border border-white/5 relative">
                         {syncLines.map((line, idx) => {
                             const isActive = idx === activeIndex;
-                            const isDone = idx < activeIndex;
+                            const isDone = line.time !== null && !isActive;
 
                             return (
                                 <div 
                                     key={idx} 
                                     ref={isActive ? activeLineRef : null}
-                                    className={`flex items-center gap-4 p-3 rounded-lg transition-all duration-300 ${
+                                    onClick={() => setActiveIndex(idx)} // Allow mouse clicking to change lines too!
+                                    className={`flex items-center gap-4 p-3 rounded-lg transition-all duration-300 cursor-pointer ${
                                         isActive ? 'bg-accent-primary/20 border border-accent-primary/50 shadow-[0_0_20px_rgba(255,255,255,0.1)] scale-105 origin-left' : 
-                                        isDone ? 'opacity-40' : 'opacity-100'
+                                        isDone ? 'opacity-50 hover:opacity-80' : 'opacity-100 hover:bg-white/5'
                                     }`}
                                 >
                                     <div className={`font-mono text-sm w-20 shrink-0 ${isDone ? 'text-accent-primary' : 'text-white/30'}`}>
@@ -209,16 +274,12 @@ const LyricsSyncer = ({ songId, audioUrl, initialLyrics, onCancel, onSaveSuccess
                             );
                         })}
                         
-                        {/* Done State */}
-                        {activeIndex >= syncLines.length && (
-                            <div className="text-center py-12">
-                                <h3 className="text-2xl font-bold text-accent-primary mb-2">🎉 Sync Complete!</h3>
-                                <p className="text-white/50 mb-6">All lines have been successfully timed.</p>
-                                <button onClick={handleSave} disabled={isSaving} className="bg-accent-primary text-black px-8 py-3 rounded-full font-bold">
-                                    {isSaving ? 'Saving...' : 'Save Lyrics to Database'}
-                                </button>
-                            </div>
-                        )}
+                        <div className="text-center py-12 border-t border-white/10 mt-8 pt-8">
+                            <h3 className="text-xl font-bold text-white mb-4">Done syncing?</h3>
+                            <button onClick={handleSave} disabled={isSaving} className="bg-accent-primary text-black px-8 py-3 rounded-full font-bold hover:scale-105 active:scale-95 transition-all">
+                                {isSaving ? 'Saving...' : 'Save Lyrics to Database'}
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
