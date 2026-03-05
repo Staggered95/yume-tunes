@@ -70,33 +70,50 @@ const getUserDetails = async(req, res) => {
     }
 }
 
-// Inside a controller like userController.js or a new homeController.js
-const getContinueListening = async (req, res) => {
-    const userID = req.user.id; // Protected by verifyToken
-    
-    // We use GROUP BY and MAX(created_at) to only get the most recent listen per song
-    const text = `
-        SELECT 
-            s.id, s.title, s.song_type, s.file_path, s.cover_path, s.lyrics,
-            a.title AS anime,
-            ar.name AS artist,
-            MAX(lh.created_at) as last_listened
+// === GET PRIVATE HOME DATA (Continue Listening + Recommendations) ===
+const getUserHomeData = async (req, res) => {
+    // Assuming your verifyToken middleware attaches the user to req.user
+    const userId = req.user.id; 
+
+    // 1. Continue Listening (Unique songs, ordered by most recently played)
+    const continueQuery = `
+        SELECT s.id, s.title, s.cover_path, s.file_path, ar.name AS artist, MAX(lh.created_at) as last_played
         FROM listening_history lh
         JOIN songs s ON lh.song_id = s.id
-        JOIN animes a ON s.anime_id = a.id
         JOIN artists ar ON s.artist_id = ar.id
         WHERE lh.user_id = $1
-        GROUP BY s.id, s.title, s.song_type, s.file_path, s.cover_path, a.title, ar.name
-        ORDER BY last_listened DESC
+        GROUP BY s.id, s.title, s.cover_path, s.file_path, ar.name
+        ORDER BY last_played DESC
+        LIMIT 10
+    `;
+
+    // 2. Recommendations (From the table our Cron Job populates!)
+    const recommendQuery = `
+        SELECT s.id, s.title, s.cover_path, s.file_path, ar.name AS artist
+        FROM user_recommendations ur
+        JOIN songs s ON ur.song_id = s.id
+        JOIN artists ar ON s.artist_id = ar.id
+        WHERE ur.user_id = $1
+        ORDER BY ur.affinity_score DESC
         LIMIT 10
     `;
 
     try {
-        const result = await query(text, [userID]);
-        res.status(200).json({ success: true, data: result.rows });
+        const [continueRes, recommendRes] = await Promise.all([
+            query(continueQuery, [userId]),
+            query(recommendQuery, [userId])
+        ]);
+
+        res.status(200).json({ 
+            success: true, 
+            data: {
+                continueListening: continueRes.rows,
+                recommended: recommendRes.rows
+            }
+        });
     } catch (err) {
-        console.error("Error fetching continue listening:", err);
-        res.status(500).json({ success: false, error: err.message });
+        console.error("Error fetching user home data:", err);
+        res.status(500).json({ success: false, message: 'Server error fetching user data' });
     }
 };
 
@@ -192,4 +209,4 @@ const updateProfile = async (req, res) => {
     }
 };
 
-export default { toggleLikeSong, getLikedSongs, getLikedSongsMinimalData, getUserDetails, getContinueListening, getListeningHistory, uploadAvatar, uploadBanner, updateProfile };
+export default { toggleLikeSong, getLikedSongs, getLikedSongsMinimalData, getUserDetails, getUserHomeData, getListeningHistory, uploadAvatar, uploadBanner, updateProfile };

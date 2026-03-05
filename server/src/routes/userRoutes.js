@@ -10,7 +10,7 @@ router.get('/likedsongs', userController.getLikedSongs);
 router.get('/likedsongs/minimal', userController.getLikedSongsMinimalData);
 router.get('/', userController.getUserDetails);
 router.post('/telemetry', telemetryController.logListenEvent);
-router.get('/continue-listening', userController.getContinueListening);
+router.get('/home-data', userController.getUserHomeData);
 router.get('/history', userController.getListeningHistory);
 router.post('/upload-avatar', upload.single('user_image'), userController.uploadAvatar);
 router.post('/upload-banner', upload.single('banner_image'), userController.uploadBanner);

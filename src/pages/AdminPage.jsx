@@ -7,6 +7,7 @@ import SongEditor from '../components/admin/SongEditor';
 import LyricsSyncer from '../components/admin/LyricsSyncer';
 import UserManager from '../components/admin/UserManager';
 import SiteContentManager from '../components/admin/SiteContentManager';
+import AnalyticsDashboard from '../components/admin/AnalyticsDashboard';
 
 // ==========================================
 // PLACEHOLDER COMPONENTS (We will split these into separate files later)
@@ -15,14 +16,7 @@ import SiteContentManager from '../components/admin/SiteContentManager';
 
 
 
-const AnalyticsDashboard = () => (
-    <div className="animate-fade-in">
-        <h2 className="text-2xl font-bold mb-6">Platform Analytics</h2>
-        <div className="bg-white/5 border border-white/5 rounded-xl p-8 text-center text-white/40">
-            Telemetry stats, most played songs, and graphs will go here.
-        </div>
-    </div>
-);
+
 
 
 

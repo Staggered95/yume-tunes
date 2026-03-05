@@ -12,6 +12,9 @@ function HomePage() {
   const [trending, setTrending] = useState([]);
   const [thisSeason, setThisSeason] = useState([]);
   const [continueListening, setContinueListening] = useState([]);
+  const [recommendedSongs, setRecommendedSongs] = useState([]);
+  const [quotes, setQuotes] = useState([]);
+  const [banners, setBanners] = useState([]);
 
   // Extract authFetch and token to make secure calls
   const { isLoggedIn, authFetch, token } = useAuth(); 
@@ -27,6 +30,8 @@ function HomePage() {
         if (json.success) {
           setTrending(json.data.trending || []);
           setThisSeason(json.data.thisSeason || []);
+          setQuotes(json.data.quotes || []);
+          setBanners(json.data.banners || []);
         }
       } catch (err) {
         console.error("Failed to fetch public home data:", err);
@@ -39,23 +44,26 @@ function HomePage() {
   // 3. PRIVATE DATA FETCH (Runs only when auth state changes)
   useEffect(() => {
     const fetchPrivateData = async () => {
+      // Clear out private data immediately if they log out
       if (!isLoggedIn || !token) {
-        setContinueListening([]); // Clear it out if they log out
+        setContinueListening([]); 
+        setRecommendedSongs([]);
         return;
       }
 
       try {
-        // Using standard fetch with token, or you can use authFetch if it wraps this!
-        const res = await fetch('http://localhost:5000/user/continue-listening', {
+        const res = await fetch('http://localhost:5000/user/home-data', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         const json = await res.json();
         
         if (json.success) {
-          setContinueListening(json.data || []);
+          // Destructure and assign both arrays at the exact same time!
+          setContinueListening(json.data.continueListening || []);
+          setRecommendedSongs(json.data.recommended || []);
         }
       } catch (err) {
-        console.error("Failed to fetch continue listening:", err);
+        console.error("Failed to fetch private home data:", err);
       }
     };
 
@@ -65,14 +73,14 @@ function HomePage() {
   return (
     <div className="flex flex-col gap-8 pb-32 animate-fade-in">
       {/* 1. Hero Section */}
-      <HeroCarousel />
+      <HeroCarousel dbBanners={banners} />
       
       <div className='flex flex-col mx-8 gap-20'>
         {/* 2. Chip Tags */}
         <TagChips />
 
         {/* 3. Greeting & Quotes */}
-        <GreetingHeader isLoggedIn={isLoggedIn} />
+        <GreetingHeader isLoggedIn={isLoggedIn} dbQuotes={quotes} />
 
         {/* 4. Launchpad Sections */}
         <div className="space-y-12">
@@ -94,7 +102,7 @@ function HomePage() {
                 title={`Made for ${userProfile?.[0]?.first_name || 'You'}`} 
                 properties="grid md:grid-cols-4 lg:grid-cols-8" 
                 type="small_square" 
-                items={thisSeason.slice(0, 8)} // Temporary fallback until you build the Made For You logic
+                items={recommendedSongs.slice(0, 8)} // Temporary fallback until you build the Made For You logic
               />
             </>
           ) : (
@@ -114,7 +122,7 @@ function HomePage() {
           />
           
           <SectionRow 
-            title="Songs This Season" 
+            title="Discover Random" 
             properties="flex scrollbar-none" 
             type="small_square" 
             items={thisSeason}

@@ -48,4 +48,6 @@ router.post('/banners', bannerUpload.single('banner_image'), contentController.a
 router.put('/banners/:id/toggle', contentController.toggleBannerStatus);
 router.delete('/banners/:id', contentController.deleteBanner);
 
+router.get('/analytics/dashboard', adminController.getDashboardStats);
+
 export default router;

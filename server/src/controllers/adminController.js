@@ -316,6 +316,41 @@ const updateUserRole = async (req, res) => {
     }
 };
 
+// === 9. GET ANALYTICS DASHBOARD STATS ===
+const getDashboardStats = async (req, res) => {
+    try {
+        // Run all aggregation queries simultaneously for speed
+        const [usersRes, songsRes, quotesRes, topSongsRes] = await Promise.all([
+            query(`SELECT COUNT(*) FROM users`),
+            query(`SELECT COUNT(*) FROM songs`),
+            query(`SELECT COUNT(*) FROM quotes WHERE is_active = true`),
+            query(`
+                SELECT s.id, s.title, ar.name as artist, COUNT(lh.id) as play_count
+                FROM listening_history lh
+                JOIN songs s ON lh.song_id = s.id
+                JOIN artists ar ON s.artist_id = ar.id
+                GROUP BY s.id, s.title, ar.name
+                ORDER BY play_count DESC
+                LIMIT 5
+            `)
+        ]);
 
-export default { getAllSongs, addSong, updateSong, deleteSong, updateLyrics, autoGenerateLyrics, getAllUsers, updateUserRole };
+        res.status(200).json({
+            success: true,
+            data: {
+                totalUsers: parseInt(usersRes.rows[0].count),
+                totalSongs: parseInt(songsRes.rows[0].count),
+                activeQuotes: parseInt(quotesRes.rows[0].count),
+                topSongs: topSongsRes.rows
+            }
+        });
+    } catch (err) {
+        console.error("Error fetching analytics:", err);
+        res.status(500).json({ success: false, message: 'Server error fetching analytics' });
+    }
+};
+
+
+
+export default { getAllSongs, addSong, updateSong, deleteSong, updateLyrics, autoGenerateLyrics, getAllUsers, updateUserRole, getDashboardStats };
 

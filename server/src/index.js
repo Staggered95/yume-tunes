@@ -2,7 +2,9 @@ import express from 'express';
 import 'dotenv/config';
 import cors from 'cors';
 import path from 'path';
+import cron from 'node-cron';
 import { fileURLToPath } from 'url';
+import { generateRecommendations } from './services/recommendationEngine.js'
 import songRoutes from './routes/songRoutes.js';
 import animeRoutes from './routes/animeRoutes.js'
 import artistRoutes from './routes/artistRoutes.js'
@@ -40,6 +42,15 @@ app.use('/user', userRoutes);
 app.use('/search', searchRoutes);
 app.use('/home', homeRoutes);
 app.use('/admin', adminRoutes);
+
+//RECOMMENDATION CRON
+// cron.schedule('0 3 * * *', () => {
+//     console.log('🌙 Running Nightly Recommendation Engine...');
+//     generateRecommendations();
+// });
+
+// FOR TESTING RIGHT NOW: Uncomment the line below to run it every 1 minute!
+cron.schedule('* * * * *', () => { console.log('Testing Engine...'); generateRecommendations(); });
 
 app.listen(5000, () => {
   console.log(`Server running on port ${port}`);
