@@ -40,4 +40,14 @@ const getPublicHomeData = async (req, res) => {
     }
 };
 
-export default { getPublicHomeData };
+const getQuotes = async (req, res) => {
+    try {
+        // Only fetch active quotes to save bandwidth
+        const result = await query(`SELECT quote_text, author, anime, quote_type, is_active FROM quotes WHERE is_active = true`);
+        res.status(200).json({ success: true, data: result.rows });
+    } catch (err) {
+        res.status(500).json({ success: false, message: 'Error fetching quotes' });
+    }
+};
+
+export default { getPublicHomeData, getQuotes };

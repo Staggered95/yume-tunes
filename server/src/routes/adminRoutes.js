@@ -1,7 +1,9 @@
 import express from 'express';
 import adminController from '../controllers/adminController.js';
+import contentController from '../controllers/contentController.js';
 import verifyToken from '../middleware/verifyToken.js';
 import songUpload from '../middleware/songUpload.js';
+import bannerUpload from '../middleware/bannerUpload.js';
 
 const router = express.Router();
 
@@ -31,5 +33,19 @@ router.put('/songs/:id/lyrics', adminController.updateLyrics);
 router.get('/songs/auto-lyrics', adminController.autoGenerateLyrics);
 router.get('/users', adminController.getAllUsers);
 router.put('/users/:id/role', adminController.updateUserRole);
+
+// --- QUOTES ROUTES ---
+router.get('/quotes', contentController.getQuotes);
+router.post('/quotes', contentController.addQuote);
+router.put('/quotes/:id/toggle', contentController.toggleQuoteStatus);
+router.delete('/quotes/:id', contentController.deleteQuote);
+router.put('/quotes/:id', contentController.editQuote);
+
+// --- BANNERS ROUTES ---
+// Notice how we use bannerUpload.single('banner_image') here!
+router.get('/banners', contentController.getBanners);
+router.post('/banners', bannerUpload.single('banner_image'), contentController.addBanner);
+router.put('/banners/:id/toggle', contentController.toggleBannerStatus);
+router.delete('/banners/:id', contentController.deleteBanner);
 
 export default router;

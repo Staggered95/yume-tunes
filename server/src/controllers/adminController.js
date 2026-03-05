@@ -285,7 +285,7 @@ const getAllUsers = async (req, res) => {
     try {
         // We do NOT select passwords here! Just the safe data.
         const result = await query(`
-            SELECT id, username, email, role, created_at 
+            SELECT id, username, email, user_image, role, created_at 
             FROM users 
             ORDER BY created_at DESC
         `);

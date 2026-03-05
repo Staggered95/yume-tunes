@@ -5,20 +5,15 @@ import { useUser } from '../context/UserContext';
 import SongManager from '../components/admin/SongManager';
 import SongEditor from '../components/admin/SongEditor';
 import LyricsSyncer from '../components/admin/LyricsSyncer';
+import UserManager from '../components/admin/UserManager';
+import SiteContentManager from '../components/admin/SiteContentManager';
 
 // ==========================================
 // PLACEHOLDER COMPONENTS (We will split these into separate files later)
 // ==========================================
 
 
-const UserManager = () => (
-    <div className="animate-fade-in">
-        <h2 className="text-2xl font-bold mb-6">User Management</h2>
-        <div className="bg-white/5 border border-white/5 rounded-xl p-8 text-center text-white/40">
-            User list and role-based access control (RBAC) toggles will go here.
-        </div>
-    </div>
-);
+
 
 const AnalyticsDashboard = () => (
     <div className="animate-fade-in">
@@ -29,14 +24,7 @@ const AnalyticsDashboard = () => (
     </div>
 );
 
-const SiteContentManager = () => (
-    <div className="animate-fade-in">
-        <h2 className="text-2xl font-bold mb-6">Site Content</h2>
-        <div className="bg-white/5 border border-white/5 rounded-xl p-8 text-center text-white/40">
-            Quotes array and featured section banners will be managed here.
-        </div>
-    </div>
-);
+
 
 
 // ==========================================

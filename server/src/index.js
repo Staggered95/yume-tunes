@@ -26,6 +26,7 @@ app.use(cors());
 app.use(express.json());
 app.use('/images/covers', express.static(path.join(__dirpath, '../../public/images/covers')));
 app.use('/images/users', express.static(path.join(__dirpath, '../../public/images/users')));
+app.use('/images/banners', express.static(path.join(__dirpath, '../../public/images/banners')));
 app.use('/audio', express.static(path.join(__dirpath, '../../public/audio')));
 
 //ROUTES

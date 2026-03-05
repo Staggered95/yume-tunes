@@ -108,8 +108,19 @@ const UserManager = () => {
                                     <tr key={u.id} className="hover:bg-white/5 transition-colors group">
                                         
                                         <td className="p-4 flex items-center gap-4">
-                                            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-accent-primary to-purple-500 flex items-center justify-center text-black font-bold text-xs shrink-0">
-                                                {u.username.charAt(0).toUpperCase()}
+                                            {/* Profile Picture / Avatar Wrapper */}
+                                            <div className="w-8 h-8 rounded-full shrink-0 overflow-hidden bg-white/10 flex items-center justify-center text-black font-bold text-xs">
+                                                {u.user_image ? (
+                                                    <img 
+                                                        src={u.user_image.startsWith('http') ? u.user_image : `http://localhost:5000${u.user_image}`} 
+                                                        alt={`${u.username} avatar`} 
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                ) : (
+                                                    <div className="w-full h-full bg-gradient-to-tr from-accent-primary to-purple-500 flex items-center justify-center">
+                                                        {u.username.charAt(0).toUpperCase()}
+                                                    </div>
+                                                )}
                                             </div>
                                             <span className="font-bold text-white/90">{u.username}</span>
                                         </td>
