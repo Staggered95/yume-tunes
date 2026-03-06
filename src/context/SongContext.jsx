@@ -102,10 +102,8 @@ export const SongProvider = ({children}) => {
         setCurrentIndex(startingIndex);
         
         const songToPlay = newQueue[startingIndex];
-        console.log(newQueue);
         if (songToPlay) {
             const fullUrl = getMediaUrl(songToPlay.file_path, 'audio');
-            console.log(fullUrl);
             playSong(fullUrl);
         }
     }, [playSong]);
@@ -268,6 +266,7 @@ export const SongProvider = ({children}) => {
       navigator.mediaSession.setActionHandler('nexttrack', () => {
         nextSong(); // Your existing function
       });
+      
     }
 
     // Cleanup function when the song stops or unmounts

@@ -20,7 +20,7 @@ import BottomPlayer from './components/BottomPlayer'
 import FullscreenPlayer from './components/FullscreenPlayer';
 import { useSongs } from './context/SongContext';
 import AuthModal from './components/AuthModal';
-
+import MobileNav from './components/MobileNav';
 
 const App = () => {
   const [isPlayerOpen, setIsPlayerOpen] = useState(false);
@@ -28,10 +28,16 @@ const App = () => {
 
   return (
     <>
-      <div className='relative'>
+      <div className='relative min-h-screen bg-background-primary text-text-primary'>
         <Navbar/>
-        <div className='pl-2 pr-2'>
-        <main>
+        
+        {/* Sidebar sits outside the main content container */}
+        <Sidebar/>
+        
+        {/* Main Content Area */}
+        {/* md:ml-20 prevents content from hiding behind the collapsed desktop sidebar */}
+        {/* pb-32 ensures content doesn't get hidden behind the BottomPlayer/MobileNav */}
+        <main className='px-4 md:px-8 md:ml-20 pb-32 pt-4 transition-all duration-300'>
           <Routes>
             <Route path="/" element={<HomePage/>} />
             <Route path="/search" element={<SearchResultPage />} />
@@ -45,24 +51,20 @@ const App = () => {
             <Route path="/likedsongs" element={<LikedSongsPage/>} />
             <Route path="/admin" element={<AdminPage/>} />
             <Route path="/playlists/:id" element={<PlaylistPage/>} />
-            
-            {/* 2. The Dynamic Detail Page */}
-            {/* The :title acts as a placeholder for whatever anime name you click */}
             <Route path="/anime/:title" element={<AnimePage />} />
-            {/* Add a 404 Page if you want */}
             <Route path="*" element={<div>Page Not Found</div>} />
           </Routes>
         </main>
-        <Sidebar/>
         
-        </div>
-          <BottomPlayer onExpand={() => setIsPlayerOpen(true)}/>
-          <FullscreenPlayer 
-            isOpen={isPlayerOpen} 
-            onClose={() => setIsPlayerOpen(false)} 
-            song={currentSong} 
-          />
+        <BottomPlayer onExpand={() => setIsPlayerOpen(true)}/>
+        <FullscreenPlayer 
+          isOpen={isPlayerOpen} 
+          onClose={() => setIsPlayerOpen(false)} 
+          song={currentSong} 
+        />
       </div>
+      
+      <MobileNav />
       <AuthModal/>
     </>
   );

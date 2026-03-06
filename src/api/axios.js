@@ -1,9 +1,12 @@
 // src/api/axios.js
 import axios from 'axios';
 
+const currentHost = window.location.hostname;
+const dynamicApiUrl = `http://${currentHost}:5000/`;
+
 const api = axios.create({
   // Automatically prepends this to all requests (e.g., api.get('/songs'))
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000', 
+  baseURL: import.meta.env.VITE_API_BASE_URL || dynamicApiUrl,
 });
 
 // 1. REQUEST INTERCEPTOR: Auto-attach JWT

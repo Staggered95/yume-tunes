@@ -7,13 +7,16 @@ export const getMediaUrl = (path, type = 'image') => {
 
     const cleanPath = path.startsWith('/') ? path : `/${path}`;
 
+    // THE MAGIC TRICK: Dynamically grab the current host (localhost or your IP)
+    const currentHost = window.location.hostname;
+    const dynamicLocalUrl = `http://${currentHost}:5000`;
+
     if (type === 'audio') {
-        // Matches your .env variable exactly
-        const audioBase = import.meta.env.VITE_AUDIO_BASE_URL;
+        // Use .env if it exists (for production), otherwise use the dynamic local URL
+        const audioBase = import.meta.env.VITE_AUDIO_BASE_URL || dynamicLocalUrl;
         return `${audioBase}${cleanPath}`;
     }
 
-    // Matches your .env variable exactly
-    const imageBase = import.meta.env.VITE_IMAGE_BASE_URL;
+    const imageBase = import.meta.env.VITE_IMAGE_BASE_URL || dynamicLocalUrl;
     return `${imageBase}${cleanPath}`;
 };

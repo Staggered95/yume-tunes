@@ -4,7 +4,7 @@ import api from '../api/axios'; // Native Axios instance
 import { useSongs } from '../context/SongContext';
 import { getMediaUrl } from '../utils/media';
 
-export default function SearchAutocomplete() {
+export default function SearchAutocomplete({autoFocus}) {
     const [query, setQuery] = useState('');
     const [results, setResults] = useState([]);
     const [showDropdown, setShowDropdown] = useState(false);
@@ -72,6 +72,13 @@ export default function SearchAutocomplete() {
             console.error("Search error:", err);
         }
     };
+
+    // Add this useEffect to handle auto-focusing when rendered
+    useEffect(() => {
+        if (autoFocus && inputRef.current) {
+            inputRef.current.focus();
+        }
+    }, [autoFocus]);
 
     const handleKeyDown = (e) => {
         if (e.key === 'ArrowDown') {
