@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import MinimalView from './FullscreenMinimalView';
-import UtilityView from './FullscreenUtilityView'; // Ensure this path is 100% correct
+import UtilityView from './FullscreenUtilityView';
 
 const FullscreenPlayer = ({ isOpen, onClose, song }) => {
   const [viewMode, setViewMode] = useState('minimal');
@@ -11,15 +11,25 @@ const FullscreenPlayer = ({ isOpen, onClose, song }) => {
     return () => { document.body.style.overflow = 'auto'; };
   }, [isOpen]);
 
-  // Logic: Reset view on close
+  // Logic: Reset view on close (with a delay so it doesn't snap mid-animation!)
   useEffect(() => {
-    if (!isOpen) setViewMode('minimal');
+    if (!isOpen) {
+      const timer = setTimeout(() => {
+        setViewMode('minimal');
+      }, 500); // Matches the duration of your child exit animations
+      return () => clearTimeout(timer);
+    }
   }, [isOpen]);
 
-  if (!isOpen) return null;
+  // Notice we removed `if (!isOpen) return null;` so the child components 
+  // actually get a chance to run their exit CSS transitions!
 
   return (
-    <div className="fixed inset-0 z-[9999] bg-[#050505] overflow-hidden">
+    <div 
+        className={`fixed inset-0 z-[100] bg-background-primary overflow-hidden transition-all duration-500 ${
+            isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none delay-200'
+        }`}
+    >
       {viewMode === 'minimal' ? (
         <MinimalView 
           song={song} 

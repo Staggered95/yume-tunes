@@ -1,19 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
+import api from '../api/axios'; // Centralized Axios instance
 import { useAuth } from '../context/AuthContext';
 import { useUser } from '../context/UserContext';
 import { useToast } from '../context/ToastContext';
-
-const DUMMY_HISTORY = [
-    { id: 1, title: "Unravel", artist: "TK from Ling tosite sigure", anime: "Tokyo Ghoul", time: "2 hours ago" },
-    { id: 2, title: "Gurenge", artist: "LiSA", anime: "Demon Slayer", time: "5 hours ago" },
-    { id: 3, title: "KICK BACK", artist: "Kenshi Yonezu", anime: "Chainsaw Man", time: "Yesterday" },
-    { id: 4, title: "Idol", artist: "YOASOBI", anime: "Oshi no Ko", time: "Yesterday" },
-    { id: 5, title: "Shinzo wo Sasageyo!", artist: "Linked Horizon", anime: "Attack on Titan", time: "2 days ago" },
-    { id: 6, title: "Crossing Field", artist: "LiSA", anime: "Sword Art Online", time: "3 days ago" },
-];
+import { getMediaUrl } from '../utils/media';
 
 const UserPage = () => {
-    const { authFetch } = useAuth();
+    const { isLoggedIn } = useAuth();
     const { userProfile, setUserProfile } = useUser();
     const { addToast } = useToast();
 
@@ -22,7 +15,7 @@ const UserPage = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [showFullHistory, setShowFullHistory] = useState(false);
     const [history, setHistory] = useState([]);
-const [isLoadingHistory, setIsLoadingHistory] = useState(true);
+    const [isLoadingHistory, setIsLoadingHistory] = useState(true);
     
     // Form States
     const [editForm, setEditForm] = useState({ first_name: '', last_name: '' });
@@ -31,44 +24,39 @@ const [isLoadingHistory, setIsLoadingHistory] = useState(true);
     const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
     const [isUploadingBanner, setIsUploadingBanner] = useState(false);
     const avatarInputRef = useRef(null);
-    const bannerInputRef = useRef(null); // 1. New Ref for the Banner!
+    const bannerInputRef = useRef(null);
 
+    // === 1. UTILITY: DYNAMIC TIME FORMATTER ===
     const getTimeAgo = (dateString) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const seconds = Math.floor((now - date) / 1000);
-    
-    if (seconds < 60) return 'Just now';
-    const minutes = Math.floor(seconds / 60);
-    if (minutes < 60) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
-    const days = Math.floor(hours / 24);
-    if (days === 1) return 'Yesterday';
-    if (days < 7) return `${days} days ago`;
-    return date.toLocaleDateString(); // Fallback to standard date
-};
-
-    useEffect(() => {
-    const fetchHistory = async () => {
-        try {
-            const res = await authFetch('/user/history');
-            const json = await res.json();
-            if (json.success) {
-                setHistory(json.data);
-            }
-        } catch (err) {
-            console.error("Failed to load history", err);
-        } finally {
-            setIsLoadingHistory(false);
-        }
+        const date = new Date(dateString);
+        const now = new Date();
+        const seconds = Math.floor((now - date) / 1000);
+        
+        if (seconds < 60) return 'Just now';
+        const minutes = Math.floor(seconds / 60);
+        if (minutes < 60) return `${minutes}m ago`;
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) return `${hours}h ago`;
+        const days = Math.floor(hours / 24);
+        if (days === 1) return 'Yesterday';
+        return date.toLocaleDateString();
     };
 
-    if (userProfile) {
-        fetchHistory();
-    }
-}, [userProfile, authFetch]);
+    // === 2. DATA FETCHING ===
+    useEffect(() => {
+        const fetchHistory = async () => {
+            try {
+                const { data } = await api.get('/user/history');
+                if (data.success) setHistory(data.data);
+            } catch (err) {
+                console.error("Failed to load history", err);
+            } finally {
+                setIsLoadingHistory(false);
+            }
+        };
 
+        if (isLoggedIn && userProfile) fetchHistory();
+    }, [isLoggedIn, userProfile]);
 
     useEffect(() => {
         if (userProfile) {
@@ -79,297 +67,213 @@ const [isLoadingHistory, setIsLoadingHistory] = useState(true);
         }
     }, [userProfile, isEditing]);
 
+    // === 3. PROFILE ACTIONS ===
     const handleSaveProfile = async () => {
         try {
-            const res = await authFetch('/user/update', {
-                method: 'PUT',
-                headers: {
-        'Content-Type': 'application/json'
-    },
-                body: JSON.stringify(editForm)
-            });
-            const json = await res.json();
-            
-            if (json.success) {
+            const { data } = await api.put('/user/update', editForm);
+            if (data.success) {
                 setUserProfile(prev => ({ ...prev, ...editForm }));
                 setIsEditing(false);
-                addToast("Profile updated successfully", "success");
-            } else {
-                addToast(json.message || "Failed to update profile", "error");
+                addToast("Profile synchronized!", "success");
             }
         } catch (err) {
-            addToast("Network error while saving", "error");
+            addToast("Failed to update profile", "error");
         }
     };
 
-    // === AVATAR UPLOAD ===
-    const handleAvatarChange = async (e) => {
+    const handleFileUpload = async (e, type) => {
         const file = e.target.files[0];
-        if (!file) return;
-        if (!file.type.startsWith('image/')) {
-            addToast("Please upload a valid image file", "error");
+        if (!file || !file.type.startsWith('image/')) {
+            addToast("Invalid image file", "error");
             return;
         }
 
-        setIsUploadingAvatar(true);
+        const isAvatar = type === 'avatar';
+        isAvatar ? setIsUploadingAvatar(true) : setIsUploadingBanner(true);
+
         const formData = new FormData();
-        formData.append('user_image', file);
-        //console.log(userProfile);
+        formData.append(isAvatar ? 'user_image' : 'banner_image', file);
+
         try {
-            const res = await authFetch('/user/upload-avatar', {
-                method: 'POST',
-                body: formData
-            });
-            const json = await res.json();
-            if (json.success) {
-                setUserProfile(prev => ({ ...prev, user_image: json.imageUrl }));
-                addToast("Profile picture updated!", "success");
-            } else addToast("Failed to upload image", "error");
+            const endpoint = isAvatar ? '/user/upload-avatar' : '/user/upload-banner';
+            const { data } = await api.post(endpoint, formData);
+            
+            if (data.success) {
+                const updateKey = isAvatar ? 'user_image' : 'banner_image';
+                setUserProfile(prev => ({ ...prev, [updateKey]: data.imageUrl }));
+                addToast(`${isAvatar ? 'Avatar' : 'Banner'} updated!`, "success");
+            }
         } catch (err) {
-            addToast("Network error during upload", "error");
+            addToast("Upload failed", "error");
         } finally {
-            setIsUploadingAvatar(false);
-            if (avatarInputRef.current) avatarInputRef.current.value = ''; 
+            isAvatar ? setIsUploadingAvatar(false) : setIsUploadingBanner(false);
+            e.target.value = ''; 
         }
     };
 
-    // === 2. BANNER UPLOAD LOGIC ===
-    const handleBannerChange = async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-        if (!file.type.startsWith('image/')) {
-            addToast("Please upload a valid image file", "error");
-            return;
-        }
-
-        setIsUploadingBanner(true);
-        const formData = new FormData();
-        // We will tell Multer to look for 'banner_image'
-        formData.append('banner_image', file); 
-
-        try {
-            // New endpoint specifically for the banner
-            const res = await authFetch('/user/upload-banner', { 
-                method: 'POST',
-                //file headers are automatically given by the browser
-                //headers: { 'Content-Type': null },
-                body: formData
-            });
-            const json = await res.json();
-            if (json.success) {
-                console.log(json);
-                console.log(userProfile);
-                setUserProfile(prev => ({ ...prev, banner_image: json.imageUrl }));
-                addToast("Cover photo updated!", "success");
-            } else addToast("Failed to upload cover photo", "error");
-        } catch (err) {
-            addToast("Network error during upload", "error");
-        } finally {
-            setIsUploadingBanner(false);
-            if (bannerInputRef.current) bannerInputRef.current.value = ''; 
-        }
-    };
-
-    // Safe Image URL Parsers
-    const avatarSrc = userProfile?.user_image 
-        ? (userProfile.user_image.startsWith('http') ? userProfile.user_image : `http://localhost:5000${userProfile.user_image}`)
-        : null;
-
-    const bannerSrc = userProfile?.banner_image 
-        ? (userProfile.banner_image.startsWith('http') ? userProfile.banner_image : `http://localhost:5000${userProfile.banner_image}`)
-        : null;
-
+    // Path Resolvers
+    const avatarSrc = getMediaUrl(userProfile?.user_image);
+    const bannerSrc = getMediaUrl(userProfile?.banner_image);
+    
     const displayedHistory = showFullHistory ? history : history.slice(0, 5);
-    console.log(avatarSrc);
+
+    if (!isLoggedIn) return null;
 
     return (
-        <div className="min-h-screen bg-[#050505] text-white pb-24">
+        <div className="min-h-screen bg-background-primary text-text-primary pb-32">
             
-            {/* 3. HERO BANNER (Now Interactive!) */}
-            <div className="relative group h-48 md:h-64 w-full bg-gradient-to-r from-accent-primary/20 via-purple-900/20 to-black overflow-hidden">
-                
-                {/* Dynamically render the background image if it exists */}
-                {bannerSrc && (
+            {/* INTERACTIVE BANNER */}
+            <div className="relative group h-64 md:h-80 w-full bg-background-secondary overflow-hidden">
+                {bannerSrc ? (
                     <img 
                         src={bannerSrc} 
-                        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${isUploadingBanner ? 'opacity-50 animate-pulse' : 'opacity-100'}`} 
-                        alt="Cover" 
+                        className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${isUploadingBanner ? 'opacity-30' : 'opacity-100'}`} 
+                        alt="" 
                     />
+                ) : (
+                    <div className="absolute inset-0 bg-gradient-to-br from-accent-primary/10 via-background-primary to-background-secondary" />
                 )}
                 
-                {/* A subtle dark overlay so the white text always stays readable regardless of the image uploaded */}
-                <div className="absolute inset-0 bg-black/30"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-background-primary via-transparent to-black/20" />
 
-                {/* Hover Edit Button (Top Right) */}
-                <div 
+                <button 
                     onClick={() => bannerInputRef.current?.click()}
-                    className="absolute right-4 top-4 md:right-8 md:top-8 px-4 py-2 bg-black/50 hover:bg-black/80 rounded-full opacity-0 group-hover:opacity-100 transition-all cursor-pointer backdrop-blur-md border border-white/20 z-20 flex items-center gap-2"
+                    className="absolute right-8 top-8 px-6 py-2.5 bg-background-primary/60 hover:bg-background-primary rounded-xl opacity-0 group-hover:opacity-100 transition-all backdrop-blur-xl border border-border flex items-center gap-3 active:scale-95"
                 >
-                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
-                    <span className="text-xs font-bold uppercase tracking-widest text-white hidden md:block">Edit Cover</span>
-                </div>
-
-                {/* Hidden Input for Banner */}
-                <input type="file" ref={bannerInputRef} onChange={handleBannerChange} accept="image/*" className="hidden" />
+                    <svg className="w-4 h-4 text-accent-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /></svg>
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em]">Change Banner</span>
+                </button>
+                <input type="file" ref={bannerInputRef} onChange={(e) => handleFileUpload(e, 'banner')} className="hidden" />
             </div>
 
-            <div className="max-w-6xl mx-auto px-6 lg:px-12 -mt-20 relative z-10">
+            <div className="max-w-7xl mx-auto px-6 md:px-12 -mt-24 relative z-20">
                 
-                {/* PROFILE HEADER */}
-                <div className="flex flex-col md:flex-row items-center md:items-end gap-6 mb-12">
-                    
-                    {/* The Avatar Upload Zone */}
+                {/* PROFILE HEADER SECTION */}
+                <div className="flex flex-col md:flex-row items-center md:items-end gap-8 mb-16">
                     <div className="relative group shrink-0">
-                        <div className={`w-32 h-32 md:w-40 md:h-40 rounded-full bg-background-active border-4 border-[#050505] shadow-2xl overflow-hidden flex items-center justify-center ${isUploadingAvatar ? 'animate-pulse' : ''}`}>
+                        <div className={`w-40 h-40 md:w-48 md:h-48 rounded-[2.5rem] bg-background-active border-8 border-background-primary shadow-2xl overflow-hidden flex items-center justify-center transition-all duration-500 ${isUploadingAvatar ? 'scale-90 opacity-50' : ''}`}>
                             {avatarSrc ? (
-                                <img src={avatarSrc} className="w-full h-full object-cover" alt="Profile" />
+                                <img src={avatarSrc} className="w-full h-full object-cover" alt="" />
                             ) : (
-                                <span className="text-5xl font-bold text-accent-primary">
-                                    {userProfile?.username?.charAt(0).toUpperCase() || 'U'}
+                                <span className="text-6xl font-black text-accent-primary">
+                                    {userProfile?.username?.charAt(0).toUpperCase()}
                                 </span>
                             )}
                         </div>
 
-                        {/* Hover Overlay for Avatar */}
                         <div 
                             onClick={() => avatarInputRef.current?.click()}
-                            className="absolute inset-0 bg-black/60 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center cursor-pointer border-4 border-transparent hover:border-accent-primary"
+                            className="absolute inset-0 bg-accent-primary/20 backdrop-blur-sm rounded-[2.5rem] opacity-0 group-hover:opacity-100 transition-all flex flex-col items-center justify-center cursor-pointer border-4 border-accent-primary"
                         >
-                            <svg className="w-8 h-8 text-white mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                            <span className="text-xs font-bold tracking-widest uppercase">Change</span>
+                            <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /></svg>
                         </div>
-                        {/* Hidden Input for Avatar */}
-                        <input type="file" ref={avatarInputRef} onChange={handleAvatarChange} accept="image/*" className="hidden" />
+                        <input type="file" ref={avatarInputRef} onChange={(e) => handleFileUpload(e, 'avatar')} className="hidden" />
                     </div>
 
-                    {/* Name & Username Display */}
                     <div className="flex-1 text-center md:text-left">
                         {isEditing ? (
-                            <div className="flex flex-col md:flex-row gap-3 mb-2 items-center md:items-start">
+                            <div className="flex gap-4 mb-4">
                                 <input 
                                     type="text" 
                                     value={editForm.first_name} 
                                     onChange={(e) => setEditForm({...editForm, first_name: e.target.value})} 
-                                    className="bg-white/5 border border-white/10 rounded-md px-3 py-2 text-2xl font-black focus:outline-none focus:border-accent-primary focus:bg-white/10 transition-colors w-full md:w-auto"
+                                    className="bg-background-secondary border border-border rounded-xl px-4 py-3 text-2xl font-black focus:border-accent-primary outline-none transition-all w-1/2"
                                     placeholder="First Name"
                                 />
                                 <input 
                                     type="text" 
                                     value={editForm.last_name} 
                                     onChange={(e) => setEditForm({...editForm, last_name: e.target.value})} 
-                                    className="bg-white/5 border border-white/10 rounded-md px-3 py-2 text-2xl font-black focus:outline-none focus:border-accent-primary focus:bg-white/10 transition-colors w-full md:w-auto"
+                                    className="bg-background-secondary border border-border rounded-xl px-4 py-3 text-2xl font-black focus:border-accent-primary outline-none transition-all w-1/2"
                                     placeholder="Last Name"
                                 />
                             </div>
                         ) : (
-                            <h1 className="text-4xl md:text-6xl font-black tracking-tighter mb-2">
+                            <h1 className="text-5xl md:text-7xl font-black tracking-tighter uppercase italic leading-none mb-3">
                                 {userProfile?.first_name} {userProfile?.last_name}
                             </h1>
                         )}
-                        <p className="text-white/50 text-lg md:text-xl font-medium tracking-wide">@{userProfile?.username}</p>
+                        <p className="text-accent-primary text-xl font-bold tracking-tight opacity-80">@{userProfile?.username}</p>
                     </div>
 
-                    {/* Action Buttons */}
-                    <div className="shrink-0 flex gap-3 mt-4 md:mt-0">
+                    <div className="shrink-0 pt-6">
                         {isEditing ? (
-                            <>
-                                <button onClick={() => setIsEditing(false)} className="px-5 py-2.5 rounded-full bg-white/5 text-white hover:bg-white/10 font-bold text-sm transition-colors">Cancel</button>
-                                <button onClick={handleSaveProfile} className="px-5 py-2.5 rounded-full bg-accent-primary text-black hover:bg-accent-hover font-bold text-sm transition-colors">Save Changes</button>
-                            </>
+                            <div className="flex gap-4">
+                                <button onClick={() => setIsEditing(false)} className="px-8 py-3 rounded-xl font-bold text-sm bg-background-secondary hover:bg-background-hover transition-all">Cancel</button>
+                                <button onClick={handleSaveProfile} className="px-8 py-3 rounded-xl font-black text-sm bg-accent-primary text-background-primary shadow-lg shadow-accent-primary/20 transition-all active:scale-95">Save</button>
+                            </div>
                         ) : (
-                            <button onClick={() => setIsEditing(true)} className="px-5 py-2.5 rounded-full border border-white/20 text-white hover:border-white hover:bg-white/5 font-bold text-sm transition-all flex items-center gap-2">
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
-                                Edit Profile
-                            </button>
+                            <button onClick={() => setIsEditing(true)} className="px-8 py-3 rounded-xl border border-border hover:border-accent-primary font-black text-xs uppercase tracking-widest transition-all">Edit Profile</button>
                         )}
                     </div>
                 </div>
 
-                {/* TABS NAVIGATION */}
-                <div className="flex gap-8 border-b border-white/5 mb-8">
-                    <button onClick={() => setActiveTab('profile')} className={`pb-3 text-sm font-bold uppercase tracking-widest transition-colors border-b-2 ${activeTab === 'profile' ? 'border-accent-primary text-white' : 'border-transparent text-white/40 hover:text-white'}`}>Overview</button>
-                    <button onClick={() => setActiveTab('settings')} className={`pb-3 text-sm font-bold uppercase tracking-widest transition-colors border-b-2 ${activeTab === 'settings' ? 'border-accent-primary text-white' : 'border-transparent text-white/40 hover:text-white'}`}>Settings</button>
-                </div>
-
-                {/* TAB CONTENT */}
+                {/* CONTENT GRID */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-                    <div className="lg:col-span-2">
-                        {activeTab === 'profile' && (
-    <section>
-        <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold tracking-tight">Recent Listening History</h2>
-        </div>
-        
-        <div className="bg-white/5 border border-white/5 rounded-2xl overflow-hidden min-h-[100px]">
-            {isLoadingHistory ? (
-                <div className="p-6 text-center text-white/40 animate-pulse">Loading history...</div>
-            ) : history.length === 0 ? (
-                <div className="p-6 text-center text-white/40">No listening history yet. Start playing some music!</div>
-            ) : (
-                displayedHistory.map((track, idx) => (
-                    // Using history_id as the key since songs can repeat!
-                    <div key={track.history_id} className={`flex items-center gap-4 p-4 hover:bg-white/5 transition-colors cursor-pointer ${idx !== displayedHistory.length - 1 ? 'border-b border-white/5' : ''}`}>
-                        <div className="w-12 h-12 bg-white/10 rounded-md overflow-hidden shrink-0">
-                            {track.cover_path ? (
-                                <img src={`http://localhost:5000${track.cover_path}`} alt="cover" className="w-full h-full object-cover" />
-                            ) : (
-                                <svg className="w-5 h-5 text-white/40 m-auto mt-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
-                            )}
+                    <div className="lg:col-span-2 space-y-12">
+                        
+                        {/* TABS */}
+                        <div className="flex gap-10 border-b border-border">
+                            {['profile', 'settings'].map(tab => (
+                                <button 
+                                    key={tab}
+                                    onClick={() => setActiveTab(tab)} 
+                                    className={`pb-5 text-xs font-black uppercase tracking-[0.3em] transition-all border-b-2 ${activeTab === tab ? 'border-accent-primary text-text-primary' : 'border-transparent text-text-muted hover:text-text-primary'}`}
+                                >
+                                    {tab}
+                                </button>
+                            ))}
                         </div>
-                        <div className="flex-1 min-w-0">
-                            <h3 className="font-bold text-white/90 truncate">{track.title}</h3>
-                            <p className="text-xs text-white/50 truncate">{track.artist} {track.anime ? `• ${track.anime}` : ''}</p>
-                        </div>
-                        <div className="text-xs text-white/30 font-medium shrink-0">
-                            {getTimeAgo(track.created_at)}
-                        </div>
-                    </div>
-                ))
-            )}
-        </div>
-        
-        {history.length > 5 && (
-            <button 
-                onClick={() => setShowFullHistory(!showFullHistory)}
-                className="mt-4 text-sm font-bold text-white/50 hover:text-white transition-colors uppercase tracking-widest"
-            >
-                {showFullHistory ? 'Show Less ↑' : 'Show All History ↓'}
-            </button>
-        )}
-    </section>
-)}
 
-                        {activeTab === 'settings' && (
-                            <section className="flex flex-col gap-6">
-                                <div className="bg-white/5 border border-white/5 rounded-2xl p-8 flex flex-col items-center justify-center text-center min-h-[300px]">
-                                    <svg className="w-16 h-16 text-white/20 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                                    <h2 className="text-xl font-bold mb-2">Settings are locked</h2>
-                                    <p className="text-white/40 max-w-sm">Password management, Google linking, and theme controls will be available here soon.</p>
+                        {activeTab === 'profile' && (
+                            <section className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                <h2 className="text-xs font-black uppercase tracking-[0.4em] text-text-muted mb-8 italic">Listening History</h2>
+                                <div className="space-y-1">
+                                    {isLoadingHistory ? (
+                                        <div className="py-20 text-center text-text-muted animate-pulse font-bold uppercase tracking-widest">Scanning History...</div>
+                                    ) : (
+                                        displayedHistory.map((track, idx) => (
+                                            <div key={track.history_id} className="group flex items-center gap-6 p-4 hover:bg-background-secondary rounded-2xl transition-all border border-transparent hover:border-border">
+                                                <div className="w-14 h-14 rounded-xl overflow-hidden shrink-0 shadow-lg">
+                                                    <img src={resolveImg(track.cover_path)} className="w-full h-full object-cover" alt="" />
+                                                </div>
+                                                <div className="flex-1">
+                                                    <h3 className="font-black text-sm tracking-tight group-hover:text-accent-primary transition-colors">{track.title}</h3>
+                                                    <p className="text-xs text-text-secondary font-bold">{track.artist} • {track.anime}</p>
+                                                </div>
+                                                <span className="text-[10px] font-black uppercase tracking-widest text-text-muted shrink-0">{getTimeAgo(track.created_at)}</span>
+                                            </div>
+                                        ))
+                                    )}
                                 </div>
+                                {history.length > 5 && (
+                                    <button onClick={() => setShowFullHistory(!showFullHistory)} className="w-full mt-6 py-4 rounded-xl border border-border text-[10px] font-black uppercase tracking-[0.3em] hover:bg-background-secondary transition-all">
+                                        {showFullHistory ? 'Close View ↑' : `View ${history.length - 5} More ↓`}
+                                    </button>
+                                )}
                             </section>
                         )}
                     </div>
 
-                    {/* RIGHT COLUMN */}
+                    {/* ACCOUNT SIDEBAR */}
                     <div className="lg:col-span-1">
-                        <div className="bg-white/5 border border-white/5 rounded-2xl p-6 sticky top-24">
-                            <h3 className="text-sm font-bold uppercase tracking-widest text-white/40 mb-6">Account Details</h3>
-                            <div className="flex flex-col gap-5">
+                        <div className="bg-background-secondary/30 border border-border rounded-3xl p-8 sticky top-28 backdrop-blur-md">
+                            <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-accent-primary mb-8 italic underline underline-offset-8">Intelligence</h3>
+                            <div className="space-y-8">
                                 <div>
-                                    <p className="text-xs text-white/40 uppercase tracking-wider mb-1">Email</p>
-                                    <p className="font-medium text-white/90">{userProfile?.email}</p>
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-text-muted mb-2">Primary Node</p>
+                                    <p className="font-bold text-text-primary">{userProfile?.email}</p>
                                 </div>
                                 <div>
-                                    <p className="text-xs text-white/40 uppercase tracking-wider mb-1">Member Since</p>
-                                    <p className="font-medium text-white/90">
-                                        {userProfile?.created_at ? new Date(userProfile.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : 'Unknown'}
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-text-muted mb-2">Activation Date</p>
+                                    <p className="font-bold text-text-primary">
+                                        {userProfile?.created_at ? new Date(userProfile.created_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : 'N/A'}
                                     </p>
                                 </div>
-                                <div>
-                                    <p className="text-xs text-white/40 uppercase tracking-wider mb-1">Plan</p>
-                                    <span className="inline-block px-3 py-1 bg-accent-primary/20 text-accent-primary text-xs font-bold tracking-widest rounded-full border border-accent-primary/30 mt-1">
-                                        YUMETUNES FREE
-                                    </span>
+                                <div className="pt-4">
+                                    <div className="px-4 py-2 bg-accent-primary/5 border border-accent-primary/20 text-accent-primary text-[10px] font-black uppercase tracking-widest rounded-xl text-center">
+                                        Free Tier Verified
+                                    </div>
                                 </div>
                             </div>
                         </div>

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Collage from '../minicomps/Collage';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api/axios';
 
 const AnimeListPage = () => {
   const [animes, setAnimes] = useState([]);
@@ -10,11 +10,11 @@ const AnimeListPage = () => {
   const fetchAnimes = async () => {
     try {
       // 1. Await the axios call
-      const res = await axios.get('http://localhost:5000/animes');
+      const { data } = await api.get('/animes');
       
       // 2. Axios already parsed the JSON into res.data
       // No need for res.json()
-      setAnimes(res.data.data); // Use .data.data if your backend sends { success: true, data: [...] }
+      setAnimes(data.data); // Use .data.data if your backend sends { success: true, data: [...] }
     } catch (err) {
       console.error("Fetch error:", err);
     }

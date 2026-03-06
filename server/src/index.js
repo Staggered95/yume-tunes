@@ -24,7 +24,8 @@ const __filepath = fileURLToPath(__file_url_path);
 const __dirpath = path.dirname(__filepath);
 
 //MIDDLEWARES
-app.use(cors());
+//app.use(cors());
+app.use(cors({ origin: '*' })); // permissive for dev
 app.use(express.json());
 app.use('/images/covers', express.static(path.join(__dirpath, '../../public/images/covers')));
 app.use('/images/users', express.static(path.join(__dirpath, '../../public/images/users')));
@@ -44,14 +45,14 @@ app.use('/home', homeRoutes);
 app.use('/admin', adminRoutes);
 
 //RECOMMENDATION CRON
-// cron.schedule('0 3 * * *', () => {
-//     console.log('🌙 Running Nightly Recommendation Engine...');
-//     generateRecommendations();
-// });
+cron.schedule('0 3 * * *', () => {
+    console.log('🌙 Running Nightly Recommendation Engine...');
+    generateRecommendations();
+});
 
 // FOR TESTING RIGHT NOW: Uncomment the line below to run it every 1 minute!
-cron.schedule('* * * * *', () => { console.log('Testing Engine...'); generateRecommendations(); });
+//cron.schedule('* * * * *', () => { console.log('Testing Engine...'); generateRecommendations(); });
 
-app.listen(5000, () => {
+app.listen(5000, '0.0.0.0', () => {
   console.log(`Server running on port ${port}`);
 })

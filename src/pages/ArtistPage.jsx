@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import api from '../api/axios';
 import { useParams, Link } from 'react-router-dom';
-import axios from 'axios';
 import { useSongs } from '../context/SongContext';
+import { getMediaUrl } from '../utils/media';
 
 const ArtistPage = () => {
   const { artistName } = useParams();
@@ -19,8 +20,8 @@ const ArtistPage = () => {
         
         // Parallel fetching: hitting both your song and artist endpoints at once
         const [songsRes, detailsRes] = await Promise.all([
-          axios.get(`http://localhost:5000/songs/artist/${encodedName}`),
-          axios.get(`http://localhost:5000/artists/${encodedName}`)
+          api.get(`http://localhost:5000/songs/artist/${encodedName}`),
+          api.get(`http://localhost:5000/artists/${encodedName}`)
         ]);
 
         setData({
@@ -88,7 +89,7 @@ const ArtistPage = () => {
 
                 {/* Cover Art */}
                 <img 
-                  src={`http://localhost:5000${song.cover_path}`} 
+                  src={getMediaUrl(song.cover_path)} 
                   className="w-14 h-14 rounded-xl object-cover shadow-2xl border border-white/5"
                   alt="" 
                 />
@@ -128,7 +129,7 @@ const ArtistPage = () => {
                   className="flex items-center gap-4 p-3 bg-white/[0.02] border border-white/5 rounded-2xl hover:bg-white/10 transition-all group"
                 >
                   <img 
-                    src={`http://localhost:5000${anime.anime_cover}`} 
+                    src={getMediaUrl(anime.anime_cover)} 
                     className="w-16 h-16 rounded-xl object-cover group-hover:scale-105 transition-transform"
                     alt={anime.title}
                   />

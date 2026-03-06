@@ -30,7 +30,7 @@ const App = () => {
     <>
       <div className='relative'>
         <Navbar/>
-        <div className='pl-16 pr-2'>
+        <div className='pl-2 pr-2'>
         <main>
           <Routes>
             <Route path="/" element={<HomePage/>} />

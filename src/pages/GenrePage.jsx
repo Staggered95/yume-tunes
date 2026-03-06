@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api/axios';
 import SongCard from '../components/SongCard';
 
 const GenrePage = () => {
@@ -13,10 +13,10 @@ const GenrePage = () => {
             setLoading(true);
             try {
                 // Using your existing search endpoint with the genre filter
-                const res = await axios.get(`http://localhost:5000/songs/search`, {
+                const { data } = await api.get(`/songs/search`, {
                     params: { genre: genreName }
                 });
-                setSongs(res.data.data);
+                setSongs(data.data);
             } catch (err) {
                 console.error("Failed to fetch genre songs:", err);
             } finally {

@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, useCallback, useMemo } from "react";
 import { usePlayback } from "./PlaybackContext";
 import { useAuth } from "./AuthContext";
+import { getMediaUrl } from "../utils/media";
 
 const SongContext = createContext();
 
@@ -101,8 +102,10 @@ export const SongProvider = ({children}) => {
         setCurrentIndex(startingIndex);
         
         const songToPlay = newQueue[startingIndex];
+        console.log(newQueue);
         if (songToPlay) {
-            const fullUrl = `http://localhost:5000${songToPlay.file_path}`;
+            const fullUrl = getMediaUrl(songToPlay.file_path, 'audio');
+            console.log(fullUrl);
             playSong(fullUrl);
         }
     }, [playSong]);
@@ -182,7 +185,7 @@ export const SongProvider = ({children}) => {
             const nextIdx = (prevIndex + 1) % queue.length; // Loops back to start
             const nextSongObj = queue[nextIdx];
             
-            const fullUrl = `http://localhost:5000${nextSongObj.file_path}`;
+            const fullUrl = getMediaUrl(nextSongObj.file_path, 'audio');
             playSong(fullUrl);
             
             return nextIdx;
@@ -200,7 +203,7 @@ export const SongProvider = ({children}) => {
             const prevIdx = (prevIndex - 1 + queue.length) % queue.length; // Loops to end
             const prevSongObj = queue[prevIdx];
             
-            const fullUrl = `http://localhost:5000${prevSongObj.file_path}`;
+            const fullUrl = getMediaUrl(prevSongObj.file_path);
             playSong(fullUrl);
             
             return prevIdx;
@@ -243,7 +246,7 @@ export const SongProvider = ({children}) => {
         album: currentSong.anime || 'YumeTunes',
         artwork: [
           // Make sure this path resolves correctly to your backend image!
-          { src: `http://localhost:5000${currentSong.cover_path}`, sizes: '512x512', type: 'image/jpeg' }
+          { src: getMediaUrl(currentSong.cover_path), sizes: '512x512', type: 'image/jpeg' }
         ]
       });
 

@@ -9,41 +9,58 @@ const ConfirmDialog = ({
     message, 
     confirmText = "Confirm", 
     cancelText = "Cancel",
-    isDestructive = false // If true, we make the confirm button RED
+    isDestructive = false 
 }) => {
     
-    const handleConfirm = () => {
-        onConfirm();
-        onClose();
-    };
-
     return (
-        // We set maxWidth to max-w-sm to make dialogs appropriately small
-        <BaseModal isOpen={isOpen} onClose={onClose} title={title} maxWidth="max-w-sm">
-            
-            <p className="text-text-secondary mb-6 text-sm md:text-base">
-                {message}
-            </p>
+        <BaseModal 
+            isOpen={isOpen} 
+            onClose={onClose} 
+            title={title} 
+            maxWidth="max-w-sm"
+        >
+            <div className="flex flex-col gap-6">
+                
+                <div className="flex gap-4">
+                    {/* Visual Indicator for Destructive Actions */}
+                    {isDestructive && (
+                        <div className="shrink-0 w-12 h-12 rounded-2xl bg-error/10 flex items-center justify-center text-error border border-error/20">
+                            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                        </div>
+                    )}
+                    
+                    <p className="text-text-secondary text-sm md:text-base leading-relaxed font-medium">
+                        {message}
+                    </p>
+                </div>
 
-            <div className="flex justify-end gap-3">
-                <button 
-                    onClick={onClose}
-                    className="px-4 py-2 rounded-full font-medium text-text-primary hover:bg-white/5 transition-colors"
-                >
-                    {cancelText}
-                </button>
-                <button 
-                    onClick={handleConfirm}
-                    className={`px-4 py-2 rounded-full font-medium transition-colors ${
-                        isDestructive 
-                            ? "bg-error hover:bg-red-500 text-white" // Using your CSS variable!
-                            : "bg-accent-primary hover:bg-accent-hover text-white"
-                    }`}
-                >
-                    {confirmText}
-                </button>
+                <div className="flex flex-col sm:flex-row justify-end gap-3 pt-2">
+                    {/* Secondary/Cancel Button */}
+                    <button 
+                        onClick={onClose}
+                        className="px-6 py-2.5 rounded-xl font-bold text-sm uppercase tracking-widest text-text-secondary hover:text-text-primary hover:bg-background-hover border border-transparent hover:border-border transition-all duration-300 active:scale-95"
+                    >
+                        {cancelText}
+                    </button>
+                    
+                    {/* Primary Action Button */}
+                    <button 
+                        onClick={() => {
+                            onConfirm();
+                            onClose();
+                        }}
+                        className={`px-6 py-2.5 rounded-xl font-black text-sm uppercase tracking-widest transition-all duration-300 shadow-lg active:scale-95 ${
+                            isDestructive 
+                                ? "bg-error text-background-primary hover:bg-red-500 shadow-error/20" 
+                                : "bg-accent-primary text-background-primary hover:bg-accent-hover shadow-accent-primary/20"
+                        }`}
+                    >
+                        {confirmText}
+                    </button>
+                </div>
             </div>
-            
         </BaseModal>
     );
 };

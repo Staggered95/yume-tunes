@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../context/AuthContext';
-import { useToast } from '../context/ToastContext'; // 1. Bring in the Toast!
-import BaseModal from '../minicomps/BaseModal'; // 2. Bring in the wrapper!
+import api from '../api/axios'; // Native Axios import
+import { useToast } from '../context/ToastContext';
+import BaseModal from '../minicomps/BaseModal';
 
 const PlaylistModal = ({ isOpen, onClose, songId }) => {
-    const { authFetch } = useAuth();
     const { addToast } = useToast(); 
     
     const [view, setView] = useState('list'); 
@@ -23,9 +22,11 @@ const PlaylistModal = ({ isOpen, onClose, songId }) => {
         const fetchPlaylists = async () => {
             setIsLoading(true);
             try {
-                const response = await authFetch('/playlists');
-                const json = await response.json();
-                if (json.success) setPlaylists(json.data);
+                // Axios handles token and JSON automatically
+                const { data } = await api.get('/playlists');
+                if (data.success) {
+                    setPlaylists(data.data);
+                }
             } catch (error) {
                 addToast("Failed to fetch playlists", "error");
             } finally {
@@ -34,23 +35,20 @@ const PlaylistModal = ({ isOpen, onClose, songId }) => {
         };
 
         fetchPlaylists();
-    }, [isOpen, authFetch, addToast]);
+    }, [isOpen, addToast]);
 
     const handleAddToPlaylist = async (playlistId) => {
         try {
-            const response = await authFetch(`/playlists/${playlistId}/songs`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ songID: songId, positionOrder: 1 }) 
+            const { data } = await api.post(`/playlists/${playlistId}/songs`, { 
+                songID: songId, 
+                positionOrder: 1 
             });
-            const json = await response.json();
             
-            if (json.success) {
-                // Replace inline status with our sleek global toast
-                addToast('Added to playlist! 🎵'); 
-                onClose(); // Close instantly, let the toast linger
+            if (data.success) {
+                addToast('Added to playlist! 🎵', "success"); 
+                onClose(); 
             } else {
-                addToast(json.error || 'Song already in playlist', "error");
+                addToast(data.message || 'Song already in playlist', "warning");
                 onClose();
             }
         } catch (error) {
@@ -61,28 +59,24 @@ const PlaylistModal = ({ isOpen, onClose, songId }) => {
     const handleCreatePlaylist = async (e) => {
         e.preventDefault();
         try {
-            const response = await authFetch('/playlists', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: newPlaylistName, description: newPlaylistDesc })
+            const { data } = await api.post('/playlists', { 
+                name: newPlaylistName, 
+                description: newPlaylistDesc 
             });
-            const json = await response.json();
             
-            if (json.success) {
-                const newPlaylist = json.data;
+            if (data.success) {
+                const newPlaylist = data.data;
                 setPlaylists([newPlaylist, ...playlists]);
                 setNewPlaylistName('');
                 setNewPlaylistDesc('');
                 setView('list');
-                addToast(`Created ${newPlaylist.name}!`, "success"); // Toast!
+                addToast(`Created ${newPlaylist.name}!`, "success");
             }
         } catch (error) {
             addToast('Failed to create playlist.', "error");
         }
     };
 
-    // 3. MAGIC: We wrap EVERYTHING in the BaseModal. 
-    // It dynamically changes its title based on the state!
     return (
         <BaseModal 
             isOpen={isOpen} 
@@ -91,21 +85,32 @@ const PlaylistModal = ({ isOpen, onClose, songId }) => {
         >
             {/* --- VIEW 1: THE LIST --- */}
             {view === 'list' && (
-                <div className="animate-fade-in">
-                    <div className="max-h-64 overflow-y-auto space-y-2 mb-6 custom-scrollbar pr-2">
+                <div className="animate-fade-in flex flex-col">
+                    <div className="max-h-72 overflow-y-auto space-y-1 mb-6 pr-2 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
                         {isLoading ? (
-                            <p className="text-text-secondary text-center py-4">Loading your playlists...</p>
+                            <div className="flex flex-col gap-3 py-4">
+                                {[1, 2, 3].map(i => (
+                                    <div key={i} className="h-12 w-full bg-background-active/50 animate-pulse rounded-lg" />
+                                ))}
+                            </div>
                         ) : playlists.length === 0 ? (
-                            <p className="text-text-secondary text-center py-4">You don't have any playlists yet.</p>
+                            <div className="text-center py-10">
+                                <p className="text-text-secondary text-sm">You don't have any playlists yet.</p>
+                            </div>
                         ) : (
                             playlists.map(playlist => (
                                 <button 
                                     key={playlist.id}
                                     onClick={() => handleAddToPlaylist(playlist.id)}
-                                    className="w-full text-left p-3 hover:bg-white/5 rounded-lg text-text-primary font-semibold transition-colors flex justify-between items-center group"
+                                    className="w-full text-left p-4 bg-background-primary/40 hover:bg-background-hover border border-transparent hover:border-border rounded-xl transition-all duration-300 flex justify-between items-center group"
                                 >
-                                    <span className="truncate">{playlist.name}</span>
-                                    <span className="text-text-secondary group-hover:text-accent-primary opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <div className="flex flex-col min-w-0">
+                                        <span className="text-text-primary font-bold truncate">{playlist.name}</span>
+                                        <span className="text-text-muted text-xs truncate">
+                                            {playlist.song_count || 0} tracks
+                                        </span>
+                                    </div>
+                                    <span className="text-accent-primary font-bold text-sm opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
                                         + Add
                                     </span>
                                 </button>
@@ -115,51 +120,55 @@ const PlaylistModal = ({ isOpen, onClose, songId }) => {
 
                     <button 
                         onClick={() => setView('create')}
-                        className="w-full bg-background-secondary hover:bg-white/5 text-text-primary py-3 rounded-lg font-bold border border-border transition-colors"
+                        className="w-full bg-background-secondary hover:bg-background-hover text-text-primary py-4 rounded-xl font-black text-sm uppercase tracking-widest border border-border hover:border-border-hover transition-all duration-300"
                     >
-                        + Create New Playlist
+                        Create New Playlist
                     </button>
                 </div>
             )}
 
             {/* --- VIEW 2: CREATE NEW --- */}
             {view === 'create' && (
-                <form onSubmit={handleCreatePlaylist} className="animate-fade-in">
-                    <div className="space-y-4 mb-6">
-                        <div>
-                            <label className="block text-text-secondary text-sm font-bold mb-2">Playlist Name</label>
+                <form onSubmit={handleCreatePlaylist} className="animate-fade-in flex flex-col gap-5">
+                    <div className="space-y-4">
+                        <div className="group">
+                            <label className="block text-text-secondary text-xs font-black uppercase tracking-widest mb-2 group-focus-within:text-accent-primary transition-colors">
+                                Playlist Name
+                            </label>
                             <input 
                                 type="text" 
                                 required
                                 value={newPlaylistName}
                                 onChange={(e) => setNewPlaylistName(e.target.value)}
-                                className="w-full bg-background-primary text-text-primary border border-border rounded-lg p-3 focus:outline-none focus:border-accent-primary transition-colors"
+                                className="w-full bg-background-primary text-text-primary border border-border rounded-xl p-4 focus:outline-none focus:border-accent-primary focus:ring-1 focus:ring-accent-primary/30 transition-all duration-300"
                                 placeholder="e.g., Late Night Anime Vibes"
                             />
                         </div>
-                        <div>
-                            <label className="block text-text-secondary text-sm font-bold mb-2">Description (Optional)</label>
+                        <div className="group">
+                            <label className="block text-text-secondary text-xs font-black uppercase tracking-widest mb-2 group-focus-within:text-accent-primary transition-colors">
+                                Description
+                            </label>
                             <textarea 
                                 value={newPlaylistDesc}
                                 onChange={(e) => setNewPlaylistDesc(e.target.value)}
-                                className="w-full bg-background-primary text-text-primary border border-border rounded-lg p-3 focus:outline-none focus:border-accent-primary transition-colors resize-none h-24"
-                                placeholder="Songs that make me cry..."
+                                className="w-full bg-background-primary text-text-primary border border-border rounded-xl p-4 focus:outline-none focus:border-accent-primary focus:ring-1 focus:ring-accent-primary/30 transition-all duration-300 resize-none h-28"
+                                placeholder="Tell us about the mood..."
                             />
                         </div>
                     </div>
 
-                    <div className="flex gap-3">
+                    <div className="flex gap-4 pt-2">
                         <button 
                             type="button"
                             onClick={() => setView('list')}
-                            className="flex-1 bg-transparent hover:bg-white/5 text-text-primary py-3 rounded-lg font-bold transition-colors"
+                            className="flex-1 py-4 rounded-xl font-bold text-text-secondary hover:text-text-primary hover:bg-background-hover transition-all duration-300"
                         >
-                            Cancel
+                            Back
                         </button>
                         <button 
                             type="submit"
                             disabled={!newPlaylistName.trim()}
-                            className="flex-1 bg-accent-primary hover:bg-accent-hover text-white py-3 rounded-lg font-bold transition-transform transform hover:scale-[1.02] disabled:opacity-50 disabled:hover:scale-100"
+                            className="flex-1 bg-accent-primary text-background-primary py-4 rounded-xl font-black text-sm uppercase tracking-widest shadow-lg shadow-accent-primary/20 hover:bg-accent-hover hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 disabled:opacity-50 disabled:grayscale disabled:hover:scale-100"
                         >
                             Create
                         </button>

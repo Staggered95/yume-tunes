@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import api from '../api/axios';
 import HeroCarousel from '../components/HeroCarousel';
 import TagChips from '../components/TagChips';
 import GreetingHeader from '../components/GreetingHeader';
@@ -24,14 +25,13 @@ function HomePage() {
   useEffect(() => {
     const fetchPublicData = async () => {
       try {
-        const res = await fetch('http://localhost:5000/home/data');
-        const json = await res.json();
+        const { data } = await api.get('/home/data');
         
-        if (json.success) {
-          setTrending(json.data.trending || []);
-          setThisSeason(json.data.thisSeason || []);
-          setQuotes(json.data.quotes || []);
-          setBanners(json.data.banners || []);
+        if (data.success) {
+          setTrending(data.data.trending || []);
+          setThisSeason(data.data.thisSeason || []);
+          setQuotes(data.data.quotes || []);
+          setBanners(data.data.banners || []);
         }
       } catch (err) {
         console.error("Failed to fetch public home data:", err);
@@ -52,15 +52,12 @@ function HomePage() {
       }
 
       try {
-        const res = await fetch('http://localhost:5000/user/home-data', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const json = await res.json();
+        const { data } = await api.get('/user/home-data');
         
-        if (json.success) {
+        if (data.success) {
           // Destructure and assign both arrays at the exact same time!
-          setContinueListening(json.data.continueListening || []);
-          setRecommendedSongs(json.data.recommended || []);
+          setContinueListening(data.data.continueListening || []);
+          setRecommendedSongs(data.data.recommended || []);
         }
       } catch (err) {
         console.error("Failed to fetch private home data:", err);
@@ -123,7 +120,7 @@ function HomePage() {
           
           <SectionRow 
             title="Discover Random" 
-            properties="flex scrollbar-none" 
+            properties="flex" 
             type="small_square" 
             items={thisSeason}
           />

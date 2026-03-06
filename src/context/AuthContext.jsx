@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
+import api from "../api/axios";
 
 const AuthContext = createContext();
 
@@ -22,13 +23,10 @@ export const AuthProvider = ({children}) => {
             try {
                 // We ping the backend to validate the token. 
                 // (Adjust this URL to match your actual backend route!)
-                const response = await fetch('http://localhost:5000/auth/me', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
+                const { data } = await api.get('http://localhost:5000/auth/me')
 
-                if (response.ok) {
-                    const userData = await response.json();
-                    setUser(userData); // Token is valid! Set the user.
+                if (data.success) {
+                    setUser(data); // Token is valid! Set the user.
                 } else {
                     // Backend said the token is expired or fake (401/403 status)
                     console.warn("Session expired. Logging out.");
@@ -54,12 +52,9 @@ export const AuthProvider = ({children}) => {
         const fetchLikedIds = async () => {
             try {
                 // Point this to your getLikedSongsMinimalData route
-                const res = await fetch('http://localhost:5000/user/likedsongs/minimal', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const json = await res.json();
-                if (json.success) {
-                    setLikedSongIds(new Set(json.data));
+                const { data } = await api.get('http://localhost:5000/user/likedsongs/minimal');
+                if (data.success) {
+                    setLikedSongIds(new Set(data.data));
                 }
             } catch (err) {
                 console.error("Failed to fetch liked IDs", err);

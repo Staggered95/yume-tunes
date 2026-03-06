@@ -1,16 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useAuth } from '../../context/AuthContext';
+import api from '../../api/axios'; // Native Axios import
 import { useToast } from '../../context/ToastContext';
-import ImageCropperModal from '../../minicomps/ImageCropperModal'; // Import our new modal
+import ImageCropperModal from '../../minicomps/ImageCropperModal';
+import { getMediaUrl } from '../../utils/media';
 
 const SongEditor = ({ initialData, onCancel, onSaveSuccess }) => {
-    const { authFetch } = useAuth();
     const { addToast } = useToast();
     
     const isEditMode = !!initialData;
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // Form State (Added genre and duration_seconds)
+    // Form State
     const [formData, setFormData] = useState({
         title: '',
         artist_name: '',
@@ -44,7 +44,7 @@ const SongEditor = ({ initialData, onCancel, onSaveSuccess }) => {
                 duration_seconds: initialData.duration_seconds || ''
             });
             if (initialData.cover_path) {
-                setCoverPreview(initialData.cover_path.startsWith('http') ? initialData.cover_path : `http://localhost:5000${initialData.cover_path}`);
+                setCoverPreview(getMediaUrl(initialData.cover_path));
             }
         }
     }, [initialData]);
@@ -58,18 +58,17 @@ const SongEditor = ({ initialData, onCancel, onSaveSuccess }) => {
         const file = e.target.files[0];
         if (file && file.type.startsWith('image/')) {
             const imageUrl = URL.createObjectURL(file);
-            setRawImageSrc(imageUrl); // Load it into the cropper
-            setIsCropperOpen(true);   // Open the modal
+            setRawImageSrc(imageUrl); 
+            setIsCropperOpen(true);   
         } else {
             addToast("Please upload a valid image file", "error");
         }
-        // Reset the input so they can select the same file again if they cancel
         if (coverInputRef.current) coverInputRef.current.value = '';
     };
 
     const handleCropComplete = (croppedFile) => {
         setCoverFile(croppedFile);
-        setCoverPreview(URL.createObjectURL(croppedFile)); // Show the shiny cropped version!
+        setCoverPreview(URL.createObjectURL(croppedFile)); 
         setIsCropperOpen(false);
     };
 
@@ -79,7 +78,6 @@ const SongEditor = ({ initialData, onCancel, onSaveSuccess }) => {
         if (file && file.type.startsWith('audio/')) {
             setAudioFile(file);
             
-            // MAGIC: Automatically read the audio duration!
             const audioUrl = URL.createObjectURL(file);
             const audio = new Audio(audioUrl);
             audio.onloadedmetadata = () => {
@@ -115,20 +113,21 @@ const SongEditor = ({ initialData, onCancel, onSaveSuccess }) => {
         if (coverFile) submitData.append('cover_image', coverFile);
 
         const url = isEditMode ? `/admin/songs/${initialData.id}` : '/admin/songs';
-        const method = isEditMode ? 'PUT' : 'POST';
+        const method = isEditMode ? 'put' : 'post';
 
         try {
-            const res = await authFetch(url, {
+            // Axios automatically detects FormData and sets multipart/form-data headers!
+            const { data } = await api({
                 method: method,
-                body: submitData
+                url: url,
+                data: submitData
             });
-            const json = await res.json();
 
-            if (json.success) {
+            if (data.success) {
                 addToast(`Song ${isEditMode ? 'updated' : 'added'} successfully!`, "success");
                 onSaveSuccess(); 
             } else {
-                addToast(json.message || "Failed to save song", "error");
+                addToast(data.message || "Failed to save song", "error");
             }
         } catch (err) {
             console.error("Save error:", err);
@@ -140,7 +139,6 @@ const SongEditor = ({ initialData, onCancel, onSaveSuccess }) => {
 
     return (
         <>
-            {/* Render the Cropper outside the form layout */}
             {isCropperOpen && (
                 <ImageCropperModal 
                     imageSrc={rawImageSrc} 
@@ -150,38 +148,37 @@ const SongEditor = ({ initialData, onCancel, onSaveSuccess }) => {
             )}
 
             <div className="animate-fade-in max-w-4xl mx-auto">
-                <div className="flex items-center justify-between mb-8">
-                    <h2 className="text-2xl font-bold text-white tracking-tight">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-8 gap-4 sm:gap-0">
+                    <h2 className="text-2xl font-bold text-text-primary tracking-tight">
                         {isEditMode ? 'Edit Song' : 'Add New Song'}
                     </h2>
-                    <button onClick={onCancel} className="text-white/50 hover:text-white transition-colors">
+                    <button onClick={onCancel} className="text-text-muted hover:text-text-primary transition-colors duration-300">
                         Cancel & Go Back
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="bg-white/5 border border-white/5 rounded-2xl p-8 flex flex-col md:flex-row gap-10">
+                <form onSubmit={handleSubmit} className="bg-background-secondary border border-border rounded-2xl p-6 md:p-8 flex flex-col md:flex-row gap-8 md:gap-10 shadow-xl transition-all duration-300">
                     
                     {/* LEFT: Cover Image Upload */}
                     <div className="w-full md:w-64 shrink-0 flex flex-col items-center">
                         <div 
                             onClick={() => coverInputRef.current?.click()}
-                            className="w-full aspect-square bg-black/40 border-2 border-dashed border-white/20 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-accent-primary hover:bg-white/5 transition-all overflow-hidden group relative"
+                            className="w-full aspect-square bg-background-primary border-2 border-dashed border-border rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-accent-primary hover:bg-background-hover transition-all duration-300 overflow-hidden group relative"
                         >
                             {coverPreview ? (
                                 <>
-                                    <img src={coverPreview} alt="Cover Preview" className="w-full h-full object-cover" />
-                                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                        <span className="text-sm font-bold tracking-widest uppercase">Change</span>
+                                    <img src={coverPreview} alt="Cover Preview" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                                    <div className="absolute inset-0 bg-background-primary/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                                        <span className="text-sm text-text-primary font-bold tracking-widest uppercase">Change</span>
                                     </div>
                                 </>
                             ) : (
                                 <div className="text-center p-4">
-                                    <svg className="w-8 h-8 text-white/40 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                                    <span className="text-xs text-white/50 font-medium">Upload Cover Art</span>
+                                    <svg className="w-8 h-8 text-text-muted mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                    <span className="text-xs text-text-secondary font-medium">Upload Cover Art</span>
                                 </div>
                             )}
                         </div>
-                        {/* Notice we changed the handler here to pop the cropper! */}
                         <input type="file" ref={coverInputRef} onChange={handleInitialCoverSelect} accept="image/*" className="hidden" />
                     </div>
 
@@ -189,26 +186,25 @@ const SongEditor = ({ initialData, onCancel, onSaveSuccess }) => {
                     <div className="flex-1 flex flex-col gap-6">
                         
                         <div>
-                            <label className="block text-xs font-bold text-white/50 uppercase tracking-widest mb-2">Song Title *</label>
-                            <input type="text" name="title" value={formData.title} onChange={handleTextChange} required className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-accent-primary focus:outline-none transition-colors" placeholder="e.g. Unravel" />
+                            <label className="block text-xs font-bold text-text-secondary uppercase tracking-widest mb-2">Song Title *</label>
+                            <input type="text" name="title" value={formData.title} onChange={handleTextChange} required className="w-full bg-background-primary border border-border rounded-lg px-4 py-3 text-text-primary focus:border-accent-primary focus:outline-none transition-all duration-300 placeholder:text-text-muted" placeholder="e.g. Unravel" />
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                             <div>
-                                <label className="block text-xs font-bold text-white/50 uppercase tracking-widest mb-2">Artist Name *</label>
-                                <input type="text" name="artist_name" value={formData.artist_name} onChange={handleTextChange} required className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-accent-primary focus:outline-none transition-colors" placeholder="e.g. TK" />
+                                <label className="block text-xs font-bold text-text-secondary uppercase tracking-widest mb-2">Artist Name *</label>
+                                <input type="text" name="artist_name" value={formData.artist_name} onChange={handleTextChange} required className="w-full bg-background-primary border border-border rounded-lg px-4 py-3 text-text-primary focus:border-accent-primary focus:outline-none transition-all duration-300 placeholder:text-text-muted" placeholder="e.g. TK" />
                             </div>
                             <div>
-                                <label className="block text-xs font-bold text-white/50 uppercase tracking-widest mb-2">Anime / Source</label>
-                                <input type="text" name="anime_title" value={formData.anime_title} onChange={handleTextChange} className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-accent-primary focus:outline-none transition-colors" placeholder="e.g. Tokyo Ghoul" />
+                                <label className="block text-xs font-bold text-text-secondary uppercase tracking-widest mb-2">Anime / Source</label>
+                                <input type="text" name="anime_title" value={formData.anime_title} onChange={handleTextChange} className="w-full bg-background-primary border border-border rounded-lg px-4 py-3 text-text-primary focus:border-accent-primary focus:outline-none transition-all duration-300 placeholder:text-text-muted" placeholder="e.g. Tokyo Ghoul" />
                             </div>
                         </div>
 
-                        {/* NEW ROW: Genre, Category, and Duration */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                             <div>
-                                <label className="block text-xs font-bold text-white/50 uppercase tracking-widest mb-2">Category</label>
-                                <select name="song_type" value={formData.song_type} onChange={handleTextChange} className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-accent-primary focus:outline-none transition-colors appearance-none">
+                                <label className="block text-xs font-bold text-text-secondary uppercase tracking-widest mb-2">Category</label>
+                                <select name="song_type" value={formData.song_type} onChange={handleTextChange} className="w-full bg-background-primary border border-border rounded-lg px-4 py-3 text-text-primary focus:border-accent-primary focus:outline-none transition-all duration-300 appearance-none">
                                     <option value="OP">Opening (OP)</option>
                                     <option value="ED">Ending (ED)</option>
                                     <option value="OST">Original Soundtrack (OST)</option>
@@ -216,28 +212,28 @@ const SongEditor = ({ initialData, onCancel, onSaveSuccess }) => {
                                 </select>
                             </div>
                             <div>
-                                <label className="block text-xs font-bold text-white/50 uppercase tracking-widest mb-2">Genre</label>
-                                <input type="text" name="genre" value={formData.genre} onChange={handleTextChange} className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-accent-primary focus:outline-none transition-colors" placeholder="e.g. J-Rock" />
+                                <label className="block text-xs font-bold text-text-secondary uppercase tracking-widest mb-2">Genre</label>
+                                <input type="text" name="genre" value={formData.genre} onChange={handleTextChange} className="w-full bg-background-primary border border-border rounded-lg px-4 py-3 text-text-primary focus:border-accent-primary focus:outline-none transition-all duration-300 placeholder:text-text-muted" placeholder="e.g. J-Rock" />
                             </div>
                             <div>
-                                <label className="block text-xs font-bold text-white/50 uppercase tracking-widest mb-2">Duration (Secs)</label>
-                                <input type="number" name="duration_seconds" value={formData.duration_seconds} onChange={handleTextChange} className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-accent-primary focus:outline-none transition-colors" placeholder="Auto-fills" />
+                                <label className="block text-xs font-bold text-text-secondary uppercase tracking-widest mb-2">Duration (Secs)</label>
+                                <input type="number" name="duration_seconds" value={formData.duration_seconds} onChange={handleTextChange} className="w-full bg-background-primary border border-border rounded-lg px-4 py-3 text-text-primary focus:border-accent-primary focus:outline-none transition-all duration-300 placeholder:text-text-muted" placeholder="Auto-fills" />
                             </div>
                         </div>
 
                         {/* Audio File Upload */}
-                        <div className="pt-4 border-t border-white/5">
-                            <label className="block text-xs font-bold text-white/50 uppercase tracking-widest mb-2">Audio File {isEditMode ? '(Optional: Leave blank to keep current)' : '*'}</label>
-                            <div className="flex items-center gap-4">
+                        <div className="pt-4 border-t border-border">
+                            <label className="block text-xs font-bold text-text-secondary uppercase tracking-widest mb-2">Audio File {isEditMode ? '(Optional: Leave blank to keep current)' : '*'}</label>
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                                 <button 
                                     type="button"
                                     onClick={() => audioInputRef.current?.click()}
-                                    className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-md text-sm font-medium transition-colors flex items-center gap-2"
+                                    className="px-4 py-2 bg-background-secondary hover:bg-background-hover border border-border text-text-primary rounded-md text-sm font-medium transition-all duration-300 flex items-center gap-2 whitespace-nowrap"
                                 >
-                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19V6l12-3v13M9 19c-1.105 0-2-.895-2-2s.895-2 2-2 2 .895 2 2-.895 2-2 2zm12-3c-1.105 0-2-.895-2-2s.895-2 2-2 2 .895 2 2-.895 2-2 2zM9 10l12-3" /></svg>
+                                    <svg className="w-4 h-4 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19V6l12-3v13M9 19c-1.105 0-2-.895-2-2s.895-2 2-2 2 .895 2 2-.895 2-2 2zm12-3c-1.105 0-2-.895-2-2s.895-2 2-2 2 .895 2 2-.895 2-2 2zM9 10l12-3" /></svg>
                                     Select Audio File
                                 </button>
-                                <span className="text-sm text-white/40 truncate flex-1">
+                                <span className="text-sm text-text-muted truncate w-full flex-1">
                                     {audioFile ? audioFile.name : (isEditMode ? 'Current audio file active' : 'No file selected')}
                                 </span>
                             </div>
@@ -249,7 +245,7 @@ const SongEditor = ({ initialData, onCancel, onSaveSuccess }) => {
                             <button 
                                 type="submit" 
                                 disabled={isSubmitting}
-                                className={`bg-accent-primary text-black px-8 py-3 rounded-full font-bold transition-all ${isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-accent-hover hover:scale-105 active:scale-95'}`}
+                                className={`w-full sm:w-auto bg-accent-primary text-background-primary px-8 py-3 rounded-full font-bold transition-all duration-300 shadow-lg shadow-accent-primary/20 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-accent-hover hover:scale-105 active:scale-95'}`}
                             >
                                 {isSubmitting ? 'Saving...' : (isEditMode ? 'Update Song' : 'Upload Song')}
                             </button>

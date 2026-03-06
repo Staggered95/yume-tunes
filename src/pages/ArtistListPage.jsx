@@ -1,16 +1,22 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-
+import api from '../api/axios';
+import { getMediaUrl } from '../utils/media';
 
 const ArtistListPage = () => {
   const [artists, setArtists] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get('http://localhost:5000/artists')
-      .then(res => setArtists(res.data.data))
-      .catch(err => console.error(err));
+    const fetchArtists = async () => {
+      try {
+        const { data } = await api.get('/artists');
+        setArtists(data.data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchArtists();
   }, []);
 
   return (
@@ -25,7 +31,7 @@ const ArtistListPage = () => {
           >
             <div className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden mb-4 border-2 border-transparent group-hover:border-accent-primary transition-all duration-300 shadow-2xl">
               <img 
-                src={`http://localhost:5000${artist.profile_pic || '/default-artist.png'}`} 
+                src={getMediaUrl(artist.profile_pic)} 
                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                 alt={artist.name}
               />

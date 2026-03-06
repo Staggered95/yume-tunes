@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useSongs } from '../context/SongContext';
-import axios from 'axios';
+import api from '../api/axios';
+import { getMediaUrl } from '../utils/media';
 
 const AnimePage = () => {
   // 1. Ensure this matches the ":title" in your App.jsx Route
@@ -16,14 +17,14 @@ const AnimePage = () => {
     setLoading(true);
     try {
       // Ensure the URL is EXACTLY what works in Postman
-      const url = `http://localhost:5000/songs/anime/${encodeURIComponent(title)}`;
+      const url = `/songs/anime/${encodeURIComponent(title)}`;
       console.log("🔗 Requesting URL:", url); // DEBUG 2
 
-      const res = await axios.get(url);
-      console.log("📦 Raw Response:", res.data); // DEBUG 3
+      const { data } = await api.get(url);
+      console.log("📦 Raw Response:", data.data); // DEBUG 3
 
       // Defensive check: handle both {data: [...]} and just [...] structures
-      const songData = res.data.data || res.data; 
+      const songData = data.data || data; 
       setSongs(Array.isArray(songData) ? songData : []);
       
     } catch (err) {
@@ -51,7 +52,7 @@ const AnimePage = () => {
         {/* Dynamic Background Blur */}
         {songs[0]?.cover_path && (
           <img 
-            src={`http://localhost:5000${songs[0].cover_path}`} 
+            src={getMediaUrl(songs[0].cover_path)} 
             className="absolute inset-0 w-full h-full object-cover blur-3xl opacity-20 scale-125 pointer-events-none"
             alt=""
           />
@@ -59,7 +60,7 @@ const AnimePage = () => {
         
         <div className="relative z-10 flex flex-col md:flex-row items-center md:items-end gap-8 w-full">
           <img 
-            src={songs[0]?.cover_path ? `http://localhost:5000${songs[0].cover_path}` : '/placeholder.png'} 
+            src={getMediaUrl(songs[0].cover_path)} 
             className="w-56 h-56 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.8)] object-cover border border-white/10"
             alt={title}
           />

@@ -1,5 +1,6 @@
 import { useState, useEffect, createContext, useContext } from "react";
 import { useAuth } from "./AuthContext";
+import api from "../api/axios";
 
 const UserContext = createContext();
 
@@ -12,11 +13,10 @@ export const UserProvider = ({ children }) => {
 
     const fetchLikedSongIds = async () => {
         try {
-            const result = await authFetch('/user/likedsongs/minimal', { method: 'GET' });
-            const json = await result.json();
+            const { data } = await api.get('/user/likedsongs/minimal');
             
-            if (json.success) {
-                setLikedSongIds(new Set(json.data));
+            if (data.success) {
+                setLikedSongIds(new Set(data.data));
             }
         } catch (err) {
             console.error("Error fetching the liked song ids", err);
@@ -25,11 +25,10 @@ export const UserProvider = ({ children }) => {
 
     const fetchUserData = async () => {
         try {
-            const result = await authFetch('/user', { method: 'GET' });
-            const json = await result.json();
+            const { data } = await api.get('/user');
             
-            if (json.success) {
-                setUserProfile(json.data[0]);
+            if (data.success) {
+                setUserProfile(data.data[0]);
             }
         } catch (err) {
             console.error("Error fetching the user details", err);
@@ -48,10 +47,9 @@ export const UserProvider = ({ children }) => {
         });
 
         try {
-            const result = await authFetch(`/user/likedsongs/${songId}`, { method: 'POST' });
-            const status = await result.json();
+            const { data } = await api.post(`/user/likedsongs/${songId}`);
             
-            if (!status.success) {
+            if (!data.success) {
                 throw new Error("Server failed to update");
             }
         } catch (err) {

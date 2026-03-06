@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../api/axios';
 
 const GenreListPage = () => {
   const [genres, setGenres] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get('http://localhost:5000/genres')
+    api.get('/genres')
       .then(res => setGenres(res.data.data))
       .catch(err => console.error(err));
   }, []);
