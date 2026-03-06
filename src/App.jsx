@@ -37,7 +37,7 @@ const App = () => {
         {/* Main Content Area */}
         {/* md:ml-20 prevents content from hiding behind the collapsed desktop sidebar */}
         {/* pb-32 ensures content doesn't get hidden behind the BottomPlayer/MobileNav */}
-        <main className='px-4 md:px-8 md:ml-20 pb-32 pt-4 transition-all duration-300'>
+        <main className=' md:px-8 md:ml-20  transition-all duration-300'>
           <Routes>
             <Route path="/" element={<HomePage/>} />
             <Route path="/search" element={<SearchResultPage />} />

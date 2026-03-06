@@ -25,20 +25,31 @@ export default function Navbar() {
                     If active, this takes over the entire navbar space.
                 */}
                 {isMobileSearchOpen ? (
-                    <div className="flex items-center w-full gap-2 animate-in fade-in duration-300">
-                        <button 
-                            onClick={() => setIsMobileSearchOpen(false)}
-                            className="p-2 text-text-secondary hover:text-text-primary transition-colors"
-                        >
-                            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" />
-                            </svg>
-                        </button>
-                        <div className="flex-1">
-                            <SearchAutocomplete autoFocus={true} />
-                        </div>
-                    </div>
-                ) : (
+    <div className="flex items-center justify-between w-full gap-2 animate-in fade-in duration-300">
+        
+        {/* 1. Left Action: Back Button (Locked to w-10) */}
+        <div className="w-6 flex justify-start shrink-0">
+            <button 
+                onClick={() => setIsMobileSearchOpen(false)}
+                // -ml-2 pulls the icon slightly left so the touch target is big, but it visually aligns with the edge
+                className="p-2 -ml-2 text-text-secondary hover:text-text-primary transition-colors"
+            >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" />
+                </svg>
+            </button>
+        </div>
+
+        {/* 2. Center: The Search Bar (Flex-1 fills the remaining space) */}
+        <div className="flex-1 w-full max-w-2xl">
+            <SearchAutocomplete autoFocus={true} />
+        </div>
+
+        {/* 3. Right Action: The Dummy Div (Locked to exactly w-10 to balance the back button) */}
+        <div className="w-2 shrink-0" />
+        
+    </div>
+) : (
                     /* STANDARD NAVBAR (Desktop & Mobile Default) 
                     */
                     <>

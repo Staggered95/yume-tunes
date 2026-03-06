@@ -23,7 +23,7 @@ export const AuthProvider = ({children}) => {
             try {
                 // We ping the backend to validate the token. 
                 // (Adjust this URL to match your actual backend route!)
-                const { data } = await api.get('http://localhost:5000/auth/me')
+                const { data } = await api.get('/auth/me')
 
                 if (data.success) {
                     setUser(data); // Token is valid! Set the user.
@@ -52,7 +52,7 @@ export const AuthProvider = ({children}) => {
         const fetchLikedIds = async () => {
             try {
                 // Point this to your getLikedSongsMinimalData route
-                const { data } = await api.get('http://localhost:5000/user/likedsongs/minimal');
+                const { data } = await api.get('/user/likedsongs/minimal');
                 if (data.success) {
                     setLikedSongIds(new Set(data.data));
                 }

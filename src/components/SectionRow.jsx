@@ -1,55 +1,60 @@
 import React from 'react';
 import SongCard from './SongCard';
 
-export default function SectionRow({ title, type, properties, items = [] }) {
-  // Map internal types to SongCard shapes
-  const shapeMap = {
-    grid: 'square',
-    circle: 'circle',
-    wide: 'wide',
-    small_square: 'small_square',
-  };
+export default function SectionRow({ title, type = 'square', items = [] }) {
+  
+  // Both 'wide' and 'list' shapes look best stacked in a 3-row grid. 
+  // Everything else (square, circle, trending) looks best in a single infinite row.
+  const isStackedLayout = type === 'wide' || type === 'list';
 
   return (
-    <section className="animate-fade-in space-y-4">
-      {/* Header with improved text mapping and hover states */}
-      <div className="flex justify-between items-end px-2 group/header">
-        <div className="flex flex-col">
-          <h3 className="text-xl md:text-2xl font-black text-text-primary tracking-tighter transition-colors group-hover/header:text-accent-primary">
-            {title}
-          </h3>
-          {/* Subtle underline decoration */}
-          <div className="h-1 w-8 bg-accent-primary rounded-full mt-1 opacity-0 group-hover/header:opacity-100 group-hover/header:w-full transition-all duration-500" />
-        </div>
+    <section className="mb-8 animate-fade-in">
+      
+      {/* Header */}
+      <div className="flex justify-between items-end px-4 mb-4 group">
+        <h2 className="text-xl md:text-2xl font-black text-text-primary tracking-tight group-hover:text-accent-primary transition-colors">
+          {title}
+        </h2>
         
-        <button className="text-[10px] uppercase font-black tracking-widest text-text-muted hover:text-text-primary transition-all duration-300 border-b border-transparent hover:border-accent-primary pb-1">
-          See All
-        </button>
+        {/* Only show 'See All' if there are actually items */}
+        {items.length > 0 && (
+          <button className="text-[10px] md:text-xs uppercase font-black tracking-widest text-text-muted hover:text-text-primary transition-colors">
+            See All
+          </button>
+        )}
       </div>
 
-      {/* Horizontal Scroll Container:
-          - Standardized 'properties' for responsive layouts.
-          - Custom scrollbar styling (hidden but interactive).
-          - Snap-scrolling for a native app feel.
-      */}
+      {/* Scrollable Container */}
       <div 
-        className={`${properties} gap-6 overflow-x-auto scrollbar-none pb-4 px-2 scroll-smooth snap-x snap-mandatory`}
+        className={`
+          ${isStackedLayout 
+            // STACKED GRID: 3 rows high. 
+            // We use auto-cols-[280px] because our 'wide' card in SongCard is exactly 280px!
+            ? "grid grid-rows-3 grid-flow-col auto-cols-[280px] gap-x-4 gap-y-2" 
+            
+            // SINGLE ROW: Standard flexbox.
+            : "flex flex-row gap-4 md:gap-6"
+          }
+          overflow-x-auto scrollbar-none pb-4 px-4 scroll-smooth snap-x snap-mandatory
+        `}      
       >
+        {/* The Cards */}
         {items.map((song, index) => (
-          <div key={song.id || index} className="snap-start shrink-0">
+          <div key={song.id || index} className="snap-start h-full">
             <SongCard 
-              song={items} // Fixed: passing single song instead of items array
+              song={song}       // Just pass the individual song
+              queue={items}     // Pass the whole row as the queue
               index={index} 
-              shape={shapeMap[type] || 'square'} 
+              shape={type}      // 'type' maps perfectly to the SongCard shapes!
             />
           </div>
         ))}
 
-        {/* Placeholder if empty */}
+        {/* Loading Skeletons */}
         {items.length === 0 && (
           <div className="flex gap-4">
             {[1, 2, 3, 4].map((n) => (
-              <div key={n} className="w-40 h-40 bg-background-secondary animate-pulse rounded-2xl border border-border" />
+              <div key={n} className="w-32 h-32 md:w-48 md:h-48 bg-background-secondary/40 animate-pulse rounded-xl border border-border" />
             ))}
           </div>
         )}

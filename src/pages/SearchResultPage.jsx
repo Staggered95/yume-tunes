@@ -1,8 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import api from '../api/axios'; // Native Axios instance
+import api from '../api/axios'; 
 import SongCard from '../components/SongCard'; 
 import { getMediaUrl } from '../utils/media';
+
+// 1. EXTRACTED COMPONENT: Sleek, responsive filter pills
+const FilterPill = ({ active, label, onClick }) => (
+    <button
+        onClick={onClick}
+        className={`shrink-0 px-4 py-1.5 md:py-2 md:w-full md:text-left rounded-full md:rounded-xl text-xs md:text-sm font-bold transition-all border ${
+            active
+                ? 'bg-accent-primary border-accent-primary text-white shadow-md shadow-accent-primary/20'
+                : 'bg-background-secondary md:bg-transparent border-border md:border-transparent text-text-secondary hover:text-text-primary hover:bg-background-hover'
+        }`}
+    >
+        {label}
+    </button>
+);
 
 const SearchResultPage = () => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -17,7 +31,6 @@ const SearchResultPage = () => {
         const fetchFilteredResults = async () => {
             setIsLoading(true);
             try {
-                // Using the 'api' instance handles the baseURL and any auth headers automatically
                 const { data } = await api.get(`/search`, {
                     params: { q: query, genre: activeGenre, type: activeType }
                 });
@@ -41,7 +54,9 @@ const SearchResultPage = () => {
 
     const updateFilter = (key, value) => {
         const newParams = new URLSearchParams(searchParams);
-        if (value) newParams.set(key, value);
+        // Toggle off if clicking the already active pill
+        if (searchParams.get(key) === value) newParams.delete(key);
+        else if (value) newParams.set(key, value);
         else newParams.delete(key);
         setSearchParams(newParams);
     };
@@ -49,111 +64,90 @@ const SearchResultPage = () => {
     const hasNoResults = !results.songs.length && !results.artists.length && !results.animes.length;
 
     return (
-        <div className="flex flex-col md:flex-row gap-10 p-6 md:p-10 pt-24 text-text-primary max-w-7xl mx-auto min-h-screen bg-background-primary">
+        // Added pb-32 to clear the mobile nav and bottom player!
+        <div className="flex flex-col md:flex-row gap-6 md:gap-10 px-4 md:px-10 pt-20 md:pt-24 pb-32 text-text-primary max-w-7xl mx-auto min-h-screen bg-background-primary">
             
-            {/* 1. FILTER SIDEBAR */}
-            <aside className="w-full md:w-64 space-y-10 sticky top-24 h-fit shrink-0">
-                <div className="flex items-center justify-between border-b border-border pb-4">
+            {/* 1. FILTER SIDEBAR (Responsive) */}
+            <aside className="w-full md:w-56 lg:w-64 md:space-y-8 md:sticky top-24 h-fit shrink-0 z-10 bg-background-primary md:bg-transparent pt-2 md:pt-0">
+                <div className="hidden md:flex items-center justify-between border-b border-border pb-4">
                     <h3 className="text-xl font-black uppercase tracking-tighter italic">Filters</h3>
                     <button 
                         onClick={() => setSearchParams({ q: query })}
-                        className="text-[10px] font-black uppercase tracking-widest text-text-muted hover:text-accent-primary transition-all active:scale-95"
+                        className="text-[10px] font-black uppercase tracking-widest text-text-muted hover:text-accent-primary transition-colors"
                     >
                         Reset
                     </button>
                 </div>
 
-                {/* Genre Filter */}
-                <div className="space-y-4">
-                    <h4 className="text-[11px] font-black text-text-muted uppercase tracking-[0.2em]">Genres</h4>
-                    <div className="flex flex-col gap-2">
+                {/* Mobile Filter Wrapper: Horizontal Scroll */}
+                <div className="flex flex-row md:flex-col gap-4 overflow-x-auto scrollbar-none pb-2 md:pb-0">
+                    
+                    {/* Genre Filters */}
+                    <div className="flex md:flex-col gap-2 shrink-0">
+                        <h4 className="hidden md:block text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-2 px-2">Genres</h4>
                         {['Soft', 'Rock', 'Vibe', 'Masterclass'].map(g => (
-                            <label key={g} className="flex items-center gap-3 cursor-pointer group">
-                                <input 
-                                    type="radio" 
-                                    name="genre"
-                                    checked={activeGenre === g}
-                                    onChange={() => updateFilter('genre', g)}
-                                    className="hidden"
-                                />
-                                <div className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all duration-300 ${
-                                    activeGenre === g 
-                                        ? 'bg-accent-primary border-accent-primary shadow-[0_0_10px_rgba(157,92,250,0.3)]' 
-                                        : 'border-border group-hover:border-text-muted'
-                                }`}>
-                                    {activeGenre === g && <div className="w-2 h-2 bg-background-primary rounded-full animate-in zoom-in" />}
-                                </div>
-                                <span className={`text-sm font-bold transition-colors ${activeGenre === g ? 'text-text-primary' : 'text-text-secondary group-hover:text-text-primary'}`}>
-                                    {g}
-                                </span>
-                            </label>
+                            <FilterPill 
+                                key={g} 
+                                label={g} 
+                                active={activeGenre === g} 
+                                onClick={() => updateFilter('genre', g)} 
+                            />
                         ))}
                     </div>
-                </div>
 
-                {/* Type Filter */}
-                <div className="space-y-4">
-                    <h4 className="text-[11px] font-black text-text-muted uppercase tracking-[0.2em]">Song Type</h4>
-                    <div className="flex flex-col gap-2">
+                    {/* Divider for Mobile */}
+                    <div className="w-px h-8 bg-border md:hidden shrink-0 self-center" />
+
+                    {/* Type Filters */}
+                    <div className="flex md:flex-col gap-2 shrink-0">
+                        <h4 className="hidden md:block text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mb-2 px-2 mt-4">Song Type</h4>
                         {['OP', 'ED', 'OST'].map(t => (
-                            <label key={t} className="flex items-center gap-3 cursor-pointer group">
-                                <input 
-                                    type="radio" 
-                                    name="type"
-                                    checked={activeType === t}
-                                    onChange={() => updateFilter('type', t)}
-                                    className="hidden"
-                                />
-                                <div className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all duration-300 ${
-                                    activeType === t 
-                                        ? 'bg-accent-primary border-accent-primary shadow-[0_0_10px_rgba(157,92,250,0.3)]' 
-                                        : 'border-border group-hover:border-text-muted'
-                                }`}>
-                                    {activeType === t && <div className="w-2 h-2 bg-background-primary rounded-full animate-in zoom-in" />}
-                                </div>
-                                <span className={`text-sm font-bold transition-colors ${activeType === t ? 'text-text-primary' : 'text-text-secondary group-hover:text-text-primary'}`}>
-                                    {t}
-                                </span>
-                            </label>
+                            <FilterPill 
+                                key={t} 
+                                label={t} 
+                                active={activeType === t} 
+                                onClick={() => updateFilter('type', t)} 
+                            />
                         ))}
                     </div>
+
                 </div>
             </aside>
 
             {/* 2. RESULTS MAIN AREA */}
-            <main className="flex-1">
-                <div className="mb-10 animate-in fade-in slide-in-from-top-4 duration-500">
-                    <h2 className="text-3xl md:text-4xl font-black tracking-tighter italic uppercase">
+            <main className="flex-1 min-w-0">
+                <div className="mb-6 md:mb-10 animate-in fade-in slide-in-from-top-4 duration-500">
+                    <h2 className="text-2xl md:text-4xl font-black tracking-tighter italic uppercase">
                         Search Results
                     </h2>
-                    <p className="text-text-muted text-sm font-bold mt-1">Found results for <span className="text-accent-primary">"{query}"</span></p>
+                    <p className="text-text-muted text-xs md:text-sm font-bold mt-1">Found results for <span className="text-accent-primary">"{query}"</span></p>
                 </div>
                 
                 {isLoading ? (
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                        {[1, 2, 4].map(i => (
-                            <div key={i} className="aspect-square rounded-2xl bg-background-secondary animate-pulse" />
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 md:gap-6">
+                        {[1, 2, 3, 4].map(i => (
+                            <div key={i} className="aspect-square rounded-2xl bg-background-secondary/50 animate-pulse border border-border" />
                         ))}
                     </div>
                 ) : hasNoResults && query ? (
-                    <div className="flex flex-col items-center justify-center py-32 bg-background-secondary/30 rounded-3xl border border-border animate-in fade-in zoom-in-95">
-                        <svg className="w-20 h-20 text-text-muted/20 mb-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div className="flex flex-col items-center justify-center py-20 md:py-32 bg-background-secondary/30 rounded-3xl border border-border mx-2 md:mx-0">
+                        <svg className="w-16 h-16 md:w-20 md:h-20 text-text-muted/30 mb-4 md:mb-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
-                        <h3 className="text-2xl font-black tracking-tighter uppercase text-text-primary mb-2">Ghost Town</h3>
-                        <p className="text-text-secondary text-sm font-medium">No results found with those specific filters.</p>
+                        <h3 className="text-xl md:text-2xl font-black tracking-tighter uppercase text-text-primary mb-2">Ghost Town</h3>
+                        <p className="text-text-secondary text-xs md:text-sm font-medium text-center px-4">No results found with those specific filters.</p>
                     </div>
                 ) : (
-                    <div className="space-y-12">
+                    <div className="space-y-10 md:space-y-12">
 
                         {/* CATEGORY: ARTISTS */}
                         {results.artists.length > 0 && (
                             <section className="animate-in fade-in slide-in-from-left-4 duration-500">
-                                <h3 className="text-xs font-black mb-6 text-text-muted uppercase tracking-[0.3em]">Top Artists</h3>
-                                <div className="flex overflow-x-auto pb-4 gap-6 scrollbar-none">
+                                <h3 className="text-[10px] md:text-xs font-black mb-4 md:mb-6 text-text-muted uppercase tracking-[0.3em]">Top Artists</h3>
+                                <div className="flex overflow-x-auto pb-4 gap-4 md:gap-6 scrollbar-none snap-x">
                                     {results.artists.map((artist, idx) => (
-                                        <div key={idx} className="flex flex-col items-center gap-3 w-28 shrink-0 cursor-pointer group">
-                                            <div className="w-24 h-24 md:w-28 md:h-28 rounded-full overflow-hidden shadow-2xl border-2 border-transparent group-hover:border-accent-primary transition-all duration-500 group-hover:-translate-y-2 group-hover:shadow-accent-primary/20 bg-background-secondary">
+                                        <div key={idx} className="flex flex-col items-center gap-2 md:gap-3 w-20 md:w-28 shrink-0 cursor-pointer group snap-start">
+                                            <div className="w-20 h-20 md:w-28 md:h-28 rounded-full overflow-hidden shadow-lg border-2 border-transparent group-hover:border-accent-primary transition-all duration-300 md:duration-500 md:group-hover:-translate-y-2 bg-background-secondary">
                                                 <img 
                                                     src={getMediaUrl(artist.image)} 
                                                     alt={artist.name}
@@ -161,7 +155,7 @@ const SearchResultPage = () => {
                                                     onError={(e) => { e.target.src = '/fallback-avatar.png' }}
                                                 />
                                             </div>
-                                            <span className="font-bold text-xs text-center truncate w-full group-hover:text-accent-primary transition-colors tracking-tight">{artist.name}</span>
+                                            <span className="font-bold text-[10px] md:text-xs text-center truncate w-full group-hover:text-accent-primary transition-colors tracking-tight">{artist.name}</span>
                                         </div>
                                     ))}
                                 </div>
@@ -171,18 +165,18 @@ const SearchResultPage = () => {
                         {/* CATEGORY: ANIME */}
                         {results.animes.length > 0 && (
                             <section className="animate-in fade-in slide-in-from-left-4 duration-700">
-                                <h3 className="text-xs font-black mb-6 text-text-muted uppercase tracking-[0.3em]">Anime Series</h3>
-                                <div className="flex overflow-x-auto pb-4 gap-6 scrollbar-none">
+                                <h3 className="text-[10px] md:text-xs font-black mb-4 md:mb-6 text-text-muted uppercase tracking-[0.3em]">Anime Series</h3>
+                                <div className="flex overflow-x-auto pb-4 gap-4 md:gap-6 scrollbar-none snap-x">
                                     {results.animes.map((anime, idx) => (
-                                        <div key={idx} className="flex flex-col gap-3 w-40 md:w-48 shrink-0 cursor-pointer group">
-                                            <div className="aspect-video rounded-2xl overflow-hidden shadow-2xl border border-border group-hover:border-accent-primary/30 transition-all duration-500 group-hover:-translate-y-2 bg-background-secondary">
+                                        <div key={idx} className="flex flex-col gap-2 md:gap-3 w-36 md:w-48 shrink-0 cursor-pointer group snap-start">
+                                            <div className="aspect-video rounded-xl md:rounded-2xl overflow-hidden shadow-lg border border-border group-hover:border-accent-primary/50 transition-all duration-300 md:duration-500 md:group-hover:-translate-y-2 bg-background-secondary">
                                                 <img 
                                                     src={getMediaUrl(anime.image)} 
                                                     alt={anime.name}
                                                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000"
                                                 />
                                             </div>
-                                            <span className="font-bold text-xs truncate w-full group-hover:text-accent-primary transition-colors tracking-tight">{anime.name}</span>
+                                            <span className="font-bold text-[10px] md:text-xs truncate w-full group-hover:text-accent-primary transition-colors tracking-tight">{anime.name}</span>
                                         </div>
                                     ))}
                                 </div>
@@ -192,10 +186,11 @@ const SearchResultPage = () => {
                         {/* CATEGORY: SONGS */}
                         {results.songs.length > 0 && (
                             <section className="animate-in fade-in slide-in-from-bottom-8 duration-700">
-                                <h3 className="text-xs font-black mb-6 text-text-muted uppercase tracking-[0.3em]">Songs Found</h3>
+                                <h3 className="text-[10px] md:text-xs font-black mb-4 md:mb-6 text-text-muted uppercase tracking-[0.3em]">Songs Found</h3>
                                 <div className="flex flex-col gap-2">
-                                    {results.songs.map(song => (
-                                        <SongCard key={song.id} song={song} shape="list"/>
+                                    {results.songs.map((song, index) => (
+                                        // Passed 'queue' and 'index' so the player actually knows what to play next!
+                                        <SongCard key={song.id} song={song} queue={results.songs} index={index} shape="list"/>
                                     ))}
                                 </div>
                             </section>

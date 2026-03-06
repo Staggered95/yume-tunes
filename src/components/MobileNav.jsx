@@ -1,9 +1,11 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useScrollDirection } from '../hooks/useScrollDirection';
 
 const MobileNav = () => {
     const navigate = useNavigate();
     const { pathname } = useLocation();
+    const scrollDirection = useScrollDirection();
 
     const tabs = [
         { 
@@ -40,11 +42,15 @@ const MobileNav = () => {
     ];
 
     return (
-        <div className="fixed bottom-0 left-0 right-0 bg-background-primary/80 backdrop-blur-md border-t border-border z-[100] md:hidden pb-safe">
-            <div className="flex justify-around items-center h-16 px-2">
+        <div 
+            // NEW: Added translate-y-full when scrolling down to hide it, and translate-y-0 to show it
+            className={`fixed bottom-0 left-0 right-0 bg-background-primary/90 backdrop-blur-md border-t border-border z-[100] md:hidden pb-safe transition-transform duration-300 ease-in-out ${
+                scrollDirection === 'down' ? 'translate-y-full' : 'translate-y-0'
+            }`}
+        >
+            {/* NEW: Changed h-16 to h-14 to make it slimmer! */}
+            <div className="flex justify-around items-center h-14 px-2">
                 {tabs.map((tab) => {
-                    // Check if the current route matches the tab's path
-                    // We use startsWith for Search/Library so nested routes keep the tab active
                     const isActive = pathname === tab.path || (tab.path !== '/' && pathname.startsWith(tab.path));
                     
                     return (
@@ -56,10 +62,9 @@ const MobileNav = () => {
                             }`}
                         >
                             <div className={`transition-transform duration-300 ${isActive ? 'scale-110' : 'scale-100'}`}>
-                                {/* Clones the icon to inject the sizing classes safely */}
-                                {React.cloneElement(tab.icon, { className: "w-6 h-6" })}
+                                {React.cloneElement(tab.icon, { className: "w-5 h-5" })} {/* Shrunk icon slightly from w-6 to w-5 to fit slimmer nav */}
                             </div>
-                            <span className="text-[10px] font-bold tracking-wide uppercase">{tab.label}</span>
+                            <span className="text-[9px] font-bold tracking-wide uppercase">{tab.label}</span>
                         </button>
                     );
                 })}

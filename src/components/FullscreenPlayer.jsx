@@ -3,7 +3,12 @@ import MinimalView from './FullscreenMinimalView';
 import UtilityView from './FullscreenUtilityView';
 
 const FullscreenPlayer = ({ isOpen, onClose, song }) => {
-  const [viewMode, setViewMode] = useState('minimal');
+  // NEW: Helper function to determine the right view based on device screen size
+  // If screen width is less than 768px (mobile), default to 'utility'. Otherwise, 'minimal'.
+  const getDefaultView = () => typeof window !== 'undefined' && window.innerWidth < 768 ? 'utility' : 'minimal';
+
+  // Set the initial state using our smart helper
+  const [viewMode, setViewMode] = useState(getDefaultView());
 
   // Logic: Body Scroll Lock
   useEffect(() => {
@@ -11,18 +16,17 @@ const FullscreenPlayer = ({ isOpen, onClose, song }) => {
     return () => { document.body.style.overflow = 'auto'; };
   }, [isOpen]);
 
-  // Logic: Reset view on close (with a delay so it doesn't snap mid-animation!)
+  // Logic: Reset view on close
   useEffect(() => {
     if (!isOpen) {
       const timer = setTimeout(() => {
-        setViewMode('minimal');
+        // CHANGED: Instead of always resetting to 'minimal', we ask our helper 
+        // what the default should be right now in case they rotated their device!
+        setViewMode(getDefaultView());
       }, 500); // Matches the duration of your child exit animations
       return () => clearTimeout(timer);
     }
   }, [isOpen]);
-
-  // Notice we removed `if (!isOpen) return null;` so the child components 
-  // actually get a chance to run their exit CSS transitions!
 
   return (
     <div 
@@ -35,6 +39,7 @@ const FullscreenPlayer = ({ isOpen, onClose, song }) => {
           song={song} 
           isOpen={isOpen}
           onClose={onClose} 
+          // Toggle flips it to the opposite of what is currently showing
           onToggle={() => setViewMode('utility')} 
         />
       ) : (

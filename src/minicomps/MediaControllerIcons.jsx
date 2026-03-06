@@ -8,7 +8,7 @@ const MediaControllers = () => {
     const { isPlaying, togglePlay } = usePlayback();
 
     return (
-        <div className="flex gap-6 md:gap-8 items-center justify-center text-text-primary">
+        <div className="flex gap-3 md:gap-8 items-center justify-center text-text-primary">
             
             {/* Previous Track Button */}
             <button 

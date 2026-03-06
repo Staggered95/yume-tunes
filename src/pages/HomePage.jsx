@@ -105,7 +105,7 @@ function HomePage() {
           ) : (
             <SectionRow 
               title="Latest Releases" 
-              properties="grid md:grid-cols-4 lg:grid-cols-8" 
+              properties="flex" 
               type="small_square" 
               items={thisSeason.slice(0, 8)} // Temporary fallback
             />
@@ -113,7 +113,7 @@ function HomePage() {
           
           <SectionRow 
             title="Trending Now" 
-            properties="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5" 
+            properties="grid grid-cols-4 md:grid-cols-3 lg:grid-cols-5" 
             type="wide" 
             items={trending}
           />

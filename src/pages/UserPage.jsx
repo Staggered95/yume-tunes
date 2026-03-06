@@ -235,7 +235,7 @@ const UserPage = () => {
                                         displayedHistory.map((track, idx) => (
                                             <div key={track.history_id} className="group flex items-center gap-6 p-4 hover:bg-background-secondary rounded-2xl transition-all border border-transparent hover:border-border">
                                                 <div className="w-14 h-14 rounded-xl overflow-hidden shrink-0 shadow-lg">
-                                                    <img src={resolveImg(track.cover_path)} className="w-full h-full object-cover" alt="" />
+                                                    <img src={getMediaUrl(track.cover_path)} className="w-full h-full object-cover" alt="" />
                                                 </div>
                                                 <div className="flex-1">
                                                     <h3 className="font-black text-sm tracking-tight group-hover:text-accent-primary transition-colors">{track.title}</h3>

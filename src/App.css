@@ -57,3 +57,18 @@
 }
 
 
+/* Add this to your main CSS file */
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); } 
+}
+
+.animate-marquee {
+  animation: marquee 12s linear infinite;
+  /* Pause the scrolling if the user hovers over it! */
+  /* Remove this line if you want it to scroll continuously on mobile */
+}
+.animate-marquee:hover {
+  animation-play-state: paused; 
+}
+
