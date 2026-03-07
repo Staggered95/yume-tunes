@@ -82,8 +82,10 @@ export const PlaybackProvider = ({children}) => {
 
     const playSong = useCallback((url) => {
         setIsEnded(false);
+        audioRef.current.pause();
         audioRef.current.src = url;
         audioRef.current.play().catch(err => {
+            //check
             console.warn("Autoplay blocked by browser. User must click play.", err);
             setIsPlaying(false);
         });
