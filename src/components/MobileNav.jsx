@@ -44,7 +44,7 @@ const MobileNav = () => {
     return (
         <div 
             // NEW: Added translate-y-full when scrolling down to hide it, and translate-y-0 to show it
-            className={`fixed bottom-0 left-0 right-0 bg-background-primary/90 backdrop-blur-md border-t border-border z-[100] md:hidden pb-safe transition-transform duration-300 ease-in-out ${
+            className={`fixed bottom-0 left-0 right-0 bg-background-primary backdrop-blur-md border-t border-border z-[100] md:hidden pb-safe transition-transform duration-300 ease-in-out ${
                 scrollDirection === 'down' ? 'translate-y-full' : 'translate-y-0'
             }`}
         >
@@ -57,8 +57,8 @@ const MobileNav = () => {
                         <button
                             key={tab.label}
                             onClick={() => navigate(tab.path)}
-                            className={`flex flex-col items-center justify-center w-full h-full gap-1 transition-all duration-300 ${
-                                isActive ? 'text-accent-primary' : 'text-text-secondary hover:text-text-primary'
+                            className={`flex flex-col items-center justify-center w-full h-12 gap-1 transition-all duration-300 ${
+                                isActive ? 'text-accent-primary bg-background-active rounded-full ' : 'text-text-secondary hover:text-text-primary'
                             }`}
                         >
                             <div className={`transition-transform duration-300 ${isActive ? 'scale-110' : 'scale-100'}`}>

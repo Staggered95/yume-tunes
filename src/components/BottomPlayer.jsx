@@ -1,12 +1,12 @@
 import React from 'react';
-import MediaControllers from '../minicomps/MediaControllerIcons';
+import MediaControllers from '../minicomps/MediaControllerIcons'; // Make sure this path is right!
 import VolumeIcon from '../minicomps/VolumeIcons';
 import ProgressBar from '../minicomps/ProgressBar';
 import ShuffleButton from '../minicomps/ShuffleButton';
 import AddToPlaylistButton from '../minicomps/AddToPlaylistButton';
 import LikeButton from '../minicomps/LikeButton';
 import OptionsMenu from '../minicomps/OptionsMenu';
-import ScrollingText from '../minicomps/ScrollingText'; // <-- Your new component!
+import ScrollingText from '../minicomps/ScrollingText'; 
 import { useSongs } from '../context/SongContext';
 import { usePlayback } from '../context/PlaybackContext';
 import { getMediaUrl } from '../utils/media';
@@ -28,16 +28,14 @@ export default function BottomPlayer({ onExpand }) {
                 scrollDirection === 'down' ? 'bottom-0' : 'bottom-14 md:bottom-0'
             }`}
         >            
-            <div className="absolute top-0 left-0 w-full -translate-y-1/2 z-10">
+            {/* CHANGED: -translate-y-full perfectly rests the bar ON TOP of the player */}
+            <div className="absolute top-0 left-0 w-full -translate-y-full z-10">
                 <ProgressBar variant="bottom" />
             </div>
 
             <div className="flex items-center justify-between px-3 md:px-6 h-16 md:h-20 gap-2 md:gap-0">
                 
-                {/* 1. LEFT SECTION (Cover & Scrolling Info) 
-                    On mobile: Takes up all available space (flex-1)
-                    On desktop: Locks to 1/3 width (md:w-1/3) 
-                */}
+                {/* 1. LEFT SECTION (Cover & Scrolling Info) */}
                 <div className="flex items-center gap-3 flex-1 md:flex-none md:w-1/3 min-w-0 pr-2 cursor-pointer group/cover" onClick={onExpand}>
                     <div className="relative w-10 h-10 md:w-14 md:h-14 shrink-0 rounded-md overflow-hidden shadow-md bg-background-primary">
                         <img 
@@ -48,7 +46,6 @@ export default function BottomPlayer({ onExpand }) {
                     </div>
 
                     <div className="flex flex-col min-w-0 w-full justify-center">
-                        {/* THE NEW SCROLLING TEXT! */}
                         <ScrollingText 
                             text={currentSong.title} 
                             className="text-text-primary font-bold text-sm md:text-base hover:underline"
@@ -59,25 +56,24 @@ export default function BottomPlayer({ onExpand }) {
                     </div>
                 </div>
 
-                {/* 2. CENTER SECTION (Playback Controls) 
-                    On mobile: Pushed to extreme right
-                    On desktop: Centered (md:w-1/3 md:justify-center)
-                */}
-                <div className="flex items-center justify-end md:justify-center shrink-0 md:w-1/3">
-                    <div className="flex items-center gap-3 md:gap-6">
-                        <div className="hidden sm:block">
-                            <ShuffleButton />
-                        </div>
-                        <MediaControllers />
+                {/* 2. CENTER SECTION (Playback Controls + Mobile Like Button) */}
+                <div className="flex items-center justify-end md:justify-center shrink-0 md:w-1/3 gap-1 md:gap-6">
+                    
+                    {/* NEW: Like button that ONLY shows on mobile, right next to Play/Pause! */}
+                    <div className="md:hidden flex items-center pr-1">
+                        <LikeButton songId={currentSong.id} initialIsLiked={false} />
                     </div>
+
+                    <div className="hidden sm:block">
+                        <ShuffleButton />
+                    </div>
+                    <MediaControllers variant="bottomplayer" />
                 </div>
 
-                {/* 3. RIGHT SECTION (Volume & Extras) 
-                    On mobile: Completely hidden
-                    On desktop: 1/3 width, aligned right
-                */}
+                {/* 3. RIGHT SECTION (Desktop Only: Like, Add, Volume) */}
                 <div className="hidden md:flex items-center justify-end gap-4 w-1/3 min-w-0">
                     <div className="flex items-center gap-1 text-text-muted">
+                        {/* Desktop Like Button stays here */}
                         <LikeButton songId={currentSong.id} initialIsLiked={false} />
                         <AddToPlaylistButton songId={currentSong.id} variant="bottom" />
                     </div>

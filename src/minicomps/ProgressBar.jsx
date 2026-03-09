@@ -59,31 +59,22 @@ const ProgressBar = ({ variant = 'bottom' }) => {
     // --- VARIANT A: Bottom Player (Standard Theme) ---
     if (variant === 'bottom') {
         return (
-            <div className="w-full group px-3">
-                <div className="relative flex items-center h-1 bg-background-active rounded-full overflow-visible">
+            // Removed padding so it stretches edge-to-edge
+            <div className="w-full group">
+                <div className="relative flex items-center h-1 hover:h-1.5 bg-background-active transition-all duration-300 overflow-visible">
                     <RangeInput />
                     
-                    {/* The Visual Fill */}
                     <div 
-                        className="h-1 bg-accent-secondary group-hover:bg-accent-primary transition-colors duration-300 rounded-full shadow-[0_0_10px_rgba(224,86,253,0.2)]" 
+                        className="h-full bg-accent-secondary group-hover:bg-accent-primary transition-colors duration-300 shadow-[0_0_10px_rgba(224,86,253,0.2)]" 
                         style={{ width: `${progressPercent}%` }}
                     />
                     
-                    {/* The Draggable Knob (Thumb) */}
                     <div 
                         className="absolute w-3 h-3 bg-text-primary border-2 border-accent-primary opacity-0 group-hover:opacity-100 rounded-full shadow-lg transform -translate-x-1/2 pointer-events-none transition-opacity duration-300" 
                         style={{ left: `${progressPercent}%` }}
                     />
                 </div>
-                
-                <div className="flex justify-between pt-1.5 text-[10px] md:text-xs font-bold tracking-tighter text-text-muted">
-                    <span>{formatTime(time)}</span>
-                    <span className="opacity-0 group-hover:opacity-100 transition-opacity">
-                        {/* Placeholder for future features like 'remaining time' toggle */}
-                        <svg className="w-3 h-3 rotate-180" fill="currentColor" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
-                    </span>
-                    <span>{formatTime(duration)}</span>
-                </div>
+                {/* TIMESTAMPS COMPLETELY REMOVED! */}
             </div>
         );
     }

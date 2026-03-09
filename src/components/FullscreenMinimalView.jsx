@@ -7,6 +7,7 @@ import LiveLyrics from '../minicomps/LiveLyrics';
 import OptionsMenu from '../minicomps/OptionsMenu';
 import LikeButton from '../minicomps/LikeButton';
 import AddToPlaylistButton from '../minicomps/AddToPlaylistButton';
+import MediaControllers from '../minicomps/MediaControllerIcons';
 import { getMediaUrl } from '../utils/media';
 
 const FullscreenMinimalView = ({ isOpen, onClose, onToggle, song }) => {
@@ -146,45 +147,9 @@ const FullscreenMinimalView = ({ isOpen, onClose, onToggle, song }) => {
       </div>
 
       {/* 4. ZEN CONTROLS (Bottom Playback Row) */}
-      <div className="relative z-10 w-full max-w-4xl mx-auto pb-4 md:pb-0 mt-4 md:mt-0">
-        <div className="flex flex-col items-center gap-6 md:gap-8">
-          
-          <div className="flex items-center gap-8 md:gap-12">
-            <button 
-                onClick={prevSong}
-                className="p-2 text-text-secondary hover:text-text-primary transition-all duration-300 hover:scale-110 active:scale-95"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-10 h-10 md:w-14 md:h-14 fill-currentColor">
-                <rect x="5" y="5" width="2" height="14" rx="1" />
-                <path d="M19 7 Q19 6 18 6 L10 11 Q9 12 10 13 L18 18 Q19 18 19 17 Z" />
-              </svg>           
-            </button>
-
-            <button 
-                onClick={togglePlay}
-                // Mapped the play button to text-primary (white-ish) to keep the classic contrast look, but with a refined shadow
-                className="p-5 md:p-6 bg-text-primary text-background-primary rounded-full hover:scale-110 active:scale-95 transition-all duration-300 shadow-xl shadow-text-primary/20 hover:shadow-text-primary/40"
-            >
-                {isPlaying ? (
-                <svg className="w-8 h-8 md:w-10 md:h-10 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
-                ) : (
-                <svg className="w-8 h-8 md:w-10 md:h-10 ml-1.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
-                )}
-            </button>
-
-            <button 
-                onClick={nextSong}
-                className="p-2 text-text-secondary hover:text-text-primary transition-all duration-300 hover:scale-110 active:scale-95"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-10 h-10 md:w-14 md:h-14 fill-currentColor">
-                <rect x="17" y="5" width="2" height="14" rx="1" />
-                <path d="M5 7 Q5 6 6 6 L14 11 Q15 12 14 13 L6 18 Q5 18 5 17Z" />
-              </svg>            
-            </button>
-          </div>
-
-          <ProgressBar variant='fullscreen' />
-        </div>
+      <div className="flex flex-col items-center gap-6 md:gap-8">
+        <MediaControllers variant="fullscreen" />
+        <ProgressBar variant="fullscreen" />
       </div>
       
     </div>

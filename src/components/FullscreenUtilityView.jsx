@@ -7,11 +7,12 @@ import LiveLyrics from '../minicomps/LiveLyrics';
 import OptionsMenu from '../minicomps/OptionsMenu';
 import LikeButton from '../minicomps/LikeButton';
 import AddToPlaylistButton from '../minicomps/AddToPlaylistButton';
+import MediaControllers from '../minicomps/MediaControllerIcons';
 import { getMediaUrl } from '../utils/media';
 
 const FullscreenUtilityView = ({ isOpen, onClose, onToggle, song }) => {
-  const { isPlaying, togglePlay } = usePlayback();
-  const { nextSong, prevSong, queue, currentIndex, playQueue, reorderQueue } = useSongs(); 
+  const { isPlaying } = usePlayback();
+  const { queue, currentIndex, playQueue, reorderQueue } = useSongs(); 
   
   const [activeTab, setActiveTab] = useState('queue'); 
   const [lyricLang, setLyricLang] = useState('EN');
@@ -24,6 +25,10 @@ const FullscreenUtilityView = ({ isOpen, onClose, onToggle, song }) => {
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);
   const [leftWidth, setLeftWidth] = useState(40); 
   const [isDraggingPane, setIsDraggingPane] = useState(false);
+  
+  // === MOBILE BOTTOM SHEET STATE ===
+  const [isSheetExpanded, setIsSheetExpanded] = useState(false);
+  const [touchStartY, setTouchStartY] = useState(null);
   
   const [draggedIdx, setDraggedIdx] = useState(null);
   const [dragOverIdx, setDragOverIdx] = useState(null);
@@ -39,7 +44,7 @@ const FullscreenUtilityView = ({ isOpen, onClose, onToggle, song }) => {
     else setLyrics([]); 
   }, [song]);
 
-  // === RESIZER LOGIC (Desktop Only) ===
+  // === DESKTOP RESIZER LOGIC ===
   useEffect(() => {
     if (!isDesktop) return; 
     const handleMouseMove = (e) => {
@@ -62,6 +67,24 @@ const FullscreenUtilityView = ({ isOpen, onClose, onToggle, song }) => {
         document.removeEventListener('mouseup', handleMouseUp);
     };
   }, [isDraggingPane, isDesktop]);
+
+  // === MOBILE SWIPE LOGIC ===
+  const handleTouchStart = (e) => setTouchStartY(e.targetTouches[0].clientY);
+  const handleTouchEnd = (e) => {
+      if (!touchStartY) return;
+      const touchEndY = e.changedTouches[0].clientY;
+      const diff = touchStartY - touchEndY;
+      
+      if (diff > 50) setIsSheetExpanded(true);
+      else if (diff < -50) setIsSheetExpanded(false);
+      
+      setTouchStartY(null);
+  };
+
+  const handleTabClick = (tab) => {
+      setActiveTab(tab);
+      if (!isDesktop && !isSheetExpanded) setIsSheetExpanded(true);
+  };
 
   // === DRAG & DROP LOGIC ===
   const handleDragStart = (e, index) => {
@@ -90,97 +113,97 @@ const FullscreenUtilityView = ({ isOpen, onClose, onToggle, song }) => {
   if (!isOpen) return null;
 
   return (
-    // ROOT WRAPPER: Fixed to screen, prevents entire page from scrolling
     <div className={`fixed inset-0 z-[100] bg-background-primary text-text-primary flex flex-col h-screen overflow-hidden transition-all duration-500 ${isDraggingPane ? 'cursor-col-resize' : ''}`}>
       
       {/* TOP NAV BAR */}
       <div className="flex justify-between items-center px-4 lg:px-6 py-3 lg:py-4 border-b border-border shrink-0 bg-background-primary z-40 shadow-md">
-        <button onClick={onToggle} className="flex items-center gap-1 lg:gap-2 text-text-secondary hover:text-text-primary transition-colors text-xs lg:text-sm font-bold uppercase tracking-widest">
-           <svg className="w-4 h-4 lg:w-5 lg:h-5 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" /></svg>
-           <span className="hidden sm:inline">Minimal View</span>
-           <span className="sm:hidden">Minimize</span>
+        
+        {/* ========================================== */}
+        {/* MOBILE ONLY: Minimize Button (Closes Player) */}
+        {/* ========================================== */}
+        <button 
+            onClick={onClose} 
+            className="md:hidden flex items-center gap-1.5 text-text-secondary hover:text-text-primary transition-colors text-xs font-bold uppercase tracking-widest p-2 -ml-2"
+        >
+           {/* Chevron pointing DOWN to imply pushing the player back to the bottom */}
+           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
+           </svg>
+           <span>Minimize</span>
         </button>
-        <button onClick={onClose} className="p-2 text-text-secondary hover:text-text-primary transition-colors rounded-full hover:bg-background-hover" title="Close">
-           <svg className="w-5 h-5 lg:w-6 lg:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
+
+        {/* ========================================== */}
+        {/* DESKTOP ONLY: Minimal View & Close Buttons */}
+        {/* ========================================== */}
+        <button 
+            onClick={onToggle} 
+            className="hidden md:flex items-center gap-2 text-text-secondary hover:text-text-primary transition-colors text-sm font-bold uppercase tracking-widest"
+        >
+           {/* Chevron pointing UP/LEFT for back */}
+           <svg className="w-5 h-5 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
+           </svg>
+           <span>Minimal View</span>
         </button>
+
+        <button 
+            onClick={onClose} 
+            className="hidden md:block p-2 text-text-secondary hover:text-text-primary transition-colors rounded-full hover:bg-background-hover" 
+            title="Close"
+        >
+           {/* The 'X' Icon */}
+           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" />
+           </svg>
+        </button>
+        
       </div>
 
-      {/* MAIN LAYOUT: Stacks vertically on mobile (flex-col), side-by-side on desktop (lg:flex-row) */}
-      <div className="flex-1 flex flex-col lg:flex-row w-full h-full min-h-0 overflow-hidden">
+      <div className="flex-1 flex flex-col lg:flex-row w-full h-full min-h-0 relative overflow-hidden">
         
-        {/* === LEFT/TOP COLUMN: PLAYER CONTROLS === */}
+        {/* === LEFT COLUMN: PLAYER CONTROLS === */}
         <div 
+            // FIX 2: Tap anywhere in this main container to close the sheet!
+            onClick={() => { if (!isDesktop && isSheetExpanded) setIsSheetExpanded(false); }}
             style={isDesktop ? { width: `${leftWidth}%` } : {}} 
-            // MOBILE: Takes up exactly enough height for its content (shrink-0), adds subtle shadow to separate from queue
-            // DESKTOP: Takes up full height (h-full), allows scrolling if needed
-            className="w-full shrink-0 flex flex-col px-4 md:px-8 lg:px-12 py-4 md:py-6 lg:py-8 bg-background-primary z-30 relative transition-none border-b lg:border-b-0 lg:border-r border-border shadow-[0_10px_30px_rgba(0,0,0,0.1)] lg:shadow-none"
+            className={`w-full flex-1 lg:flex-none flex flex-col justify-center px-6 lg:px-12 py-4 pb-20 lg:pb-8 bg-background-primary z-10 transition-none lg:border-r border-border overflow-y-auto scrollbar-none ${!isDesktop && isSheetExpanded ? 'cursor-pointer' : ''}`}
         >
-          
-          {/* BADGES (Hidden on very small screens to save space) */}
-          <div className="hidden sm:flex flex-wrap items-center gap-2 mb-4 lg:mb-6">
-              <span className="px-2 py-1 bg-background-secondary text-text-secondary text-[9px] lg:text-[10px] font-bold tracking-widest rounded-sm border border-border shrink-0">
-                  HIGH-RES
-              </span>
-              {song?.song_type && (
-                  <span className="px-2 py-1 bg-accent-primary/20 text-accent-primary text-[9px] lg:text-[10px] font-bold tracking-widest rounded-sm border border-accent-primary/30 shrink-0">
-                      {song.song_type}
-                  </span>
-              )}
-          </div>
-
-          {/* ALBUM ART + TRACK INFO (Row on mobile, Stacked on desktop) */}
-          <div className="flex flex-row lg:flex-col items-center gap-4 lg:gap-0 mb-4 lg:mb-8 shrink-0">
-              
-              {/* Art: Much smaller on mobile! */}
-              <div className="w-16 h-16 sm:w-24 sm:h-24 lg:w-full lg:max-w-[320px] aspect-square rounded-xl shadow-xl overflow-hidden ring-1 ring-border shrink-0 lg:mb-8">
-                <img src={getMediaUrl(song?.cover_path)} className="w-full h-full object-cover" alt={song?.title} />
-              </div>
-
-              <div className="flex-1 min-w-0 flex flex-col justify-center text-left lg:w-full">
-                  <h1 className="text-lg sm:text-xl lg:text-3xl font-black truncate text-text-primary">{song?.title}</h1>
-                  <p className="text-text-secondary text-xs sm:text-sm lg:text-base mt-0.5 lg:mt-1 truncate">{song?.artist}</p>
-              </div>
-
-              {/* Mobile Only: Options Menu inline with title */}
-              <div className="lg:hidden flex shrink-0">
-                  <OptionsMenu song={song} className="p-1" />
-              </div>
-          </div>
-
-          <div className="mb-4 lg:mb-8 shrink-0">
-              <ProgressBar variant="fullscreen" />
-          </div>
-
-          {/* PLAYBACK CONTROLS */}
-          <div className="flex items-center justify-between px-2 lg:mb-8 shrink-0">
-            <button onClick={() => setIsShuffle(!isShuffle)} className={`p-2 transition-colors hidden sm:block ${isShuffle ? 'text-accent-primary' : 'text-text-muted hover:text-text-primary'}`}>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
-            </button>
+          <div className="w-full max-w-md mx-auto flex flex-col pointer-events-auto">
             
-            <button onClick={prevSong} className="p-2 text-text-primary transition-all hover:scale-110 active:scale-95">
-                <svg viewBox="0 0 24 24" className="w-8 h-8 fill-currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
-            </button>
-            
-            <button onClick={togglePlay} className="p-3 lg:p-5 bg-text-primary text-background-primary rounded-full hover:scale-105 active:scale-95 transition-all shadow-xl shadow-text-primary/10">
-                {isPlaying ? <svg className="w-8 h-8 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg> : <svg className="w-8 h-8 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>}
-            </button>
-            
-            <button onClick={nextSong} className="p-2 text-text-primary transition-all hover:scale-110 active:scale-95">
-                <svg viewBox="0 0 24 24" className="w-8 h-8 fill-currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
-            </button>
-            
-            <button onClick={() => setIsRepeat(!isRepeat)} className={`p-2 transition-colors hidden sm:block ${isRepeat ? 'text-accent-primary' : 'text-text-muted hover:text-text-primary'}`}>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-            </button>
-          </div>
+            <div className="hidden sm:flex flex-wrap items-center gap-2 mb-4 lg:mb-6">
+                <span className="px-2 py-1 bg-background-secondary text-text-secondary text-[10px] font-bold tracking-widest rounded-sm border border-border">HIGH-RES</span>
+                {song?.song_type && <span className="px-2 py-1 bg-accent-primary/20 text-accent-primary text-[10px] font-bold tracking-widest rounded-sm border border-accent-primary/30">{song.song_type}</span>}
+            </div>
 
-          {/* Desktop Only: Bottom Quick Actions */}
-          <div className="hidden lg:flex items-center justify-center gap-4 mt-auto pt-8 shrink-0">
-                <LikeButton songId={song?.id} className="p-3 bg-background-secondary hover:bg-background-hover rounded-full transition-colors" />
-                <AddToPlaylistButton songId={song?.id} variant="bottom" className="p-3 bg-background-secondary hover:bg-background-hover rounded-full transition-colors" />
-                <OptionsMenu song={song} className="p-3 bg-background-secondary hover:bg-background-hover rounded-full transition-colors" />
+            <div className="w-full aspect-square rounded-2xl shadow-2xl overflow-hidden ring-1 ring-border mb-6 shrink-0 lg:mb-8 mx-auto">
+              <img src={getMediaUrl(song?.cover_path)} className="w-full h-full object-cover" alt={song?.title} />
+            </div>
+
+            <div className="flex items-center justify-between gap-4 mb-6">
+                <div className="flex-1 min-w-0 text-left">
+                    <h1 className="text-2xl lg:text-3xl font-black truncate text-text-primary">{song?.title}</h1>
+                    <p className="text-text-secondary text-base mt-1 truncate">{song?.artist}</p>
+                </div>
+                <div className="flex lg:hidden items-center shrink-0">
+                    <OptionsMenu song={song} className="p-2 bg-background-secondary rounded-full" />
+                </div>
+            </div>
+
+            <div className="mb-6 lg:mb-8 shrink-0">
+                <ProgressBar variant="fullscreen" />
+            </div>
+
+            {/* PLAYBACK CONTROLS (Using your modular setup!) */}
+            <div className="flex flex-col items-center gap-6 md:gap-8">
+                <MediaControllers variant="fullscreen" />
+            </div>
+
+            <div className="hidden lg:flex items-center justify-center gap-4 mt-auto pt-8 shrink-0">
+                  <LikeButton songId={song?.id} className="p-3 bg-background-secondary hover:bg-background-hover rounded-full transition-colors" />
+                  <AddToPlaylistButton songId={song?.id} variant="bottom" className="p-3 bg-background-secondary hover:bg-background-hover rounded-full transition-colors" />
+                  <OptionsMenu song={song} className="p-3 bg-background-secondary hover:bg-background-hover rounded-full transition-colors" />
+            </div>
           </div>
-          
         </div>
 
         {/* === THE DRAG RESIZER BAR (Desktop Only) === */}
@@ -191,27 +214,43 @@ const FullscreenUtilityView = ({ isOpen, onClose, onToggle, song }) => {
             <div className="h-12 w-1 rounded-full bg-border group-hover:bg-text-secondary transition-colors"></div>
         </div>
 
-        {/* === RIGHT/BOTTOM COLUMN: UTILITY TABS === */}
-        {/* min-h-0 is crucial here: it tells flexbox that this container CAN shrink, allowing inner scroll */}
-        <div className="flex-1 w-full min-h-0 flex flex-col bg-background-secondary relative z-10">
+        {/* === RIGHT / BOTTOM COLUMN: UTILITY SHEET === */}
+        <div 
+            className={`
+                absolute lg:relative w-full lg:flex-1 h-[85vh] lg:h-full flex flex-col z-50 
+                bg-background-secondary/95 lg:bg-background-secondary backdrop-blur-3xl lg:backdrop-blur-none
+                rounded-t-3xl lg:rounded-none shadow-[0_-10px_40px_rgba(0,0,0,0.5)] lg:shadow-none
+                border-t border-border lg:border-none transition-transform duration-500 ease-out
+                ${isDesktop ? 'translate-y-0' : isSheetExpanded ? 'translate-y-[15vh]' : 'translate-y-[calc(85vh-40px)]'}
+            `}
+        >
             
+            {/* Sheet Handle (Mobile Only) */}
+            <div 
+                className="w-full flex lg:hidden justify-center py-3 cursor-grab active:cursor-grabbing touch-none"
+                onTouchStart={handleTouchStart}
+                onTouchEnd={handleTouchEnd}
+                onClick={() => setIsSheetExpanded(!isSheetExpanded)}
+            >
+                <div className="w-12 h-1.5 rounded-full bg-border hover:bg-text-muted transition-colors" />
+            </div>
+
             {/* Tab Header */}
-            <div className="flex justify-between px-4 lg:px-8 pt-4 lg:pt-8 pb-3 lg:pb-4 border-b border-border shrink-0 bg-background-secondary/95 backdrop-blur-md z-20 shadow-sm">
+            <div className="flex justify-between px-4 lg:px-8 pb-3 lg:pb-4 lg:pt-8 border-b border-border shrink-0 z-20">
                 <div className="flex gap-6 lg:gap-8 w-full justify-center lg:justify-start relative">
                     <button 
-                        onClick={() => setActiveTab('queue')} 
+                        onClick={() => handleTabClick('queue')} 
                         className={`text-xs lg:text-sm font-bold tracking-widest uppercase transition-all pb-1 border-b-2 px-2 ${activeTab === 'queue' ? 'text-text-primary border-accent-primary' : 'text-text-muted border-transparent hover:text-text-primary'}`}
                     >
                         Play Queue
                     </button>
                     <button 
-                        onClick={() => setActiveTab('lyrics')} 
+                        onClick={() => handleTabClick('lyrics')} 
                         className={`text-xs lg:text-sm font-bold tracking-widest uppercase transition-all pb-1 border-b-2 px-2 ${activeTab === 'lyrics' ? 'text-text-primary border-accent-primary' : 'text-text-muted border-transparent hover:text-text-primary'}`}
                     >
                         Lyrics
                     </button>
 
-                    {/* Lyric Lang Toggle (Absolute positioned to the right so it doesn't break centering) */}
                     {activeTab === 'lyrics' && lyrics.length > 0 && (
                         <div className="absolute right-0 top-0 bottom-0 flex items-center pr-2">
                             <button onClick={handleLangToggle} className="px-3 py-1 bg-background-primary border border-border rounded-full hover:bg-background-hover transition-all text-[10px] font-bold tracking-widest text-text-primary shadow-sm">
@@ -223,10 +262,10 @@ const FullscreenUtilityView = ({ isOpen, onClose, onToggle, song }) => {
             </div>
 
             {/* Scrollable Content Area */}
-            <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
+            <div className={`flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent ${!isDesktop && !isSheetExpanded ? 'pointer-events-none opacity-0' : 'pointer-events-auto opacity-100'} transition-opacity duration-300`}>
                 
-                <div className="px-2 md:px-4 lg:px-8 py-4 lg:py-6 pb-24">
-                    {/* QUEUE TAB */}
+                <div className="px-2 md:px-4 lg:px-8 py-4 lg:py-6 pb-32 lg:pb-24">
+                    
                     {activeTab === 'queue' && (
                         <div className="flex flex-col gap-1">
                             {queue.map((track, index) => {
@@ -266,11 +305,14 @@ const FullscreenUtilityView = ({ isOpen, onClose, onToggle, song }) => {
                         </div>
                     )}
 
-                    {/* LYRICS TAB */}
                     {activeTab === 'lyrics' && (
                         <div className="w-full">
                             {lyrics.length > 0 ? (
-                                <LiveLyrics lyrics={lyrics} language={lyricLang} />
+                                /* FIX 1: Only render LiveLyrics when the sheet is completely expanded! 
+                                   This absolutely destroys the ghost scrolling bug. */
+                                (isDesktop || isSheetExpanded) ? (
+                                    <LiveLyrics lyrics={lyrics} language={lyricLang} />
+                                ) : null
                             ) : (
                                 <div className="flex h-[300px] items-center justify-center text-text-muted text-xs lg:text-sm font-bold tracking-widest uppercase text-center px-4">
                                     No Lyrics Available
