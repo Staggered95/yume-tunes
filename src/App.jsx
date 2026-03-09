@@ -21,6 +21,7 @@ import FullscreenPlayer from './components/FullscreenPlayer';
 import { useSongs } from './context/SongContext';
 import AuthModal from './components/AuthModal';
 import MobileNav from './components/MobileNav';
+import GlobalProgressBar from './minicomps/loading/GlobalProgressBar';
 
 const App = () => {
   const [isPlayerOpen, setIsPlayerOpen] = useState(false);
@@ -29,6 +30,7 @@ const App = () => {
   return (
     <>
       <div className='relative min-h-screen pt-16 bg-background-primary text-text-primary'>
+        <GlobalProgressBar />
         <Navbar/>
         
         {/* Sidebar sits outside the main content container */}

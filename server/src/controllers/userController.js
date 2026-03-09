@@ -22,21 +22,45 @@ const toggleLikeSong = async (req, res) => {
 }
 
 const getLikedSongs = async (req, res) => {
-    const userID = req.user.id;
-    const text = `SELECT s.id, s.duration_seconds, s.cover_path, s.title, ar.name AS artist FROM songs s
-                  JOIN liked_songs ls ON s.id = ls.song_id
-                  JOIN artists ar ON s.artist_id = ar.id  
-                  WHERE ls.user_id = $1
-                  ORDER BY ls.liked_at DESC`
-    
+    const userId = req.user.id; // Assuming you have auth middleware setting req.user
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const offset = (page - 1) * limit;
+
+    // Notice we JOIN the junction table, and ORDER BY the date they liked it!
+    const text = `
+        SELECT 
+            s.id, s.title, s.song_type, s.duration_seconds, s.file_path, s.cover_path,
+            a.title AS anime,
+            ar.name AS artist,
+            ls.added_at
+        FROM user_liked_songs ls
+        JOIN songs s ON ls.song_id = s.id
+        JOIN animes a ON s.anime_id = a.id
+        JOIN artists ar ON s.artist_id = ar.id
+        WHERE ls.user_id = $1
+        ORDER BY ls.added_at DESC
+        LIMIT $2 OFFSET $3;
+    `;
+
     try {
-        const result = await query(text, [userID]);
-        res.status(200).json({ success: true, data: result.rows });
+        const result = await query(text, [userId, limit, offset]);
+        
+        res.status(200).json({
+            success: true,
+            data: result.rows,
+            pagination: {
+                currentPage: page,
+                limit: limit,
+                hasMore: result.rows.length === limit
+            }
+        });
     } catch (err) {
-        console.log("Error fetching the liked song", err);
-        res.status(500).json({ success: false, error: err });
+        console.error("Error fetching liked songs:", err);
+        res.status(500).json({ success: false, error: err.message });
     }
-}
+};
+
 
 const getLikedSongsMinimalData = async (req, res) => {
     const userID = req.user.id;

@@ -76,6 +76,7 @@ const SongCard = ({ song, queue, index = 0, shape = 'square' }) => {
           src={getMediaUrl(song.cover_path)} 
           alt={song.title} 
           loading="lazy"
+          decoding="async"
           className={`${currentStyle.image} group-hover:brightness-110 transition-all`} 
         />
         
@@ -109,4 +110,6 @@ const SongCard = ({ song, queue, index = 0, shape = 'square' }) => {
   );
 };
 
-export default SongCard;
+export default React.memo(SongCard, (prevProps, nextProps) => {
+  return prevProps.song.id === nextProps.song.id && prevProps.index === nextProps.index;
+});

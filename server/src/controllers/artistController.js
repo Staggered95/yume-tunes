@@ -1,7 +1,20 @@
 import { query } from '../config/db.js';
 
+const createResponse = (rows, page, limit) => ({
+    success: true,
+    data: rows,
+    pagination: {
+        currentPage: page,
+        limit: limit,
+        hasMore: rows.length === limit
+    }
+});
+
 const getArtists = async (req, res) => {
-    // Added LIMIT 1 to the subquery to prevent "more than one row returned" errors
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const offset = (page - 1) * limit;
+
     const text = `
         SELECT ar.id, ar.name,
                COUNT(s.id) AS track_count,
@@ -10,11 +23,12 @@ const getArtists = async (req, res) => {
         LEFT JOIN songs s ON s.artist_id = ar.id
         GROUP BY ar.id, ar.name
         ORDER BY ar.name ASC
+        LIMIT $1 OFFSET $2
     `;
             
     try {
-        const result = await query(text);
-        res.status(200).json({ success: true, data: result.rows });
+        const result = await query(text, [limit, offset]);
+        res.status(200).json(createResponse(result.rows, page, limit));
     } catch (err) {
         console.error("❌ Error fetching Artists:", err);
         res.status(500).json({ success: false, error: "Internal Server Error" });
@@ -22,8 +36,10 @@ const getArtists = async (req, res) => {
 }
 
 const getArtistDetails = async (req, res) => {
-    // 1. This comes from your route: /artist/:name
     const artistName = req.params.name; 
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
+    const offset = (page - 1) * limit;
 
     const animeText = `
         SELECT DISTINCT a.title, a.id, 
@@ -31,17 +47,26 @@ const getArtistDetails = async (req, res) => {
         FROM animes a
         JOIN songs s ON s.anime_id = a.id
         JOIN artists ar ON s.artist_id = ar.id 
-        WHERE ar.name ILIKE $1; 
+        WHERE ar.name ILIKE $1
+        ORDER BY a.title ASC 
+        LIMIT $2 OFFSET $3; 
     `;
 
     try {
-        // Use the string name here instead of an ID
-        const animeResult = await query(animeText, [artistName]);
+        // Notice we pass [artistName, limit, offset] here!
+        const animeResult = await query(animeText, [artistName, limit, offset]);
         
+        // Since we are nesting this inside a 'featuredAnimes' object, 
+        // we manually construct the response instead of using the helper
         res.status(200).json({
             success: true,
             data: {
                 featuredAnimes: animeResult.rows
+            },
+            pagination: {
+                currentPage: page,
+                limit: limit,
+                hasMore: animeResult.rows.length === limit
             }
         });
     } catch (err) {

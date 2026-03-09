@@ -1,51 +1,94 @@
-import React, { useEffect, useState } from 'react';
-import Collage from '../minicomps/Collage';
+import React, { useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import api from '../api/axios';
+import Collage from '../minicomps/Collage';
+import { usePagination } from '../hooks/usePagination'; // <-- 1. Import your custom hook!
 
 const AnimeListPage = () => {
-  const [animes, setAnimes] = useState([]);
+  // 2. Replace all the manual state and useEffects with ONE line
+  const { 
+    data: animes, 
+    loading, 
+    hasMore, 
+    loadNextPage 
+  } = usePagination('/animes', {}); // No extra query params needed for this endpoint
 
-  useEffect(() => {
-  const fetchAnimes = async () => {
-    try {
-      // 1. Await the axios call
-      const { data } = await api.get('/animes');
+  // 3. The Intersection Observer (Triggering 9 items early!)
+  const observer = useRef();
+  const lastAnimeElementRef = useCallback(node => {
+      if (loading) return;
+      if (observer.current) observer.current.disconnect();
       
-      // 2. Axios already parsed the JSON into res.data
-      // No need for res.json()
-      setAnimes(data.data); // Use .data.data if your backend sends { success: true, data: [...] }
-    } catch (err) {
-      console.error("Fetch error:", err);
-    }
-  };
+      observer.current = new IntersectionObserver(entries => {
+          if (entries[0].isIntersecting && hasMore) {
+              loadNextPage();
+          }
+      });
+      
+      if (node) observer.current.observe(node);
+  }, [loading, hasMore, loadNextPage]);
 
-  fetchAnimes();
-}, []);
+  // 4. Initial Full-Page Loading State (Only shows on Page 1)
+  if (loading && animes.length === 0) return (
+    <div className="p-3 md:p-8 pt-24 min-h-screen bg-background-primary">
+      <div className="h-10 w-64 bg-border/60 rounded-lg animate-pulse mb-10" />
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+        {[...Array(12)].map((_, i) => (
+          <div 
+            key={`grid-skeleton-${i}`} 
+            className="aspect-square rounded-2xl bg-border/60 animate-pulse border border-border/20" 
+          />
+        ))}
+      </div>
+    </div>
+  );
 
   return (
-    <div className="p-3 md:p-8">
-      <h1 className="text-4xl font-black mb-10 tracking-tighter uppercase italic text-white/20">
+    <div className="p-3 md:p-8 pt-24 min-h-screen bg-background-primary pb-32">
+      <h1 className="text-4xl font-black mb-10 tracking-tighter uppercase italic text-text-primary/20">
         Browse by Series
       </h1>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
-        {animes.map((anime) => (
-          <Link 
-            to={`/anime/${encodeURIComponent(anime.title)}`} 
-            key={anime.title}
-            className="group relative bg-white/5 rounded-2xl overflow-hidden border border-white/5 hover:border-accent-primary/50 transition-all duration-300"
-          >
-            <Collage covers={anime.collage_covers}/>
-            <div className="p-4 bg-gradient-to-t from-black to-transparent">
-              <h3 className="font-bold text-sm truncate">{anime.title}</h3>
-              <p className="text-[10px] text-white/80 uppercase tracking-widest mt-1">
-                {anime.track_count} Tracks
-              </p>
-            </div>
-          </Link>
-        ))}
+        {animes.map((anime, index) => {
+          // Attach the trigger to the 9th-to-last item for that buttery smooth pre-fetch
+          const isTriggerElement = index === animes.length - 9;
+          
+          return (
+            <Link 
+              to={`/anime/${encodeURIComponent(anime.title)}`} 
+              key={`anime-${anime.id}-${index}`} // Bulletproof key
+              ref={isTriggerElement ? lastAnimeElementRef : null}
+              // Added animation and performance hint here!
+              className="group relative bg-background-secondary rounded-2xl overflow-hidden border border-border hover:border-accent-primary/50 transition-all duration-300 animate-fade-in will-change-transform"
+            >
+              <Collage covers={anime.collage_covers}/>
+              <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/90 to-transparent z-10">
+                <h3 className="font-bold text-sm truncate text-white">{anime.title}</h3>
+                <p className="text-[10px] text-white/80 uppercase tracking-widest mt-1">
+                  {anime.track_count} Tracks
+                </p>
+              </div>
+            </Link>
+          );
+        })}
+
+        {/* 5. Appending Skeletons (Shows at the bottom of the grid while Page 2+ loads) */}
+        {loading && animes.length > 0 && (
+          [...Array(6)].map((_, i) => (
+            <div 
+              key={`append-skeleton-${i}`} 
+              className="aspect-square rounded-2xl bg-border/40 animate-pulse border border-border/10" 
+            />
+          ))
+        )}
       </div>
+
+      {/* 6. End of list indicator */}
+      {!hasMore && animes.length > 0 && (
+          <div className="text-center text-text-muted mt-16 italic text-sm w-full col-span-full">
+              You've reached the end of the catalog.
+          </div>
+      )}
     </div>
   );
 };
