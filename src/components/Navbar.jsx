@@ -127,7 +127,6 @@ export default function Navbar() {
                 isDestructive={true} 
             />
             
-            <div className="h-20 w-full" />
         </>
     );
 }

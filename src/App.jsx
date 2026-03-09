@@ -28,7 +28,7 @@ const App = () => {
 
   return (
     <>
-      <div className='relative min-h-screen bg-background-primary text-text-primary'>
+      <div className='relative min-h-screen pt-16 bg-background-primary text-text-primary'>
         <Navbar/>
         
         {/* Sidebar sits outside the main content container */}

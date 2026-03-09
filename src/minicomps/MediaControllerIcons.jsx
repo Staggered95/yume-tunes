@@ -129,7 +129,7 @@ const MediaControllers = ({ variant = 'bottomplayer', className = '' }) => {
                 <svg 
                   className="w-7 h-7 md:w-8 md:h-8 transition-transform group-hover:translate-x-1" 
                   viewBox="0 0 24 24" 
-                  fill="current" 
+                  fill="currentColor" 
                 >
                   <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" />
                 </svg>

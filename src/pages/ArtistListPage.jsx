@@ -20,7 +20,7 @@ const ArtistListPage = () => {
   }, []);
 
   return (
-    <div className="p-8">
+    <div className="p-3 md:p-8">
       <h1 className="text-4xl font-black mb-10 text-white/10 uppercase italic">Artists</h1>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-8">
         {artists.map(artist => (

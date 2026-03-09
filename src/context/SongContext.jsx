@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, useCallback, useMemo } from "react";
 import { usePlayback } from "./PlaybackContext";
 import { useAuth } from "./AuthContext";
+import api from "../api/axios";
 import { getMediaUrl } from "../utils/media";
 
 const SongContext = createContext();
@@ -15,28 +16,24 @@ export const SongProvider = ({children}) => {
     const [loading, setLoading] = useState(true);
     const currentSong = queue[currentIndex] || null;
 
-    const { authFetch } = useAuth();
     const { audioRef, isEnded, playSong, togglePlay } = usePlayback();
 
     const logTelemetry = useCallback(async (song, listenedSecs, totalSecs, skipped) => {
-        if (!song || listenedSecs < 5) return; 
+    if (!song || listenedSecs < 5) return; 
 
-        try {
-            // Fire and forget!
-            authFetch('/user/telemetry', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    songID: song.id,
-                    listenedSeconds: Math.floor(listenedSecs),
-                    durationSeconds: Math.floor(totalSecs),
-                    wasSkipped: skipped
-                })
-            });
-        } catch (err) {
-            console.error("Telemetry failed", err);
-        }
-    }, [authFetch]);
+    try {
+        // Fire and forget with Axios!
+        // api.post(url, data)
+        api.post('/user/telemetry', {
+            songID: song.id,
+            listenedSeconds: Math.floor(listenedSecs),
+            durationSeconds: Math.floor(totalSecs),
+            wasSkipped: skipped
+        });
+    } catch (err) {
+        console.error("Telemetry failed", err);
+    }
+}, []);
 
     const addToQueue = (song) => {
     // If nothing is playing, just start playing it!

@@ -24,7 +24,7 @@ const AnimeListPage = () => {
 }, []);
 
   return (
-    <div className="p-8">
+    <div className="p-3 md:p-8">
       <h1 className="text-4xl font-black mb-10 tracking-tighter uppercase italic text-white/20">
         Browse by Series
       </h1>

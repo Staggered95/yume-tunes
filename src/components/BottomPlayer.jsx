@@ -60,7 +60,7 @@ export default function BottomPlayer({ onExpand }) {
                 <div className="flex items-center justify-end md:justify-center shrink-0 md:w-1/3 gap-1 md:gap-6">
                     
                     {/* NEW: Like button that ONLY shows on mobile, right next to Play/Pause! */}
-                    <div className="md:hidden flex items-center pr-1">
+                    <div className="md:hidden flex items-center pr-7">
                         <LikeButton songId={currentSong.id} initialIsLiked={false} />
                     </div>
 

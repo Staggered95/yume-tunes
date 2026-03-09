@@ -52,7 +52,7 @@ const LikedSongsPage = () => {
     return (
         <div className="min-h-screen bg-background-primary text-text-primary">
             {/* 1. THE HERO HEADER */}
-            <div className="relative h-[40vh] md:h-[50vh] flex items-end overflow-hidden">
+            <div className="relative min-h-[40vh] md:h-[50vh] flex items-end overflow-hidden">
                 {/* Background Glow */}
                 <div className="absolute inset-0 bg-gradient-to-b from-accent-primary/30 to-background-primary z-0" />
                 

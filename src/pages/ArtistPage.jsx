@@ -20,8 +20,8 @@ const ArtistPage = () => {
         
         // Parallel fetching: hitting both your song and artist endpoints at once
         const [songsRes, detailsRes] = await Promise.all([
-          api.get(`http://localhost:5000/songs/artist/${encodedName}`),
-          api.get(`http://localhost:5000/artists/${encodedName}`)
+          api.get(`/songs/artist/${encodedName}`),
+          api.get(`/artists/${encodedName}`)
         ]);
 
         setData({

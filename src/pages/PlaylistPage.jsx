@@ -5,6 +5,7 @@ import { useSongs } from '../context/SongContext';
 import AddToPlaylistButton from '../minicomps/AddToPlaylistButton';
 import Collage from '../minicomps/Collage';
 import { getMediaUrl } from '../utils/media';
+import ShuffleButton from '../minicomps/ShuffleButton';
 
 const PlaylistPage = () => {
     const { id } = useParams(); 
@@ -54,7 +55,7 @@ const PlaylistPage = () => {
     return (
         <div className="min-h-screen bg-background-primary text-text-primary">
             {/* 1. HERO HEADER */}
-            <div className="relative h-[45vh] md:h-[55vh] flex items-end overflow-hidden">
+            <div className="relative min-h-[45vh] md:h-[55vh] flex items-end overflow-hidden">
                 {/* Background Tint Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-b from-background-secondary/60 to-background-primary z-0" />
                 
@@ -83,16 +84,28 @@ const PlaylistPage = () => {
 
             {/* 2. ACTION ROW */}
             <div className="sticky top-16 z-30 bg-background-primary/80 backdrop-blur-md border-b border-border/50">
-                <div className="max-w-7xl mx-auto px-6 md:px-12 py-5">
+                {/* Added flex, items-center, and gap-4 to perfectly align the buttons */}
+                <div className="max-w-7xl mx-auto px-6 md:px-12 py-5 flex items-center gap-4">
+        
+                    {/* The Big Play Button */}
                     <button 
                         onClick={() => playQueue(songs, 0)} 
                         disabled={songs.length === 0}
-                        className="w-16 h-16 bg-accent-primary text-background-primary rounded-full flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-xl shadow-accent-primary/20 disabled:opacity-50 group"
+                        className="w-14 h-14 md:w-16 md:h-16 shrink-0 bg-accent-primary text-background-primary rounded-full flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-xl shadow-accent-primary/20 disabled:opacity-50 group"
+                        title="Play All"
                     >
-                        <svg viewBox="0 0 24 24" className="w-8 h-8 ml-1 transition-transform group-hover:scale-110" fill="currentColor">
+                        <svg viewBox="0 0 24 24" className="w-7 h-7 md:w-8 md:h-8 ml-1 transition-transform group-hover:scale-110" fill="currentColor">
                             <path d="M8 5v14l11-7z"/>
                         </svg>
                     </button>
+
+                {/* The New Shuffle Action Button */}
+                <ShuffleButton 
+                    variant="action" 
+                    // Optional: If you want clicking the big shuffle button to ALSO start playing the first song instantly:
+                    // onClick={() => { if (songs.length > 0) playQueue(songs, 0); }}
+                />
+
                 </div>
             </div>
 

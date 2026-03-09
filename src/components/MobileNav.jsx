@@ -19,12 +19,26 @@ const MobileNav = () => {
             )
         },
         { 
-            label: 'Search', 
-            path: '/search', 
+            label: 'Artists', 
+            path: '/artists', 
             icon: (
+                // Microphone icon for Artists
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="11" cy="11" r="8" />
-                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                    <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z" />
+                    <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                    <line x1="12" y1="19" x2="12" y2="23" />
+                    <line x1="8" y1="23" x2="16" y2="23" />
+                </svg>
+            )
+        },
+        { 
+            label: 'Animes', 
+            path: '/animes', 
+            icon: (
+                // TV icon for Animes
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="2" y="7" width="20" height="15" rx="2" ry="2" />
+                    <polyline points="17 2 12 7 7 2" />
                 </svg>
             )
         },
@@ -43,15 +57,16 @@ const MobileNav = () => {
 
     return (
         <div 
-            // NEW: Added translate-y-full when scrolling down to hide it, and translate-y-0 to show it
             className={`fixed bottom-0 left-0 right-0 bg-background-primary backdrop-blur-md border-t border-border z-[100] md:hidden pb-safe transition-transform duration-300 ease-in-out ${
                 scrollDirection === 'down' ? 'translate-y-full' : 'translate-y-0'
             }`}
         >
-            {/* NEW: Changed h-16 to h-14 to make it slimmer! */}
             <div className="flex justify-around items-center h-14 px-2">
                 {tabs.map((tab) => {
-                    const isActive = pathname === tab.path || (tab.path !== '/' && pathname.startsWith(tab.path));
+                    // Logic to ensure exact match for home, but partial match for other routes (e.g. /artists/123)
+                    const isActive = tab.path === '/' 
+                        ? pathname === '/' 
+                        : pathname.startsWith(tab.path);
                     
                     return (
                         <button
@@ -62,7 +77,7 @@ const MobileNav = () => {
                             }`}
                         >
                             <div className={`transition-transform duration-300 ${isActive ? 'scale-110' : 'scale-100'}`}>
-                                {React.cloneElement(tab.icon, { className: "w-5 h-5" })} {/* Shrunk icon slightly from w-6 to w-5 to fit slimmer nav */}
+                                {React.cloneElement(tab.icon, { className: "w-5 h-5" })} 
                             </div>
                             <span className="text-[9px] font-bold tracking-wide uppercase">{tab.label}</span>
                         </button>
