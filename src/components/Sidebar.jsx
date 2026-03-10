@@ -51,7 +51,6 @@ const SidebarItem = ({ icon: Icon, label, isOpen, onClick, active }) => (
 /* ---------- Main Component ---------- */
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const sideBarRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
   
@@ -76,37 +75,25 @@ const Sidebar = () => {
     fetchPlaylists();
   }, [isLoggedIn]);
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-        if (isOpen && sideBarRef.current && !sideBarRef.current.contains(event.target)) {
-          setIsOpen(false);
-        }
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isOpen]);
-
   return (
     <aside 
-  ref={sideBarRef}
-  // Changed: top-20 (starts below nav), h-[calc(100vh-11rem)] (leaves room for nav+player), z-30 (stays under modals)
-  className={`hidden md:block fixed top-20 left-0 h-[calc(100vh-11rem)] bg-background-primary border-r border-border z-30
-    transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] shadow-2xl
-    ${isOpen ? "w-64" : "w-20"}`}
->
-      {/* Header & Toggle */}
+      // THE FIX: Added mouse events and rounded-br-3xl
+      onMouseEnter={() => setIsOpen(true)}
+      onMouseLeave={() => setIsOpen(false)}
+      className={`hidden md:block fixed top-20 left-0 h-[calc(100vh-11rem)] bg-background-primary border-r border-b border-border z-30
+        transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)] shadow-2xl rounded-br-3xl
+        ${isOpen ? "w-64" : "w-20"}`}
+    >
+      {/* Header & Toggle (Now just a visual indicator since hover controls it) */}
       <div className="p-4 h-20 flex items-center justify-center">
-        <button
-          onClick={() => setIsOpen(v => !v)}
-          className="relative w-10 h-10 text-text-primary hover:text-accent-primary transition-colors flex items-center justify-center bg-background-secondary rounded-xl border border-border"
-        >
+        <div className="relative w-10 h-10 text-text-primary flex items-center justify-center bg-background-secondary rounded-xl border border-border">
           <span className={`absolute transition-all duration-500 ${isOpen ? "opacity-0 rotate-90 scale-50" : "opacity-100 rotate-0 scale-100"}`}>
             <HamburgerIcon className="w-6 h-6" />
           </span>
           <span className={`absolute transition-all duration-500 ${isOpen ? "opacity-100 rotate-0 scale-100" : "opacity-0 -rotate-90 scale-50"}`}>
             <CloseIcon className="w-6 h-6" />
           </span>
-        </button>
+        </div>
       </div>
 
       {/* Navigation */}
@@ -155,8 +142,6 @@ const Sidebar = () => {
       <div className="absolute bottom-6 w-full">
         <SidebarItem icon={SettingsIcon} label="Settings" isOpen={isOpen} active={location.pathname === '/settings'} onClick={() => navigate('/settings')} />
       </div>
-
-      {/* Note: I removed the mobile backdrop div entirely because this component doesn't render on mobile anymore! */}
     </aside>
   );
 };

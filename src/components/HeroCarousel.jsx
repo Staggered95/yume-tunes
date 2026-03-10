@@ -74,7 +74,7 @@ export default function HeroCarousel({ dbBanners }) {
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
-      className="relative h-64 sm:h-72 md:h-96 w-full rounded-2xl overflow-hidden shadow-2xl bg-background-primary group animate-fade-in touch-pan-y"
+      className="relative h-64 md:h-96 lg:h-120 w-full rounded-2xl overflow-hidden shadow-2xl bg-background-primary group animate-fade-in touch-pan-y"
     >
       {displayBanners.map((b, i) => {
         const isLocalFallback = b.image_path.includes('static/media') || b.image_path.startsWith('data:');

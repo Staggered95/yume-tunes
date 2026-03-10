@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useUser } from "../context/UserContext";
 
-const fallbackQuotes = {
+const FALLBACK_QUOTES = {
   special: [
     { quote_text: "Whatever you lose, you'll find it again.", author: "Kenshin Himura" },
     { quote_text: "A person grows up when he’s able to overcome hardships.", author: "Jiraiya" }
@@ -12,57 +12,66 @@ const fallbackQuotes = {
   ]
 };
 
-export default function GreetingHeader({ isLoggedIn, dbQuotes }) {
+const getRandomQuote = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
+export default function GreetingHeader({ isLoggedIn, dbQuotes = [] }) {
   const { userProfile } = useUser();
   const [quote, setQuote] = useState(null);
 
   useEffect(() => {
-    let activeQuotes = [];
-    if (dbQuotes && dbQuotes.length > 0) {
-      activeQuotes = dbQuotes.filter(q => q.is_active !== false); 
-    }
-    const specialQuotes = activeQuotes.filter(q => q.quote_type === 'special');
-    const normalQuotes = activeQuotes.filter(q => q.quote_type === 'normal');
+    const activeQuotes = dbQuotes.filter(q => q.is_active !== false);
+    const targetType = isLoggedIn ? 'special' : 'normal';
+    
+    let pool = activeQuotes.filter(q => q.quote_type === targetType);
+    if (pool.length === 0) pool = activeQuotes; 
 
-    let dbPool = isLoggedIn ? specialQuotes : normalQuotes;
-    if (dbPool.length === 0) dbPool = activeQuotes; 
-
-    if (dbPool.length > 0) {
-      setQuote(dbPool[Math.floor(Math.random() * dbPool.length)]);
+    if (pool.length > 0) {
+      setQuote(getRandomQuote(pool));
     } else {
-      const fallbackPool = isLoggedIn ? fallbackQuotes.special : fallbackQuotes.normal;
-      setQuote(fallbackPool[Math.floor(Math.random() * fallbackPool.length)]);
+      setQuote(getRandomQuote(FALLBACK_QUOTES[targetType]));
     }
   }, [isLoggedIn, dbQuotes]);
 
-  const greeting = isLoggedIn ? `Okaeri, ${userProfile?.first_name || 'User'}-sama` : "Irasshaimase!";
-
-  if (!quote) return <header className="px-4 py-6 min-h-[100px]"></header>;
+  if (!quote) return <header className="min-h-[80px]"></header>;
 
   return (
-    <header className="px-4 py-2 md:py-4 flex flex-col md:flex-row md:justify-between md:items-end gap-2 md:gap-6 animate-fade-in border-l-4 border-accent-primary pl-6">
-      <div className="flex flex-col">
-        {/* Responsive font size: 2xl on mobile, 4xl on desktop */}
-        <h1 className="text-2xl md:text-4xl font-black font-playwrite text-text-primary tracking-tighter italic">
-          {greeting}
-        </h1>
-        
-        {/* Quote: Visible on mobile, but styled as a subtle sub-text */}
-        <div className="flex flex-wrap items-center gap-1 text-text-secondary italic mt-1 md:mt-2">
-           <p className="text-xs md:text-sm line-clamp-2 md:line-clamp-none leading-relaxed">
-            "{quote.quote_text}" 
-            <span className="not-italic font-bold text-[10px] md:text-xs text-accent-primary ml-2 uppercase tracking-widest">
-              — {quote.author} 
-              {quote.anime && <span className="text-text-muted font-normal ml-1 lowercase">({quote.anime})</span>}
-            </span>
+    <header className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 lg:gap-8 w-full">
+      
+      {/* LEFT: Greeting */}
+      <h1 className="text-3xl md:text-4xl font-black tracking-tight shrink-0">
+        {isLoggedIn ? (
+          <span className="text-text-primary">
+            Okaeri, <span className="bg-clip-text text-transparent bg-gradient-to-r from-accent-primary to-accent-secondary">
+              {userProfile?.first_name || 'User'}
+            </span>-sama
+          </span>
+        ) : (
+          <span className="bg-clip-text text-transparent bg-gradient-to-r from-text-primary to-text-secondary">
+            Irasshaimase!
+          </span>
+        )}
+      </h1>
+      
+      {/* RIGHT: Quote Section */}
+      <div className="flex items-start gap-2 max-w-xl opacity-90 lg:justify-end">
+        <span className="text-2xl text-accent-primary font-serif leading-none mt-0.5">"</span>
+        <div className="flex flex-col gap-1">
+          <p className="text-sm md:text-base text-text-secondary font-medium italic leading-snug">
+            {quote.quote_text}
           </p>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-[10px] md:text-xs font-bold text-accent-primary uppercase tracking-wider">
+              — {quote.author}
+            </span>
+            {quote.anime && (
+              <span className="text-[10px] text-text-muted font-semibold tracking-wide px-1.5 py-0.5 rounded-md bg-background-secondary border border-border">
+                {quote.anime}
+              </span>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Optional: Add a subtle date/time or status for desktop purely for 'aesthetic' balance */}
-      <div className="hidden lg:block text-[10px] font-black uppercase tracking-[0.4em] text-text-muted/30 pb-1">
-        {new Date().toLocaleDateString('en-US', { weekday: 'long' })}
-      </div>
     </header>
   );
 }

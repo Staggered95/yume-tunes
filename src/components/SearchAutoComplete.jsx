@@ -106,7 +106,7 @@ export default function SearchAutocomplete({autoFocus}) {
     };
 
     return (
-        <div className="relative w-full max-w-md group" ref={dropdownRef}>
+        <div className="relative w-full max-w-2xl group" ref={dropdownRef}>
             {/* Search Icon */}
             <div className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted group-focus-within:text-accent-primary transition-colors duration-300 pointer-events-none">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

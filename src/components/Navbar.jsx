@@ -12,12 +12,14 @@ export default function Navbar() {
     const { token, logout, openAuthModal } = useAuth();
     const { userProfile } = useUser();
     
-    
     const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
     const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
     
-    // Check if user is an admin (assuming role is in your userProfile)
-    const isAdmin = userProfile?.role === 'admin';
+    // Check if the user is either an admin OR a moderator
+    const hasAdminAccess = ['admin', 'moderator'].includes(userProfile?.role);
+    
+    // Dynamically set the label based on their exact role
+    const roleLabel = userProfile?.role === 'moderator' ? 'Moderator' : 'Admin';
 
     return (
         <>
@@ -65,8 +67,8 @@ export default function Navbar() {
                         {/* Right Actions */}
                         <div className="flex items-center gap-2 lg:gap-6 shrink-0">
                             
-                            {/* ADMIN BUTTON - Visible ONLY on Desktop/Tablet (md+) */}
-                            {isAdmin && (
+                            {/* DASHBOARD BUTTON - Dynamically reads "Admin" or "Moderator" */}
+                            {hasAdminAccess && (
                                 <button 
                                     onClick={() => navigate('/admin')}
                                     className="hidden md:flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-xs font-black uppercase tracking-widest text-text-secondary hover:text-accent-primary hover:border-accent-primary/50 transition-all duration-300"
@@ -75,7 +77,7 @@ export default function Navbar() {
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37a1.724 1.724 0 002.572-1.065z" />
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                     </svg>
-                                    Admin
+                                    {roleLabel} {/* <-- The dynamic text! */}
                                 </button>
                             )}
 
