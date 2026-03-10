@@ -1,5 +1,6 @@
 import express from 'express';
 import 'dotenv/config';
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import path from 'path';
 import cron from 'node-cron';
@@ -25,14 +26,29 @@ const __dirpath = path.dirname(__filepath);
 
 //MIDDLEWARES
 //app.use(cors());
-// In your backend server.js
-app.use(cors({ 
-    origin: '*', 
+
+
+// A dynamic CORS setup that allows localhost AND your phone's IP!
+app.use(cors({
+    origin: function (origin, callback) {
+        // 1. Allow requests with no origin (like Postman or curl)
+        if (!origin) return callback(null, true);
+        
+        // 2. Allow localhost OR any local network IP (192.168.x.x)
+        if (origin.startsWith('http://localhost') || origin.startsWith('http://10.214.')) {
+            return callback(null, true); // Let them in!
+        }
+        
+        // 3. Block anyone else
+        return callback(new Error('Not allowed by CORS'), false);
+    },
+    credentials: true, // STILL REQUIRED for the HTTP-Only cookies to work!
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'] // <-- THIS is the magic word
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use(express.json());
+app.use(cookieParser());
 app.use('/images/covers', express.static(path.join(__dirpath, '../../public/images/covers')));
 app.use('/images/users', express.static(path.join(__dirpath, '../../public/images/users')));
 app.use('/images/banners', express.static(path.join(__dirpath, '../../public/images/banners')));

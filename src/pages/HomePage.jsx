@@ -74,7 +74,7 @@ function HomePage() {
     <div className="flex flex-col gap-8 pb-32 animate-fade-in">
       <HeroCarousel dbBanners={banners} />
       
-      <div className='flex flex-col mx-8 gap-20'>
+      <div className='flex flex-col mx-8 gap-12'>
         <TagChips />
         <GreetingHeader isLoggedIn={isLoggedIn} dbQuotes={quotes} />
 

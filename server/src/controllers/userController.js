@@ -82,7 +82,7 @@ const getLikedSongsMinimalData = async (req, res) => {
 
 const getUserDetails = async(req, res) => {
     const userID = req.user.id;
-    const text = `SELECT first_name, last_name, username, email, created_at, user_image, banner_image
+    const text = `SELECT first_name, last_name, username, email, created_at, user_image, banner_image, role
                   FROM users WHERE id=$1`;
 
     try {

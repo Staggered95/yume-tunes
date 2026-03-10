@@ -1,14 +1,13 @@
 import { query } from '../config/db.js';
 
 const getPublicHomeData = async (req, res) => {
-    // 1. Trending Songs
+    // 1. Trending Songs (Last 30 days)
     const trendingQuery = `
         SELECT 
             s.id, s.title, s.cover_path, s.file_path, s.lyrics, ar.name AS artist,
             COUNT(lh.id) as recent_plays
         FROM songs s 
         JOIN artists ar ON s.artist_id = ar.id
-        -- LEFT JOIN ensures we still get songs even if they have 0 plays
         LEFT JOIN listening_history lh 
             ON s.id = lh.song_id 
             AND lh.created_at >= NOW() - INTERVAL '30 days'
@@ -17,21 +16,34 @@ const getPublicHomeData = async (req, res) => {
         LIMIT 10
     `;
 
-    // 2. This Season
+    // 2. This Season (Randomized OPs/EDs)
     const seasonQuery = `
         SELECT s.id, s.title, s.cover_path, s.file_path, s.lyrics, ar.name AS artist
         FROM songs s JOIN artists ar ON s.artist_id = ar.id
         WHERE s.song_type IN ('OP', 'ED') ORDER BY RANDOM() LIMIT 10
     `;
 
-    // 3. Quotes (Active Only)
-    const quotesQuery = `SELECT quote_text, author, anime, quote_type FROM quotes WHERE is_active = true`;
+    // 3. Quotes (Optimized Mixed Pool)
+    // We use UNION ALL to guarantee 10 of each type for the frontend to pick from
+    const quotesQuery = `
+        (SELECT quote_text, author, anime, quote_type 
+         FROM quotes WHERE quote_type = 'normal' AND is_active = true 
+         ORDER BY RANDOM() LIMIT 10)
+        UNION ALL
+        (SELECT quote_text, author, anime, quote_type 
+         FROM quotes WHERE quote_type = 'special' AND is_active = true 
+         ORDER BY RANDOM() LIMIT 10)
+    `;
 
-    // 4. Hero Banners (Active Only, ordered by display_order)
-    const bannersQuery = `SELECT id, title, subtitle, image_path, target_url FROM hero_banners WHERE is_active = true ORDER BY display_order ASC`;
+    // 4. Hero Banners
+    const bannersQuery = `
+        SELECT id, title, subtitle, image_path, target_url 
+        FROM hero_banners 
+        WHERE is_active = true 
+        ORDER BY display_order ASC
+    `;
 
     try {
-        // Run all 4 queries simultaneously!
         const [trending, season, quotes, banners] = await Promise.all([
             query(trendingQuery),
             query(seasonQuery),
@@ -39,7 +51,6 @@ const getPublicHomeData = async (req, res) => {
             query(bannersQuery)
         ]);
 
-        // Send one beautiful, consolidated payload
         res.status(200).json({ 
             success: true, 
             data: {

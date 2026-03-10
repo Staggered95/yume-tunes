@@ -5,13 +5,8 @@ const router = express.Router();
 
 router.post('/login', authController.login);
 router.post('/register', authController.register);
-router.get('/me', verifyToken, (req, res) => {
-    // Because verifyToken ran first, req.user is guaranteed to exist here
-    res.status(200).json({ 
-        success: true, 
-        message: "You made it past the Bouncer!", 
-        user_id: req.user.id 
-    });
-});
+router.get('/refresh', authController.refresh);
+router.post('/logout', authController.logout);
+router.get('/me', verifyToken, authController.me);
 
 export default router;

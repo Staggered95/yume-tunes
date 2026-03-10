@@ -10,7 +10,6 @@ const UserMenu = ({ user, onLogoutClick }) => {
     const positionStyle = useSmartPosition(isOpen, menuRef, dropdownRef);
     const navigate = useNavigate();
 
-    // Close menu when clicking outside
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -23,15 +22,13 @@ const UserMenu = ({ user, onLogoutClick }) => {
 
     const handleToggle = () => setIsOpen(!isOpen);
 
-    // Dynamic Image pathing
-    const imageSrc = user?.user_image 
-        ? (getMediaUrl(user.user_image))
-        : null;
+    const imageSrc = user?.user_image ? getMediaUrl(user.user_image) : null;
+    
+    // Check for admin role
+    const isAdmin = user?.role === 'admin';
 
     return (
         <div className="relative inline-block" ref={menuRef}>
-            
-            {/* 1. THE TRIGGER */}
             <div 
                 onClick={handleToggle} 
                 className={`cursor-pointer select-none transition-all duration-300 rounded-full p-0.5 border-2 ${
@@ -39,11 +36,7 @@ const UserMenu = ({ user, onLogoutClick }) => {
                 }`}
             >
                 {imageSrc ? (
-                    <img 
-                        src={imageSrc} 
-                        alt="Profile" 
-                        className="w-10 h-10 lg:w-11 lg:h-11 rounded-full object-cover shadow-lg"
-                    />
+                    <img src={imageSrc} alt="Profile" className="w-10 h-10 lg:w-11 lg:h-11 rounded-full object-cover shadow-lg" />
                 ) : (
                     <div className="w-10 h-10 lg:w-11 lg:h-11 rounded-full bg-background-active flex items-center justify-center text-accent-primary border border-border">
                         <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
@@ -53,14 +46,12 @@ const UserMenu = ({ user, onLogoutClick }) => {
                 )}
             </div>
 
-            {/* 2. THE DROPDOWN CARD */}
             {isOpen && (
                 <div 
                     ref={dropdownRef}
                     className="absolute w-64 bg-background-secondary border border-border rounded-2xl shadow-2xl z-[100] overflow-hidden flex flex-col mt-3 animate-in fade-in zoom-in-95 duration-200"
                     style={positionStyle}
                 >
-                    {/* Header: User Identification */}
                     <div className="px-5 py-5 flex items-center gap-4 border-b border-border bg-background-active/30">
                         {imageSrc ? (
                             <img src={imageSrc} className="w-12 h-12 rounded-full object-cover border-2 border-accent-primary/20" alt="" />
@@ -77,10 +68,22 @@ const UserMenu = ({ user, onLogoutClick }) => {
                         </div>
                     </div>
 
-                    {/* Menu Items */}
                     <div className="p-2 flex flex-col gap-1">
                         
-                        {/* --- NEW: View Profile Button --- */}
+                        {/* --- NEW: ADMIN PANEL BUTTON (MOBILE FRIENDLY) --- */}
+                        {isAdmin && (
+                            <button 
+                                onClick={() => { navigate('/admin'); setIsOpen(false); }}
+                                className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-bold text-accent-primary hover:bg-accent-primary/10 rounded-xl transition-all duration-300 group"
+                            >
+                                <svg className="w-4 h-4 text-accent-primary group-hover:rotate-45 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                                Admin Dashboard
+                            </button>
+                        )}
+
                         <button 
                             onClick={() => { navigate('/user'); setIsOpen(false); }}
                             className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-text-primary hover:bg-background-hover rounded-xl transition-all duration-300 group"
@@ -91,7 +94,6 @@ const UserMenu = ({ user, onLogoutClick }) => {
                             View Profile
                         </button>
 
-                        {/* Settings Button */}
                         <button 
                             onClick={() => { navigate('/settings'); setIsOpen(false); }}
                             className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-text-primary hover:bg-background-hover rounded-xl transition-all duration-300 group"
@@ -103,27 +105,10 @@ const UserMenu = ({ user, onLogoutClick }) => {
                             Account Settings
                         </button>
 
-                        {/* Dark Mode Toggle */}
-                        <div className="w-full flex items-center justify-between px-3 py-2.5 text-sm font-medium text-text-primary hover:bg-background-hover rounded-xl transition-all duration-300 group cursor-default">
-                            <div className="flex items-center gap-3">
-                                <svg className="w-4 h-4 text-text-secondary group-hover:text-warning transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                                </svg>
-                                Dark Mode
-                            </div>
-                            <div className="w-9 h-5 bg-accent-primary rounded-full relative shadow-inner">
-                                <div className="absolute right-1 top-1 w-3 h-3 bg-white rounded-full shadow-sm"></div>
-                            </div>
-                        </div>
-
                         <div className="h-px bg-border my-1 mx-2"></div>
 
-                        {/* Logout Button */}
                         <button 
-                            onClick={() => {
-                                setIsOpen(false);
-                                onLogoutClick();
-                            }} 
+                            onClick={() => { setIsOpen(false); onLogoutClick(); }} 
                             className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-bold text-error hover:bg-error/10 rounded-xl transition-all duration-300 group"
                         >
                             <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">

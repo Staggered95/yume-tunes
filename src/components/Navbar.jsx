@@ -12,46 +12,37 @@ export default function Navbar() {
     const { token, logout, openAuthModal } = useAuth();
     const { userProfile } = useUser();
     
-    const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
     
-    // NEW: State to track if the mobile search overlay is active
+    const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
     const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
     
+    // Check if user is an admin (assuming role is in your userProfile)
+    const isAdmin = userProfile?.role === 'admin';
+
     return (
         <>
             <nav className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between gap-4 px-4 md:px-6 py-4 bg-background-primary/80 backdrop-blur-md border-b border-border transition-all duration-300 ease-in-out h-16 md:h-20">
                 
-                {/* MOBILE SEARCH OVERLAY 
-                    If active, this takes over the entire navbar space.
-                */}
                 {isMobileSearchOpen ? (
-    <div className="flex items-center justify-between w-full gap-2 animate-in fade-in duration-300">
-        
-        {/* 1. Left Action: Back Button (Locked to w-10) */}
-        <div className="w-6 flex justify-start shrink-0">
-            <button 
-                onClick={() => setIsMobileSearchOpen(false)}
-                // -ml-2 pulls the icon slightly left so the touch target is big, but it visually aligns with the edge
-                className="p-2 -ml-2 text-text-secondary hover:text-text-primary transition-colors"
-            >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" />
-                </svg>
-            </button>
-        </div>
+                    <div className="flex items-center justify-between w-full gap-2 animate-in fade-in duration-300">
+                        <div className="w-6 flex justify-start shrink-0">
+                            <button 
+                                onClick={() => setIsMobileSearchOpen(false)}
+                                className="p-2 -ml-2 text-text-secondary hover:text-text-primary transition-colors"
+                            >
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M15 19l-7-7 7-7" />
+                                </svg>
+                            </button>
+                        </div>
 
-        {/* 2. Center: The Search Bar (Flex-1 fills the remaining space) */}
-        <div className="flex-1 w-full max-w-2xl">
-            <SearchAutocomplete autoFocus={true} />
-        </div>
+                        <div className="flex-1 w-full max-w-2xl">
+                            <SearchAutocomplete autoFocus={true} />
+                        </div>
 
-        {/* 3. Right Action: The Dummy Div (Locked to exactly w-10 to balance the back button) */}
-        <div className="w-2 shrink-0" />
-        
-    </div>
-) : (
-                    /* STANDARD NAVBAR (Desktop & Mobile Default) 
-                    */
+                        <div className="w-2 shrink-0" />
+                    </div>
+                ) : (
                     <>
                         {/* Logo Section */}
                         <div 
@@ -61,13 +52,12 @@ export default function Navbar() {
                             <div className="transition-transform duration-300 group-hover:scale-110">
                                 <Logo />       
                             </div>
-                            {/* Hide text on very small screens to save space */}
                             <div className="hidden sm:block text-xl lg:text-2xl font-black text-text-primary tracking-tighter">
                                 YumeTunes
                             </div>
                         </div>
 
-                        {/* Center Search - Hidden on mobile, visible on md+ */}
+                        {/* Center Search */}
                         <div className="hidden md:flex flex-1 max-w-2xl mx-auto px-4">
                             <SearchAutocomplete />
                         </div>
@@ -75,7 +65,20 @@ export default function Navbar() {
                         {/* Right Actions */}
                         <div className="flex items-center gap-2 lg:gap-6 shrink-0">
                             
-                            {/* Mobile Search Icon Trigger - Visible ONLY on mobile */}
+                            {/* ADMIN BUTTON - Visible ONLY on Desktop/Tablet (md+) */}
+                            {isAdmin && (
+                                <button 
+                                    onClick={() => navigate('/admin')}
+                                    className="hidden md:flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-xs font-black uppercase tracking-widest text-text-secondary hover:text-accent-primary hover:border-accent-primary/50 transition-all duration-300"
+                                >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37a1.724 1.724 0 002.572-1.065z" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                    Admin
+                                </button>
+                            )}
+
                             <button 
                                 onClick={() => setIsMobileSearchOpen(true)}
                                 className="md:hidden p-2 text-text-secondary hover:text-text-primary transition-colors"
@@ -85,7 +88,6 @@ export default function Navbar() {
                                 </svg>
                             </button>
 
-                            {/* Auth Logic */}
                             {!token ? (
                                 <div className="flex items-center gap-2 lg:gap-4 font-bold">
                                     <button 
@@ -126,7 +128,6 @@ export default function Navbar() {
                 cancelText="Cancel"
                 isDestructive={true} 
             />
-            
         </>
     );
 }

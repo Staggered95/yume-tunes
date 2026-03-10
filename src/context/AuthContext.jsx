@@ -26,7 +26,7 @@ export const AuthProvider = ({children}) => {
                 const { data } = await api.get('/auth/me')
 
                 if (data.success) {
-                    setUser(data); // Token is valid! Set the user.
+                    setUser(data.data); // Token is valid! Set the user.
                 } else {
                     // Backend said the token is expired or fake (401/403 status)
                     console.warn("Session expired. Logging out.");
@@ -88,10 +88,19 @@ export const AuthProvider = ({children}) => {
         //if (userData) setUser(userData);
     }
 
-    const logout = () => {
+    const logout = async () => {
+        try {
+            // 1. Tell the backend to destroy the 7-day Refresh Cookie
+            await api.post('/auth/logout'); 
+        } catch (err) {
+            console.error("Server logout failed, but we will still clear local data.");
+        }
+        
+        // 2. Destroy the 15-minute Access Token from the frontend
         localStorage.removeItem('token');
         setToken(null);
         setUser(null);
+        //setLikedSongIds(new Set());
     }
 
     const authFetch = async (url, options = {}) => {

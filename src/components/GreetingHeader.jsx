@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useUser } from "../context/UserContext";
 
-// Keep your indestructible fallback quotes!
 const fallbackQuotes = {
   special: [
     { quote_text: "Whatever you lose, you'll find it again.", author: "Kenshin Himura" },
@@ -13,26 +12,21 @@ const fallbackQuotes = {
   ]
 };
 
-// Accept dbQuotes as a prop from HomePage
 export default function GreetingHeader({ isLoggedIn, dbQuotes }) {
   const { userProfile } = useUser();
   const [quote, setQuote] = useState(null);
 
   useEffect(() => {
-    // 1. Process DB quotes if we received them
     let activeQuotes = [];
     if (dbQuotes && dbQuotes.length > 0) {
       activeQuotes = dbQuotes.filter(q => q.is_active !== false); 
     }
-
     const specialQuotes = activeQuotes.filter(q => q.quote_type === 'special');
     const normalQuotes = activeQuotes.filter(q => q.quote_type === 'normal');
 
-    // 2. Determine which pool to pull from based on auth status
     let dbPool = isLoggedIn ? specialQuotes : normalQuotes;
     if (dbPool.length === 0) dbPool = activeQuotes; 
 
-    // 3. Assign the random quote
     if (dbPool.length > 0) {
       setQuote(dbPool[Math.floor(Math.random() * dbPool.length)]);
     } else {
@@ -41,28 +35,33 @@ export default function GreetingHeader({ isLoggedIn, dbQuotes }) {
     }
   }, [isLoggedIn, dbQuotes]);
 
-  const greeting = isLoggedIn ? `Okaeri, ${userProfile?.first_name || 'User'} - sama` : "Irasshaimase!";
+  const greeting = isLoggedIn ? `Okaeri, ${userProfile?.[0]?.first_name || 'User'}-sama` : "Irasshaimase!";
 
-  // Lock the height to prevent layout shifts while the effect runs
-  if (!quote) return <header className="px-2 min-h-[40px] flex justify-between"></header>;
+  if (!quote) return <header className="px-4 py-6 min-h-[100px]"></header>;
 
   return (
-    <header className="px-2 flex justify-between items-center min-h-[40px] animate-fade-in">
-      <h1 className="text-3xl font-bold font-playwrite text-text-primary tracking-tight">
-        {greeting}
-      </h1>
-      
-      <div className="hidden lg:flex items-center gap-2 text-text-muted italic pl-4 py-1">
-        <span className="text-lg">"</span>
-        <p className="text-sm">
-          {quote.quote_text}
-          <span className="text-lg">"</span> 
-          <span className="not-italic font-bold text-xs text-accent-hover ml-2">
-            — {quote.author} 
-            {/* Swapped text-white/40 for your text-text-muted variable */}
-            {quote.anime && <span className="text-text-muted font-normal ml-1">({quote.anime})</span>}
-          </span>
-        </p>
+    <header className="px-4 py-2 md:py-4 flex flex-col md:flex-row md:justify-between md:items-end gap-2 md:gap-6 animate-fade-in border-l-4 border-accent-primary pl-6">
+      <div className="flex flex-col">
+        {/* Responsive font size: 2xl on mobile, 4xl on desktop */}
+        <h1 className="text-2xl md:text-4xl font-black font-playwrite text-text-primary tracking-tighter italic">
+          {greeting}
+        </h1>
+        
+        {/* Quote: Visible on mobile, but styled as a subtle sub-text */}
+        <div className="flex flex-wrap items-center gap-1 text-text-secondary italic mt-1 md:mt-2">
+           <p className="text-xs md:text-sm line-clamp-2 md:line-clamp-none leading-relaxed">
+            "{quote.quote_text}" 
+            <span className="not-italic font-bold text-[10px] md:text-xs text-accent-primary ml-2 uppercase tracking-widest">
+              — {quote.author} 
+              {quote.anime && <span className="text-text-muted font-normal ml-1 lowercase">({quote.anime})</span>}
+            </span>
+          </p>
+        </div>
+      </div>
+
+      {/* Optional: Add a subtle date/time or status for desktop purely for 'aesthetic' balance */}
+      <div className="hidden lg:block text-[10px] font-black uppercase tracking-[0.4em] text-text-muted/30 pb-1">
+        {new Date().toLocaleDateString('en-US', { weekday: 'long' })}
       </div>
     </header>
   );
