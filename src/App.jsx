@@ -22,6 +22,7 @@ import { useSongs } from './context/SongContext';
 import AuthModal from './components/AuthModal';
 import MobileNav from './components/MobileNav';
 import GlobalProgressBar from './minicomps/loading/GlobalProgressBar';
+import Footer from './components/Footer';
 
 // IMPORT THE GUARDS
 import { ProtectedRoute, AdminRoute } from './components/ProtectedRoute';
@@ -65,6 +66,7 @@ const App = () => {
             {/* 404 CATCH-ALL */}
             <Route path="*" element={<div className="p-8 text-center mt-20 text-2xl font-black italic text-text-muted">404 - Page Not Found</div>} />
           </Routes>
+          <Footer/>
         </main>
         
         <BottomPlayer onExpand={() => setIsPlayerOpen(true)}/>
@@ -77,6 +79,8 @@ const App = () => {
       
       <MobileNav />
       <AuthModal/>
+      
+
     </>
   );
 }

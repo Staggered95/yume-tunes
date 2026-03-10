@@ -128,7 +128,7 @@ export default function SearchAutocomplete({autoFocus}) {
             
             {/* The Results Dropdown */}
             {showDropdown && results.length > 0 && (
-                <div className="absolute top-full left-0 mt-2 w-full max-h-[45vh] md:max-h-[60vh] bg-background-secondary/70 backdrop-blur-2xl border border-border rounded-2xl shadow-2xl z-50 overflow-y-auto scrollbar-none animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="absolute top-full left-0 mt-2 w-full max-h-[45vh] md:max-h-[60vh] bg-background-secondary/40 backdrop-blur-md border border-border rounded-2xl shadow-2xl z-50 overflow-y-auto scrollbar-none animate-in fade-in slide-in-from-top-2 duration-200">
                     <div className="p-2">
                         {results.map((song, index) => (
                             <div 

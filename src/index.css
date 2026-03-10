@@ -1,6 +1,5 @@
 @import "tailwindcss";
 
-
 @font-face {
   font-family: 'AlphaSlabOne';
   src: url('./assets/fonts/alfa_slab/AlfaSlabOne-Regular.ttf') format('truetype');
@@ -16,51 +15,124 @@
   src: url('./assets/fonts/playwrite/Playwrite-Regular.ttf') format('truetype');
 }
 
+/* =========================================
+   1. COLOR PALETTES (The Data Layer)
+   ========================================= */
+
+/* Default Theme (Dark Mode) */
+:root {
+  --bg-primary: #0f0f1a;
+  --bg-secondary: #181828;
+  --bg-hover: #22223a;
+  --bg-active: #2a2a44;
+
+  --txt-primary: #F2F2F5;
+  --txt-secondary: #A8A8C7;
+  --txt-muted: #6F6F89;
+
+  --acc-primary: #9D5CFA;
+  --acc-secondary: #E056FD;
+  --acc-tertiary: #58E1FA;
+  --acc-hover: #b47bff;   /* Lighter on hover for dark mode */
+  --acc-active: #7A3EF5;
+
+  --stat-success: #4ADE80;
+  --stat-error: #F87171;
+  --stat-warning: #FACC15;
+
+  --bdr: #2E2E46;
+  --bdr-hover: #3A3A5A;
+}
+
+/* Light Mode Overlay */
+[data-theme="light"] {
+  --bg-primary: #F3F4F6;    /* Soft light gray body */
+  --bg-secondary: #FFFFFF;  /* Pure white cards/panels */
+  --bg-hover: #E5E7EB;      
+  --bg-active: #D1D5DB;
+
+  --txt-primary: #111827;   /* Near black text */
+  --txt-secondary: #4B5563; /* Dark gray */
+  --txt-muted: #9CA3AF;     /* Mid gray */
+
+  /* Accents stay the same for brand identity, but hover/active get DARKER instead of lighter */
+  --acc-primary: #9D5CFA;
+  --acc-hover: #8A4AE1;     
+  --acc-active: #6B34D6;    
+
+  /* Status colors darkened for better visibility on white */
+  --stat-success: #16A34A;  
+  --stat-error: #DC2626;    
+  --stat-warning: #D97706;  
+
+  --bdr: #E5E7EB;           
+  --bdr-hover: #D1D5DB;
+}
+
+/* Gruvbox Dark Overlay (Because you asked for it!) */
+[data-theme="gruvbox"] {
+  --bg-primary: #282828;
+  --bg-secondary: #3c3836;
+  --bg-hover: #504945;
+  --bg-active: #665c54;
+
+  --txt-primary: #ebdbb2;
+  --txt-secondary: #a89984;
+  --txt-muted: #928374;
+
+  /* Using Gruvbox Purple as the main accent to match your original branding */
+  --acc-primary: #d3869b;
+  --acc-secondary: #fe8019; /* Gruvbox Orange */
+  --acc-tertiary: #8ec07c;  /* Gruvbox Aqua */
+  --acc-hover: #e2a6b7;
+  --acc-active: #b16286;
+
+  --stat-success: #b8bb26;  /* Gruvbox Green */
+  --stat-error: #cc241d;    /* Gruvbox Red */
+  --stat-warning: #fabd2f;  /* Gruvbox Yellow */
+
+  --bdr: #504945;
+  --bdr-hover: #665c54;
+}
+
+/* =========================================
+   2. TAILWIND INTEGRATION (The Engine)
+   ========================================= */
+
 @theme {
-  /* fonts */
+  /* Fonts */
   --font-alfa-slab: 'AlfaSlabOne', serif;
   --font-gravitas: 'GravitasOne', serif;
   --font-playwrite: 'Playwrite', cursive;
 
-  
-  /* Backgrounds */
-  --color-background-primary: #0f0f1a;    /* Deep dark base */
-  --color-background-secondary: #181828;  /* Slight contrast for panels */
-  --color-background-hover: #22223a;      /* Hovered cards/buttons */
-  --color-background-active: #2a2a44;     /* Active state */
+  /* Map Tailwind classes to our dynamic CSS variables */
+  --color-background-primary: var(--bg-primary);
+  --color-background-secondary: var(--bg-secondary);
+  --color-background-hover: var(--bg-hover);
+  --color-background-active: var(--bg-active);
 
-  /* Text */
-  --color-text-primary: #F2F2F5;          /* Main text */
-  --color-text-secondary: #A8A8C7;        /* Subtle text */
-  --color-text-muted: #6F6F89;            /* Disabled/muted */
+  --color-text-primary: var(--txt-primary);
+  --color-text-secondary: var(--txt-secondary);
+  --color-text-muted: var(--txt-muted);
 
-  /* Accents */
-  --color-accent-primary: #9D5CFA;        /* Main accent (purple) */
-  --color-accent-secondary: #E056FD;      /* Pink-violet secondary */
-  --color-accent-tertiary: #58E1FA;       /* Aqua/cyan for highlights */
+  --color-accent-primary: var(--acc-primary);
+  --color-accent-secondary: var(--acc-secondary);
+  --color-accent-tertiary: var(--acc-tertiary);
+  --color-accent-hover: var(--acc-hover);
+  --color-accent-active: var(--acc-active);
 
-  /* States */
-  --color-accent-hover: #b47bff;          /* Lighter purple hover */
-  --color-accent-active: #7A3EF5;         /* Darker purple active */
-  --color-success: #4ADE80;               /* Green (e.g. play confirmed) */
-  --color-error: #F87171;                 /* Red (errors, delete) */
-  --color-warning: #FACC15;               /* Amber (alerts) */
+  --color-success: var(--stat-success);
+  --color-error: var(--stat-error);
+  --color-warning: var(--stat-warning);
 
-  /* Borders / Dividers */
-  --color-border: #2E2E46;
-  --color-border-hover: #3A3A5A;
+  --color-border: var(--bdr);
+  --color-border-hover: var(--bdr-hover);
 
-  /* Gradients */
-  --gradient-accent: linear-gradient(135deg, #E056FD, #8258fa);
-  --gradient-hover: linear-gradient(135deg, #9D5CFA, #58E1FA);
-
-  /* Logo */
-  --logo-color-start: #E056FD;
-  --logo-color-end: #8258FA;
-  --logo-text-color: #F2F2F5;
+  /* Gradients can use the mapped vars directly */
+  --gradient-accent: linear-gradient(135deg, var(--acc-secondary), var(--acc-primary));
+  --gradient-hover: linear-gradient(135deg, var(--acc-primary), var(--acc-tertiary));
 }
 
-
 body {
-	@apply bg-background-primary text-text-primary transition-colors duration-300;
+  @apply bg-background-primary text-text-primary transition-colors duration-300;
 }

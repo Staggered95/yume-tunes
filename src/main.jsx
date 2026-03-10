@@ -11,6 +11,7 @@ import { AuthProvider } from './context/AuthContext.jsx'
 import { UserProvider } from './context/UserContext.jsx'
 import { ToastProvider } from './context/ToastContext.jsx'
 import { LoadingProvider } from './context/LoadingContext.jsx'
+import { ThemeProvider } from './context/ThemeContext.jsx'
 
 // Helpers
 import AxiosInterceptorSetup from './helpers/AxiosInterceptorSetup.jsx' // <-- Adjust this path to your helper directory!
@@ -26,7 +27,9 @@ createRoot(document.getElementById('root')).render(
               <ToastProvider>
                 <SongProvider>
                   <UserProvider>
-                    <App />
+                    <ThemeProvider>
+                        <App />
+                    </ThemeProvider>
                   </UserProvider>
                 </SongProvider>
               </ToastProvider>

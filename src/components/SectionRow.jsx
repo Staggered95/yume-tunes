@@ -19,7 +19,7 @@ export default function SectionRow({ title, type = 'square', items = [], isLoadi
         </h2>
         
         {items.length > 0 && !isLoading && (
-          <button className="text-[10px] md:text-xs uppercase font-black tracking-widest text-text-muted hover:text-text-primary transition-colors">
+          <button className="hidden text-[10px] md:text-xs uppercase font-black tracking-widest text-text-muted hover:text-text-primary transition-colors">
             See All
           </button>
         )}

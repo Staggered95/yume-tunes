@@ -36,7 +36,6 @@ const styles = {
     image: "w-12 h-12 md:w-14 md:h-14 rounded-md object-cover",
     text: "flex-1 min-w-0",
   },
-  // NEW: The Trending Card!
   trending: {
     container: "w-[300px] md:w-[350px] h-20 flex items-center gap-4 p-3 rounded-2xl bg-gradient-to-r from-background-secondary/50 to-background-primary border border-border/50 hover:border-accent-primary/50 shrink-0",
     image: "w-14 h-14 rounded-lg object-cover shadow-lg",
