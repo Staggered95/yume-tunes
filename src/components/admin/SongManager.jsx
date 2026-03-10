@@ -1,21 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import api from '../../api/axios'; // Native Axios import
+import api from '../../api/axios'; 
 import { useToast } from '../../context/ToastContext';
+import { useAuth } from '../../context/AuthContext'; // <-- 1. Import useAuth
 import ConfirmDialog from '../../minicomps/ConfirmDialog';
 import { getMediaUrl } from '../../utils/media';
 
 const SongManager = ({ onAddNew, onEditSong, onSyncLyrics }) => {
     const { addToast } = useToast();
+    const { user } = useAuth(); // <-- 2. Grab the logged-in user
+
+    // 3. Create our RBAC flag
+    const isAdmin = user?.role === 'admin';
 
     const [songs, setSongs] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
     
-    // Deletion States
     const [songToDelete, setSongToDelete] = useState(null);
     const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
-    // Fetch all songs on mount
     useEffect(() => {
         fetchSongs();
     }, []);
@@ -23,7 +26,6 @@ const SongManager = ({ onAddNew, onEditSong, onSyncLyrics }) => {
     const fetchSongs = async () => {
         setIsLoading(true);
         try {
-            // Axios handles the JSON parsing and token attachment implicitly
             const { data } = await api.get('/admin/songs'); 
             if (data.success) {
                 setSongs(data.data);
@@ -38,7 +40,6 @@ const SongManager = ({ onAddNew, onEditSong, onSyncLyrics }) => {
         }
     };
 
-    // Safe Deletion Handler
     const confirmDelete = async () => {
         if (!songToDelete) return;
         
@@ -60,7 +61,6 @@ const SongManager = ({ onAddNew, onEditSong, onSyncLyrics }) => {
         }
     };
 
-    // Instant Local Search Filter
     const filteredSongs = songs.filter(song => {
         const query = searchQuery.toLowerCase();
         return (
@@ -80,9 +80,7 @@ const SongManager = ({ onAddNew, onEditSong, onSyncLyrics }) => {
                     <p className="text-sm text-text-muted mt-1">Manage and organize your catalog ({songs.length} total)</p>
                 </div>
 
-                {/* Stacks on very small screens, aligns horizontally on sm and above */}
                 <div className="flex flex-col sm:flex-row w-full md:w-auto items-stretch sm:items-center gap-4">
-                    {/* Search Bar */}
                     <div className="relative flex-1 md:w-64">
                         <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -146,10 +144,8 @@ const SongManager = ({ onAddNew, onEditSong, onSyncLyrics }) => {
                                         </td>
                                         
                                         <td className="p-4 text-right">
-                                            {/* Action buttons are always visible on mobile (opacity-100), but reveal on hover on desktop (md:opacity-0 md:group-hover:opacity-100) */}
                                             <div className="flex items-center justify-end gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300">
                                                 
-                                                {/* Sync Lyrics Button */}
                                                 <button 
                                                     onClick={() => onSyncLyrics(song)}
                                                     className="p-2 text-text-muted hover:text-accent-secondary hover:bg-accent-secondary/10 rounded-md transition-colors duration-300"
@@ -158,7 +154,6 @@ const SongManager = ({ onAddNew, onEditSong, onSyncLyrics }) => {
                                                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19V6l12-3v13M9 19c-1.105 0-2-.895-2-2s.895-2 2-2 2 .895 2 2-.895 2-2 2zm12-3c-1.105 0-2-.895-2-2s.895-2 2-2 2 .895 2 2-.895 2-2 2zM9 10l12-3" /></svg>
                                                 </button>
 
-                                                {/* Edit Song Button */}
                                                 <button 
                                                     onClick={() => onEditSong(song)}
                                                     className="p-2 text-text-muted hover:text-accent-primary hover:bg-accent-primary/10 rounded-md transition-colors duration-300"
@@ -167,17 +162,19 @@ const SongManager = ({ onAddNew, onEditSong, onSyncLyrics }) => {
                                                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
                                                 </button>
 
-                                                {/* Delete Song Button */}
-                                                <button 
-                                                    onClick={() => {
-                                                        setSongToDelete(song);
-                                                        setIsConfirmOpen(true);
-                                                    }}
-                                                    className="p-2 text-text-muted hover:text-error hover:bg-error/10 rounded-md transition-colors duration-300"
-                                                    title="Delete Song"
-                                                >
-                                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                                                </button>
+                                                {/* 4. THE CONDITIONAL RENDER: Only Admins see the trash can */}
+                                                {isAdmin && (
+                                                    <button 
+                                                        onClick={() => {
+                                                            setSongToDelete(song);
+                                                            setIsConfirmOpen(true);
+                                                        }}
+                                                        className="p-2 text-text-muted hover:text-error hover:bg-error/10 rounded-md transition-colors duration-300"
+                                                        title="Delete Song"
+                                                    >
+                                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                                    </button>
+                                                )}
                                             </div>
                                         </td>
 

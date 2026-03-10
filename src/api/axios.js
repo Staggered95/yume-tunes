@@ -38,7 +38,7 @@ api.interceptors.response.use(
         // 2. THE SENIOR TRICK: We use the raw 'axios' instance here, NOT 'api'.
         // If we used 'api.get', and the refresh failed, it would trigger this 
         // interceptor again and crash your browser with an infinite loop.
-        const { data } = await axios.get(`${api.defaults.baseURL}refresh`, {
+        const { data } = await axios.get(`${api.defaults.baseURL}auth/refresh`, {
             withCredentials: true 
         });
         

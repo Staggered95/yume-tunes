@@ -2,52 +2,68 @@ import express from 'express';
 import adminController from '../controllers/adminController.js';
 import contentController from '../controllers/contentController.js';
 import verifyToken from '../middleware/verifyToken.js';
+import authorizeRoles from '../middleware/authorizeRoles.js';
 import songUpload from '../middleware/songUpload.js';
 import bannerUpload from '../middleware/bannerUpload.js';
 
 const router = express.Router();
 
-// 1. Protect all admin routes (Only logged in users get past this line)
-// NOTE: In the future, you should add an `isAdmin` middleware right after this!
+// 1. The First Bouncer: Must be logged in
 router.use(verifyToken);
 
-// 2. Tell Multer exactly what file inputs to expect from the React form
+// Reusable Role Definitions
+const adminAndMod = authorizeRoles('admin', 'moderator');
+const adminOnly = authorizeRoles('admin');
+
+// File Upload Configurations
 const uploadFields = songUpload.fields([
     { name: 'audio_file', maxCount: 1 },
     { name: 'cover_image', maxCount: 1 }
 ]);
 
-// 3. The Routes
-// GET all songs (Feeds your SongManager.jsx table)
-router.get('/songs', adminController.getAllSongs);
+// ==========================================
+// USER MANAGEMENT (Strictly Admin Only)
+// ==========================================
+router.get('/users', adminOnly, adminController.getAllUsers);
+router.put('/users/:id/role', adminOnly, adminController.updateUserRole);
 
-// POST a new song (Intercepted by Multer first!)
-router.post('/songs', uploadFields, adminController.addSong);
+// ==========================================
+// ANALYTICS
+// ==========================================
+router.get('/analytics/dashboard', adminAndMod, adminController.getDashboardStats);
 
-// PUT (Update) an existing song (Also intercepted by Multer in case they change the cover)
-router.put('/songs/:id', uploadFields, adminController.updateSong);
+// ==========================================
+// SONG MANAGEMENT
+// ==========================================
+router.get('/songs', adminAndMod, adminController.getAllSongs);
+// Notice: Auth middleware runs BEFORE Multer!
+router.post('/songs', adminAndMod, uploadFields, adminController.addSong);
+router.put('/songs/:id', adminAndMod, uploadFields, adminController.updateSong);
+router.put('/songs/:id/lyrics', adminAndMod, adminController.updateLyrics);
+router.get('/songs/auto-lyrics', adminAndMod, adminController.autoGenerateLyrics);
+// Destructive action: Admin only
+router.delete('/songs/:id', adminOnly, adminController.deleteSong);
 
-// DELETE a song
-router.delete('/songs/:id', adminController.deleteSong);
-router.put('/songs/:id/lyrics', adminController.updateLyrics);
-router.get('/songs/auto-lyrics', adminController.autoGenerateLyrics);
-router.get('/users', adminController.getAllUsers);
-router.put('/users/:id/role', adminController.updateUserRole);
 
-// --- QUOTES ROUTES ---
-router.get('/quotes', contentController.getQuotes);
-router.post('/quotes', contentController.addQuote);
-router.put('/quotes/:id/toggle', contentController.toggleQuoteStatus);
-router.delete('/quotes/:id', contentController.deleteQuote);
-router.put('/quotes/:id', contentController.editQuote);
+// ==========================================
+// QUOTES MANAGEMENT
+// ==========================================
+router.get('/quotes', adminAndMod, contentController.getQuotes);
+router.post('/quotes', adminAndMod, contentController.addQuote);
+router.put('/quotes/:id', adminAndMod, contentController.editQuote);
+router.put('/quotes/:id/toggle', adminAndMod, contentController.toggleQuoteStatus);
+// Destructive action: Admin only
+router.delete('/quotes/:id', adminOnly, contentController.deleteQuote);
 
-// --- BANNERS ROUTES ---
-// Notice how we use bannerUpload.single('banner_image') here!
-router.get('/banners', contentController.getBanners);
-router.post('/banners', bannerUpload.single('banner_image'), contentController.addBanner);
-router.put('/banners/:id/toggle', contentController.toggleBannerStatus);
-router.delete('/banners/:id', contentController.deleteBanner);
 
-router.get('/analytics/dashboard', adminController.getDashboardStats);
+// ==========================================
+// BANNERS MANAGEMENT
+// ==========================================
+router.get('/banners', adminAndMod, contentController.getBanners);
+// Auth middleware runs BEFORE bannerUpload!
+router.post('/banners', adminAndMod, bannerUpload.single('banner_image'), contentController.addBanner);
+router.put('/banners/:id/toggle', adminAndMod, contentController.toggleBannerStatus);
+// Destructive action: Admin only
+router.delete('/banners/:id', adminOnly, contentController.deleteBanner);
 
 export default router;

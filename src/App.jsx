@@ -23,6 +23,9 @@ import AuthModal from './components/AuthModal';
 import MobileNav from './components/MobileNav';
 import GlobalProgressBar from './minicomps/loading/GlobalProgressBar';
 
+// IMPORT THE GUARDS
+import { ProtectedRoute, AdminRoute } from './components/ProtectedRoute';
+
 const App = () => {
   const [isPlayerOpen, setIsPlayerOpen] = useState(false);
   const {currentSong} = useSongs();
@@ -32,15 +35,11 @@ const App = () => {
       <div className='relative min-h-screen pt-16 bg-background-primary text-text-primary'>
         <GlobalProgressBar />
         <Navbar/>
-        
-        {/* Sidebar sits outside the main content container */}
         <Sidebar/>
         
-        {/* Main Content Area */}
-        {/* md:ml-20 prevents content from hiding behind the collapsed desktop sidebar */}
-        {/* pb-32 ensures content doesn't get hidden behind the BottomPlayer/MobileNav */}
-        <main className=' md:px-8 md:ml-20  transition-all duration-300'>
+        <main className='md:px-8 md:ml-20 transition-all duration-300'>
           <Routes>
+            {/* PUBLIC ROUTES (Anyone can see these) */}
             <Route path="/" element={<HomePage/>} />
             <Route path="/search" element={<SearchResultPage />} />
             <Route path="/artists" element={<ArtistListPage />} />
@@ -48,13 +47,23 @@ const App = () => {
             <Route path="/artist/:artistName" element={<ArtistPage />} />
             <Route path="/genre/:genreName" element={<GenrePage />} />
             <Route path="/animes" element={<AnimeListPage />} />
-            <Route path="/user" element={<UserPage />} />
-            <Route path="/library" element={<LibraryPage/>} />
-            <Route path="/likedsongs" element={<LikedSongsPage/>} />
-            <Route path="/admin" element={<AdminPage/>} />
-            <Route path="/playlists/:id" element={<PlaylistPage/>} />
             <Route path="/anime/:title" element={<AnimePage />} />
-            <Route path="*" element={<div>Page Not Found</div>} />
+
+            {/* PROTECTED ROUTES (Must be logged in) */}
+            <Route element={<ProtectedRoute />}>
+                <Route path="/user" element={<UserPage />} />
+                <Route path="/library" element={<LibraryPage/>} />
+                <Route path="/likedsongs" element={<LikedSongsPage/>} />
+                <Route path="/playlists/:id" element={<PlaylistPage/>} />
+            </Route>
+
+            {/* ADMIN ROUTES (Must be an admin) */}
+            <Route element={<AdminRoute />}>
+                <Route path="/admin" element={<AdminPage/>} />
+            </Route>
+
+            {/* 404 CATCH-ALL */}
+            <Route path="*" element={<div className="p-8 text-center mt-20 text-2xl font-black italic text-text-muted">404 - Page Not Found</div>} />
           </Routes>
         </main>
         

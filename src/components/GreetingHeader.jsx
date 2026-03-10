@@ -35,7 +35,7 @@ export default function GreetingHeader({ isLoggedIn, dbQuotes }) {
     }
   }, [isLoggedIn, dbQuotes]);
 
-  const greeting = isLoggedIn ? `Okaeri, ${userProfile?.[0]?.first_name || 'User'}-sama` : "Irasshaimase!";
+  const greeting = isLoggedIn ? `Okaeri, ${userProfile?.first_name || 'User'}-sama` : "Irasshaimase!";
 
   if (!quote) return <header className="px-4 py-6 min-h-[100px]"></header>;
 
