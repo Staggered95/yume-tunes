@@ -13,7 +13,7 @@ const verifyToken = (req, res, next) => {
         req.user = verified;
         next();
     } catch (err) {
-        return res.status(403).json({ success: false, error: "Invalid or Expired Token." });
+        return res.status(401).json({ success: false, error: "Invalid or Expired Token." });
     }
 }   
 

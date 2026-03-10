@@ -12,7 +12,7 @@ const pool = new Pool({
 const query = async (sql, params=[]) => {
     try {
         if (process.env.NODE_ENV != "production") {
-            console.log("SQL: ", sql);
+            //console.log("SQL: ", sql);
         }
         return await pool.query(sql, params);
     } catch (err) {

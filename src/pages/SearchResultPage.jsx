@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import api from '../api/axios'; 
 import SongCard from '../components/SongCard'; 
 import { getMediaUrl } from '../utils/media';
@@ -23,6 +23,8 @@ const SearchResultPage = () => {
     const [results, setResults] = useState({ songs: [], artists: [], animes: [] });
     const [isLoading, setIsLoading] = useState(false);
     
+    const navigate = useNavigate();
+
     const query = searchParams.get('q') || '';
     const activeGenre = searchParams.get('genre') || '';
     const activeType = searchParams.get('type') || '';
@@ -146,7 +148,7 @@ const SearchResultPage = () => {
                                 <h3 className="text-[10px] md:text-xs font-black mb-4 md:mb-6 text-text-muted uppercase tracking-[0.3em]">Top Artists</h3>
                                 <div className="flex overflow-x-auto pb-4 gap-4 md:gap-6 scrollbar-none snap-x">
                                     {results.artists.map((artist, idx) => (
-                                        <div key={idx} className="flex flex-col items-center gap-2 md:gap-3 w-20 md:w-28 shrink-0 cursor-pointer group snap-start">
+                                        <div key={idx} onClick={() => navigate(`/artist/${encodeURIComponent(artist.name)}`)} className="flex flex-col items-center gap-2 md:gap-3 w-20 md:w-28 shrink-0 cursor-pointer group snap-start">
                                             <div className="w-20 h-20 md:w-28 md:h-28 rounded-full overflow-hidden shadow-lg border-2 border-transparent group-hover:border-accent-primary transition-all duration-300 md:duration-500 md:group-hover:-translate-y-2 bg-background-secondary">
                                                 <img 
                                                     src={getMediaUrl(artist.image)} 
@@ -168,7 +170,7 @@ const SearchResultPage = () => {
                                 <h3 className="text-[10px] md:text-xs font-black mb-4 md:mb-6 text-text-muted uppercase tracking-[0.3em]">Anime Series</h3>
                                 <div className="flex overflow-x-auto pb-4 gap-4 md:gap-6 scrollbar-none snap-x">
                                     {results.animes.map((anime, idx) => (
-                                        <div key={idx} className="flex flex-col gap-2 md:gap-3 w-36 md:w-48 shrink-0 cursor-pointer group snap-start">
+                                        <div key={idx} onClick={() => navigate(`/anime/${encodeURIComponent(anime.name)}`)} className="flex flex-col gap-2 md:gap-3 w-36 md:w-48 shrink-0 cursor-pointer group snap-start">
                                             <div className="aspect-video rounded-xl md:rounded-2xl overflow-hidden shadow-lg border border-border group-hover:border-accent-primary/50 transition-all duration-300 md:duration-500 md:group-hover:-translate-y-2 bg-background-secondary">
                                                 <img 
                                                     src={getMediaUrl(anime.image)} 
