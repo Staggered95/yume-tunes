@@ -42,6 +42,9 @@ services:
     restart: unless-stopped
     ports:
       - "${WEB_PORT:-8080}:80"
+    volumes:
+      # Give Nginx direct read-only access to your media!
+      - ./public:/usr/share/nginx/html/media:ro
     depends_on:
       - api
   
