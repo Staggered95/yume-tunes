@@ -23,6 +23,7 @@ import AuthModal from './components/AuthModal';
 import MobileNav from './components/MobileNav';
 import GlobalProgressBar from './minicomps/loading/GlobalProgressBar';
 import Footer from './components/Footer';
+import ScrollToTop from './helpers/ScrollToTop';
 
 // IMPORT THE GUARDS
 import { ProtectedRoute, AdminRoute } from './components/ProtectedRoute';
@@ -39,6 +40,7 @@ const App = () => {
         <Sidebar/>
         
         <main className='md:px-8 md:ml-20 transition-all duration-300'>
+          <ScrollToTop />
           <Routes>
             {/* PUBLIC ROUTES (Anyone can see these) */}
             <Route path="/" element={<HomePage/>} />

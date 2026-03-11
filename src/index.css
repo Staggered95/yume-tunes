@@ -45,7 +45,7 @@
 }
 
 /* Light Mode Overlay */
-[data-theme="light"] {
+[data-theme="default-light"] {
   --bg-primary: #F3F4F6;    /* Soft light gray body */
   --bg-secondary: #FFFFFF;  /* Pure white cards/panels */
   --bg-hover: #E5E7EB;      
@@ -70,7 +70,7 @@
 }
 
 /* Gruvbox Dark Overlay (Because you asked for it!) */
-[data-theme="gruvbox"] {
+[data-theme="gruvbox-dark"] {
   --bg-primary: #282828;
   --bg-secondary: #3c3836;
   --bg-hover: #504945;
@@ -134,5 +134,5 @@
 }
 
 body {
-  @apply bg-background-primary text-text-primary transition-colors duration-300;
+  @apply bg-background-primary text-text-primary transition-colors duration-700;
 }

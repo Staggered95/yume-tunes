@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useUser } from '../context/UserContext';
 import { useToast } from '../context/ToastContext';
 import { getMediaUrl } from '../utils/media';
+import UserSettings from '../components/UserSettings';
 
 const UserPage = () => {
     const { isLoggedIn } = useAuth();
@@ -252,6 +253,10 @@ const UserPage = () => {
                                     </button>
                                 )}
                             </section>
+                        )}
+
+                        {activeTab === 'settings' && (
+                            <UserSettings/>
                         )}
                     </div>
 

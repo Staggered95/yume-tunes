@@ -1,17 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useTheme } from '../context/ThemeContext';
 import Logo from '../minicomps/Logo';
 
 export default function Footer() {
-    const { theme, setTheme } = useTheme();
-
-    // Minimal color-circle options representing the themes
-    const themes = [
-        { id: 'light', label: 'Light Mode', color: '#F3F4F6' },
-        { id: 'dark', label: 'Dark Mode', color: '#0f0f1a' },
-        { id: 'gruvbox', label: 'Gruvbox', color: '#282828' },
-    ];
 
     return (
         <footer className="bg-background-secondary border-t border-border rounded-t-2xl mt-auto w-full relative z-10">
@@ -71,23 +62,15 @@ export default function Footer() {
                         
                         <div className="flex flex-col md:items-end gap-3">
                             <h3 className="text-xs font-black text-text-primary uppercase tracking-widest">Theme</h3>
-                            
-                            {/* Minimal Color Circle Theme Selector */}
-                            <div className="flex items-center gap-3 bg-background-primary px-4 py-2 rounded-full border border-border shadow-inner">
-                                {themes.map((t) => (
-                                    <button
-                                        key={t.id}
-                                        onClick={() => setTheme(t.id)}
-                                        title={t.label}
-                                        style={{ backgroundColor: t.color }}
-                                        className={`w-6 h-6 rounded-full border border-border transition-all duration-300 ${
-                                            theme === t.id 
-                                            ? 'ring-2 ring-accent-primary ring-offset-2 ring-offset-background-primary scale-110 shadow-md' 
-                                            : 'opacity-70 hover:opacity-100 hover:scale-110'
-                                        }`}
-                                    />
-                                ))}
-                            </div>
+                            <p className="text-xs font-medium text-text-muted mt-4">
+                                Multiple themes available in your{' '}
+                                <Link to="/user" state={{ activeTab: 'settings' }} 
+                                    className="text-accent-primary hover:text-accent-hover underline underline-offset-2 transition-colors"
+                                >
+                                    settings
+                                </Link>
+                                .
+                            </p>
                         </div>
 
                         {/* Social Icons */}

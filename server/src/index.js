@@ -35,7 +35,7 @@ app.use(cors({
         if (!origin) return callback(null, true);
         
         // 2. Allow localhost OR any local network IP (192.168.x.x)
-        if (origin.startsWith('http://localhost') || origin.startsWith('http://10.214.')) {
+        if (origin.startsWith('http://localhost') || origin.startsWith('http://10.214.') || origin.startsWith('http://192.168.')) {
             return callback(null, true); // Let them in!
         }
         

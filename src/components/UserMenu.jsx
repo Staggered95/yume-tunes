@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSmartPosition } from '../hooks/useSmartPosition';
 import { getMediaUrl } from '../utils/media';
+import ThemeToggle from '../minicomps/ThemeToggle'; // <-- Import the toggle
 
 const UserMenu = ({ user, onLogoutClick }) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -23,8 +24,6 @@ const UserMenu = ({ user, onLogoutClick }) => {
     const handleToggle = () => setIsOpen(!isOpen);
 
     const imageSrc = user?.user_image ? getMediaUrl(user.user_image) : null;
-    
-    // Check for admin role
     const isAdmin = user?.role === 'admin';
 
     return (
@@ -70,7 +69,16 @@ const UserMenu = ({ user, onLogoutClick }) => {
 
                     <div className="p-2 flex flex-col gap-1">
                         
-                        {/* --- NEW: ADMIN PANEL BUTTON (MOBILE FRIENDLY) --- */}
+                        {/* --- FIX: MOBILE ONLY THEME TOGGLE ROW --- */}
+                        <div className="md:hidden flex items-center justify-between px-3 py-2.5 rounded-xl border border-border/50 bg-background-primary/50 mb-1">
+                            <span className="text-sm font-medium text-text-primary flex items-center gap-2">
+                                <svg className="w-4 h-4 text-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+                                Appearance
+                            </span>
+                            <ThemeToggle />
+                        </div>
+                        {/* -------------------------------------- */}
+
                         {isAdmin && (
                             <button 
                                 onClick={() => { navigate('/admin'); setIsOpen(false); }}
