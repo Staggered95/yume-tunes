@@ -101,22 +101,29 @@ const getUserHomeData = async (req, res) => {
 
     // 1. Continue Listening (Unique songs, ordered by most recently played)
     const continueQuery = `
-        SELECT s.id, s.title, s.cover_path, s.file_path, ar.name AS artist, MAX(lh.created_at) as last_played
+        SELECT 
+            s.id, s.title, s.cover_path, s.lyrics, s.file_path, 
+            ar.name AS artist, a.title AS anime, 
+            MAX(lh.created_at) as last_played
         FROM listening_history lh
         JOIN songs s ON lh.song_id = s.id
         JOIN artists ar ON s.artist_id = ar.id
+        JOIN animes a ON s.anime_id = a.id
         WHERE lh.user_id = $1
-        GROUP BY s.id, s.title, s.cover_path, s.file_path, ar.name
+        GROUP BY s.id, s.title, s.cover_path, s.lyrics, s.file_path, ar.name, a.title
         ORDER BY last_played DESC
         LIMIT 10
     `;
 
     // 2. Recommendations (From the table our Cron Job populates!)
     const recommendQuery = `
-        SELECT s.id, s.title, s.cover_path, s.file_path, ar.name AS artist
+        SELECT 
+            s.id, s.title, s.cover_path, s.lyrics, s.file_path, 
+            ar.name AS artist, a.title AS anime
         FROM user_recommendations ur
         JOIN songs s ON ur.song_id = s.id
         JOIN artists ar ON s.artist_id = ar.id
+        JOIN animes a ON s.anime_id = a.id
         WHERE ur.user_id = $1
         ORDER BY ur.affinity_score DESC
         LIMIT 10

@@ -4,23 +4,31 @@ const getPublicHomeData = async (req, res) => {
     // 1. Trending Songs (Last 30 days)
     const trendingQuery = `
         SELECT 
-            s.id, s.title, s.cover_path, s.file_path, s.lyrics, ar.name AS artist,
+            s.id, s.title, s.cover_path, s.file_path, s.lyrics, 
+            ar.name AS artist, a.title AS anime,
             COUNT(lh.id) as recent_plays
         FROM songs s 
         JOIN artists ar ON s.artist_id = ar.id
+        JOIN animes a ON s.anime_id = a.id
         LEFT JOIN listening_history lh 
             ON s.id = lh.song_id 
             AND lh.created_at >= NOW() - INTERVAL '30 days'
-        GROUP BY s.id, s.title, s.cover_path, s.file_path, s.lyrics, ar.name
+        GROUP BY s.id, s.title, s.cover_path, s.file_path, s.lyrics, ar.name, a.title
         ORDER BY recent_plays DESC, s.id DESC 
         LIMIT 10
     `;
 
     // 2. This Season (Randomized OPs/EDs)
     const seasonQuery = `
-        SELECT s.id, s.title, s.cover_path, s.file_path, s.lyrics, ar.name AS artist
-        FROM songs s JOIN artists ar ON s.artist_id = ar.id
-        WHERE s.song_type IN ('OP', 'ED') ORDER BY RANDOM() LIMIT 10
+        SELECT 
+            s.id, s.title, s.cover_path, s.file_path, s.lyrics, 
+            ar.name AS artist, a.title AS anime
+        FROM songs s 
+        JOIN artists ar ON s.artist_id = ar.id
+        JOIN animes a ON s.anime_id = a.id
+        WHERE s.song_type IN ('OP', 'ED') 
+        ORDER BY RANDOM() 
+        LIMIT 10
     `;
 
     // 3. Quotes (Optimized Mixed Pool)
@@ -44,9 +52,12 @@ const getPublicHomeData = async (req, res) => {
 
     // 5. Recently Added (Newest to the Database)
     const latestQuery = `
-        SELECT s.id, s.title, s.cover_path, s.file_path, s.lyrics, ar.name AS artist
+        SELECT 
+            s.id, s.title, s.cover_path, s.file_path, s.lyrics, 
+            ar.name AS artist, a.title AS anime
         FROM songs s 
         JOIN artists ar ON s.artist_id = ar.id
+        JOIN animes a ON s.anime_id = a.id
         ORDER BY s.id DESC 
         LIMIT 10
     `;
@@ -68,7 +79,7 @@ const getPublicHomeData = async (req, res) => {
                 thisSeason: season.rows,
                 quotes: quotes.rows,
                 banners: banners.rows,
-                latest: latest.rows // <-- Inject the new data here
+                latest: latest.rows 
             }
         });
     } catch (err) {
