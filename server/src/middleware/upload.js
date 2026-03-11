@@ -1,35 +1,29 @@
 // middleware/upload.js
 import multer from 'multer';
-import path from 'path';
-import crypto from 'crypto';
-import fs from 'fs';
+import { v2 as cloudinary } from 'cloudinary';
+import { CloudinaryStorage } from 'multer-storage-cloudinary';
 
-
-// 1. Ensure the destination directory exists
-const uploadDir = path.join('/home/Shubham/YumeTunes/public/images/users');
-if (!fs.existsSync(uploadDir)) {
-    // recursively create if missing
-    fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-// 2. Configure where and how to save the files
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        // Drop it right into your required folder
-        cb(null, uploadDir);
-    },
-    filename: (req, file, cb) => {
-        // We generate a secure random hex to prevent users from uploading
-        // files with the same name and overwriting each other.
-        const hash = crypto.randomBytes(8).toString('hex');
-        
-        // Example output: avatar-12345abcdef-167890123.jpg
-        const filename = `${file.fieldname}-${hash}-${Date.now()}${path.extname(file.originalname)}`;
-        cb(null, filename);
-    }
+// 1. Configure Cloudinary (Pulls from your .env)
+cloudinary.config({ 
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME, 
+    api_key: process.env.CLOUDINARY_API_KEY, 
+    api_secret: process.env.CLOUDINARY_API_SECRET 
 });
 
-// 3. File Filter (Security precaution: Ensure they are actually images)
+// 2. The Dynamic Folder Switch
+// If on EC2, use 'users'. If on local Arch/Docker, use 'dev_users'.
+const folderName = process.env.NODE_ENV === 'production' ? 'users' : 'dev_users';
+
+// 3. Configure Cloudinary Storage
+const storage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: folderName, 
+        allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'gif'],
+    },
+});
+
+// 4. File Filter (Security precaution)
 const fileFilter = (req, file, cb) => {
     console.log("MIME TYPE:", file.mimetype);
     console.log("ORIGINAL NAME:", file.originalname);
@@ -40,12 +34,12 @@ const fileFilter = (req, file, cb) => {
     }
 };
 
-// 4. Initialize Multer
+// 5. Initialize Multer
 const upload = multer({ 
     storage: storage,
     fileFilter: fileFilter,
     limits: {
-        fileSize: 15 * 1024 * 1024 // 15MB limit max to save server space
+        fileSize: 15 * 1024 * 1024 // 15MB limit max
     }
 });
 

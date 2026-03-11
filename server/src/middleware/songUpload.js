@@ -3,21 +3,29 @@ import path from 'path';
 import crypto from 'crypto';
 import fs from 'fs';
 
-// Define destinations
-const audioDir = '/home/Shubham/YumeTunes/public/audio';
-const coverDir = '/home/Shubham/YumeTunes/public/images/covers';
+// 1. The Bulletproof Path Check
+// If '/public' exists at the root, we are 100% inside Docker.
+// Otherwise, we are running bare-metal on your Arch laptop.
+const baseDir = fs.existsSync('/public') 
+    ? '/public' 
+    : '/home/Shubham/YumeTunes/public';
+
+const audioDir = path.join(baseDir, 'audio');
+// This cover directory is purely temporary now! 
+const coverDir = path.join(baseDir, 'images/covers');
 
 // Ensure directories exist
 [audioDir, coverDir].forEach(dir => {
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 });
 
+// 2. Configure Disk Storage
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         if (file.fieldname === 'audio_file') {
-            cb(null, audioDir);
+            cb(null, audioDir); // MP3 stays here permanently for Nginx
         } else if (file.fieldname === 'cover_image') {
-            cb(null, coverDir);
+            cb(null, coverDir); // Image parks here for 1 second
         }
     },
     filename: (req, file, cb) => {
@@ -27,6 +35,7 @@ const storage = multer.diskStorage({
     }
 });
 
+// 3. File Filter
 const fileFilter = (req, file, cb) => {
     if (file.fieldname === 'audio_file' && file.mimetype.startsWith('audio/')) {
         cb(null, true);
@@ -40,7 +49,7 @@ const fileFilter = (req, file, cb) => {
 const songUpload = multer({ 
     storage: storage,
     fileFilter: fileFilter,
-    limits: { fileSize: 50 * 1024 * 1024 } // 50MB limit to handle high-quality audio
+    limits: { fileSize: 50 * 1024 * 1024 } // 50MB limit
 });
 
 export default songUpload;

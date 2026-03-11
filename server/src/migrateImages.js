@@ -32,7 +32,9 @@ async function migrateImages() {
     try {
       // Build the absolute path to the image on your Arch machine
       // Assuming your script runs from /server/src and files are in /public
-      const absolutePath = path.resolve(`../../public${song.cover_path}`);
+      // Automatically delete the rogue space before the .jpg if it exists!
+      const cleanPath = song.cover_path.replace(' .jpg', '.jpg');
+      const absolutePath = path.resolve(`../../public${cleanPath}`);
 
       // Check if file actually exists before uploading
       if (!fs.existsSync(absolutePath)) {

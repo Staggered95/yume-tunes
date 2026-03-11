@@ -83,7 +83,7 @@ const AuthModal = () => {
             
             {/* The Mascot: Anchored to the bottom, dropshadow for depth */}
             <img 
-              src="/mascot.png" 
+              src="https://res.cloudinary.com/ddc6silap/image/upload/mascot_ipgjzj" 
               alt="YumeTunes Mascot" 
               className="relative z-10 w-auto h-[100%] object-contain object-center drop-shadow-[0_0_25px_rgba(157,92,250,0.3)] hover:scale-[1.03] transition-transform duration-700 ease-out"
             />

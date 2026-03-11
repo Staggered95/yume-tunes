@@ -19,7 +19,7 @@ export default function Footer() {
                             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 bg-accent-primary/20 rounded-full blur-2xl pointer-events-none"></div>
                             
                             <img 
-                                src="/mascot.png" // Assuming this is your transparent PNG file
+                                src="https://res.cloudinary.com/ddc6silap/image/upload/mascot_ipgjzj" // Assuming this is your transparent PNG file
                                 alt="YumeTunes Mascot" 
                                 className="relative z-10 w-full h-auto object-contain drop-shadow-[0_0_15px_rgba(157,92,250,0.3)] transition-transform duration-500 hover:scale-105"
                             />
