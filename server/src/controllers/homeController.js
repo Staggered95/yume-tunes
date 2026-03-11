@@ -24,7 +24,6 @@ const getPublicHomeData = async (req, res) => {
     `;
 
     // 3. Quotes (Optimized Mixed Pool)
-    // We use UNION ALL to guarantee 10 of each type for the frontend to pick from
     const quotesQuery = `
         (SELECT quote_text, author, anime, quote_type 
          FROM quotes WHERE quote_type = 'normal' AND is_active = true 
@@ -43,12 +42,23 @@ const getPublicHomeData = async (req, res) => {
         ORDER BY display_order ASC
     `;
 
+    // 5. Recently Added (Newest to the Database)
+    const latestQuery = `
+        SELECT s.id, s.title, s.cover_path, s.file_path, s.lyrics, ar.name AS artist
+        FROM songs s 
+        JOIN artists ar ON s.artist_id = ar.id
+        ORDER BY s.id DESC 
+        LIMIT 10
+    `;
+
     try {
-        const [trending, season, quotes, banners] = await Promise.all([
+        // Fire all 5 queries concurrently!
+        const [trending, season, quotes, banners, latest] = await Promise.all([
             query(trendingQuery),
             query(seasonQuery),
             query(quotesQuery),
-            query(bannersQuery)
+            query(bannersQuery),
+            query(latestQuery)
         ]);
 
         res.status(200).json({ 
@@ -57,7 +67,8 @@ const getPublicHomeData = async (req, res) => {
                 trending: trending.rows,
                 thisSeason: season.rows,
                 quotes: quotes.rows,
-                banners: banners.rows
+                banners: banners.rows,
+                latest: latest.rows // <-- Inject the new data here
             }
         });
     } catch (err) {

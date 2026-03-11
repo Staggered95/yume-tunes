@@ -11,6 +11,7 @@ import { useUser } from '../context/UserContext';
 function HomePage() {
   const [trending, setTrending] = useState([]);
   const [thisSeason, setThisSeason] = useState([]);
+  const [latestRelease, setLatestRelease] = useState([]);
   const [continueListening, setContinueListening] = useState([]);
   const [recommendedSongs, setRecommendedSongs] = useState([]);
   const [quotes, setQuotes] = useState([]);
@@ -32,6 +33,7 @@ function HomePage() {
         if (data.success) {
           setTrending(data.data.trending || []);
           setThisSeason(data.data.thisSeason || []);
+          setLatestRelease(data.data.latest || []);
           setQuotes(data.data.quotes || []);
           setBanners(data.data.banners || []);
         }
@@ -94,15 +96,15 @@ function HomePage() {
               <SectionRow 
                 title={`Made for ${userProfile?.[0]?.first_name || 'You'}`} 
                 type="small_square" 
-                items={recommendedSongs.slice(0, 8)} 
+                items={recommendedSongs} 
                 isLoading={isPrivateLoading}
               />
             </>
           ) : (
             <SectionRow 
-              title="Latest Releases" 
+              title="Recently Added" 
               type="small_square" 
-              items={thisSeason.slice(0, 8)} 
+              items={latestRelease} 
               isLoading={isPublicLoading}
             />
           )}

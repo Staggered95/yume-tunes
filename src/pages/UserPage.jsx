@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import api from '../api/axios'; // Centralized Axios instance
 import { useAuth } from '../context/AuthContext';
 import { useUser } from '../context/UserContext';
@@ -7,12 +8,14 @@ import { getMediaUrl } from '../utils/media';
 import UserSettings from '../components/UserSettings';
 
 const UserPage = () => {
+    const location = useLocation();
+    
     const { isLoggedIn } = useAuth();
     const { userProfile, setUserProfile } = useUser();
     const { addToast } = useToast();
 
     // UI States
-    const [activeTab, setActiveTab] = useState('profile'); 
+    const [activeTab, setActiveTab] = useState(location.state?.activeTab || 'profile'); 
     const [isEditing, setIsEditing] = useState(false);
     const [showFullHistory, setShowFullHistory] = useState(false);
     const [history, setHistory] = useState([]);
@@ -42,6 +45,16 @@ const UserPage = () => {
         if (days === 1) return 'Yesterday';
         return date.toLocaleDateString();
     };
+
+    useEffect(() => {
+        if (location.state?.activeTab) {
+            setActiveTab(location.state.activeTab);
+            
+            // Optional: Clear the state from the URL history so if they refresh 
+            // the page later, it doesn't force them back to settings.
+            window.history.replaceState({}, document.title);
+        }
+    }, [location.state]);
 
     // === 2. DATA FETCHING ===
     useEffect(() => {

@@ -57,7 +57,7 @@ const MobileNav = () => {
 
     return (
         <div 
-            className={`fixed bottom-0 left-0 right-0 bg-background-primary backdrop-blur-md border-t border-border z-[100] md:hidden pb-safe transition-transform duration-300 ease-in-out ${
+            className={`fixed bottom-0 left-0 right-0 bg-background-primary backdrop-blur-md border-t border-border z-50 md:hidden pb-safe transition-transform duration-300 ease-in-out ${
                 scrollDirection === 'down' ? 'translate-y-full' : 'translate-y-0'
             }`}
         >
