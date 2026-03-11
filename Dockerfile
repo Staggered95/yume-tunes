@@ -12,6 +12,11 @@ RUN npm install
 # Copy all frontend code (except what's in .dockerignore)
 COPY . .
 
+# 1. Listen for the build argument
+ARG VITE_API_BASE_URL
+# 2. Set it as an environment variable so Vite can see it
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+
 # Build the Vite project (outputs to the /dist folder)
 RUN npm run build
 
