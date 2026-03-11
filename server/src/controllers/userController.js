@@ -34,7 +34,7 @@ const getLikedSongs = async (req, res) => {
             a.title AS anime,
             ar.name AS artist,
             ls.added_at
-        FROM user_liked_songs ls
+        FROM liked_songs ls
         JOIN songs s ON ls.song_id = s.id
         JOIN animes a ON s.anime_id = a.id
         JOIN artists ar ON s.artist_id = ar.id

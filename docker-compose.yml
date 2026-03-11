@@ -1,0 +1,47 @@
+services:
+  # 1. The Database
+  db:
+    image: postgres:15-alpine
+    container_name: yumetunes-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: Shubham
+      POSTGRES_PASSWORD: Staggered@95
+      POSTGRES_DB: yume_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  # 2. The Node.js Backend
+  api:
+    build: 
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: yumetunes-api
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./server/src/.env 
+    depends_on:
+      - db
+    volumes:
+      # Maps your Arch 'public' folder into the API container
+      # Adjust '/app/public' to wherever your Node.js code saves file uploads!
+      - ./public:/public
+
+  # 3. The React Frontend
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: yumetunes-web
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
+  
+volumes:
+  pgdata:
