@@ -35,8 +35,12 @@ app.use(cors({
         if (!origin) return callback(null, true);
         
         // 2. Allow localhost OR any local network IP (192.168.x.x)
-        if (origin.startsWith('http://localhost') || origin.startsWith('http://10.214.') || origin.startsWith('http://192.168.') || origin.startsWith('http://13.60.26.11')) {
-            return callback(null, true); // Let them in!
+        if (origin.startsWith('http://localhost') || 
+            origin.startsWith('http://10.214.') || 
+            origin.startsWith('http://192.168.') ||
+            origin.startsWith('http://13.60.26.11') ||
+            origin === 'https://your-vercel-project-name.vercel.app') { // <-- Add your exact Vercel URL!
+            return callback(null, true);
         }
         
         // 3. Block anyone else
