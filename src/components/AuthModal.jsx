@@ -47,7 +47,7 @@ const AuthModal = () => {
       }
     } catch (err) {
       // Axios wraps backend errors in err.response
-      setError(err.data?.error || 'Network error. Is the server running?');
+      setError(err.response?.data?.error || 'Network error. Is the server running?');
     } finally {
       setLoading(false);
     }
