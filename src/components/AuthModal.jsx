@@ -27,7 +27,7 @@ const AuthModal = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (formData.password.length < 8) {
+    if (authModalView === 'register' && formData.password.length < 8) {
         return setError("Password must be at least 8 characters long.");
     }
     setLoading(true);
