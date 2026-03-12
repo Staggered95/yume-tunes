@@ -7,15 +7,16 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      registerType: 'autoUpdate', // Automatically pushes new updates to the user's installed app
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
+      registerType: 'autoUpdate',
+      // FIX 1: Only include files that actually exist in your ls output!
+      includeAssets: ['logo.png', 'vite.svg'], 
       manifest: {
         name: 'YumeTunes',
         short_name: 'YumeTunes',
         description: 'High-Quality Anime Music Streaming Platform',
-        theme_color: '#9D5CFA', // Your beautiful purple accent color
-        background_color: '#121212', // Your dark mode background
-        display: 'standalone', // Hides the browser UI (URL bar, tabs) to make it feel native
+        theme_color: '#9D5CFA',
+        background_color: '#121212',
+        display: 'standalone',
         icons: [
           {
             src: '/icon-192x192.png',
@@ -31,7 +32,7 @@ export default defineConfig({
             src: '/icon-512x512.png',
             sizes: '512x512',
             type: 'image/png',
-            purpose: 'any maskable' // Ensures the icon looks perfect inside Android's circular/squircle shapes
+            purpose: 'any maskable'
           }
         ]
       }
