@@ -80,12 +80,11 @@ export default function BottomPlayer({ onExpand }) {
 
                 {/* 3. RIGHT SECTION (Desktop Only: Like, Add, Volume) */}
                 <div className="hidden md:flex items-center justify-end gap-4 w-1/3 min-w-0">
-                    <div className="flex items-center gap-1 text-text-muted">
+                    <div className="flex items-center gap-10 text-text-muted">
                         <LikeButton songId={currentSong.id} initialIsLiked={false} />
                         <AddToPlaylistButton songId={currentSong.id} variant="bottom" />
                     </div>
 
-                    <OptionsMenu song={currentSong} />
 
                     <div className="flex items-center gap-2 w-28 lg:w-32 group/volume ml-2">
                         <VolumeIcon volume={volume} />

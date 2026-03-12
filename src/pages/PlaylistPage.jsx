@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '../api/axios'; // Native Axios instance
 import { useSongs } from '../context/SongContext';
-import AddToPlaylistButton from '../minicomps/AddToPlaylistButton';
 import Collage from '../minicomps/Collage';
 import { getMediaUrl } from '../utils/media';
 import ShuffleButton from '../minicomps/ShuffleButton';
@@ -161,9 +160,7 @@ const PlaylistPage = () => {
                                     </div>
                                 </div>
 
-                                <div className="opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
-                                    <AddToPlaylistButton songId={song.id} variant="bottom" className="p-2 hover:bg-background-active rounded-lg" />
-                                </div>
+                                
 
                                 <div className="text-text-muted text-xs font-mono text-right">
                                     {formatTime(song.duration_seconds)}

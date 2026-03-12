@@ -107,7 +107,7 @@ const Sidebar = () => {
 
         {/* Playlists Section */}
         <div className="relative">
-          <SidebarItem icon={SongIcon} label="Playlists" isOpen={isOpen} active={location.pathname.includes('/playlists')} onClick={() => navigate('/playlists')} />
+          <SidebarItem icon={SongIcon} label="Playlists" isOpen={isOpen} active={location.pathname.includes('/playlists')}  />
 
           {isOpen && (
             <div className="ml-16 mt-3 space-y-4 text-sm text-text-secondary custom-scrollbar overflow-y-auto max-h-[30vh] pr-4 animate-in fade-in slide-in-from-left-4 duration-500">

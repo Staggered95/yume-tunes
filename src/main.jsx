@@ -21,21 +21,21 @@ createRoot(document.getElementById('root')).render(
     <BrowserRouter>
       <LoadingProvider>
         {/* The Interceptor Bridge wraps everything else so it can access the LoadingContext */}
-        <AxiosInterceptorSetup>
           <PlaybackProvider>
             <AuthProvider>
-              <ToastProvider>
-                <SongProvider>
-                  <UserProvider>
-                    <ThemeProvider>
+              <AxiosInterceptorSetup>
+                <ToastProvider>
+                  <SongProvider>
+                    <UserProvider>
+                      <ThemeProvider>
                         <App />
-                    </ThemeProvider>
-                  </UserProvider>
-                </SongProvider>
-              </ToastProvider>
+                      </ThemeProvider>
+                    </UserProvider>
+                  </SongProvider>
+                </ToastProvider>
+              </AxiosInterceptorSetup>
             </AuthProvider>
           </PlaybackProvider>
-        </AxiosInterceptorSetup>
       </LoadingProvider>
     </BrowserRouter>
   </StrictMode>,
