@@ -39,6 +39,7 @@ app.use(cors({
             origin.startsWith('http://10.214.') || 
             origin.startsWith('http://192.168.') ||
             origin.startsWith('http://13.60.26.11') ||
+            origin.startsWith('http://yumetunes') ||
             origin === 'https://yume-tunes.vercel.app') { // <-- Add your exact Vercel URL!
             return callback(null, true);
         }
