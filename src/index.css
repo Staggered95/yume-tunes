@@ -96,6 +96,340 @@
 }
 
 /* =========================================
+   NEW THEMES: Add these below gruvbox-dark
+   ========================================= */
+
+/* Gruvbox Light (Completing the pair) */
+[data-theme="gruvbox-light"] {
+  --bg-primary: #fbf1c7;
+  --bg-secondary: #ebdbb2;
+  --bg-hover: #d5c4a1;
+  --bg-active: #bdae93;
+
+  --txt-primary: #3c3836;
+  --txt-secondary: #504945;
+  --txt-muted: #7c6f64;
+
+  --acc-primary: #8f3f71;   /* Darker purple for light bg */
+  --acc-secondary: #af3a03; /* Darker orange */
+  --acc-tertiary: #427b58;  /* Darker aqua */
+  --acc-hover: #b16286;
+  --acc-active: #682f51;
+
+  --stat-success: #79740e;
+  --stat-error: #9d0006;
+  --stat-warning: #b57614;
+
+  --bdr: #d5c4a1;
+  --bdr-hover: #bdae93;
+}
+
+/* Nord Dark (Icy, cool, very popular for media apps) */
+[data-theme="nord-dark"] {
+  --bg-primary: #2E3440;
+  --bg-secondary: #3B4252;
+  --bg-hover: #434C5E;
+  --bg-active: #4C566A;
+
+  --txt-primary: #ECEFF4;
+  --txt-secondary: #E5E9F0;
+  --txt-muted: #D8DEE9;
+
+  --acc-primary: #88C0D0;   /* Frost blue */
+  --acc-secondary: #B48EAD; /* Purple/Pink */
+  --acc-tertiary: #81A1C1;  /* Deeper blue */
+  --acc-hover: #8FBCBB;
+  --acc-active: #5E81AC;
+
+  --stat-success: #A3BE8C;
+  --stat-error: #BF616A;
+  --stat-warning: #EBCB8B;
+
+  --bdr: #434C5E;
+  --bdr-hover: #4C566A;
+}
+
+/* Nord Light (Snow Storm) */
+[data-theme="nord-light"] {
+  --bg-primary: #ECEFF4;
+  --bg-secondary: #E5E9F0;
+  --bg-hover: #D8DEE9;
+  --bg-active: #C1CBDB;
+
+  --txt-primary: #2E3440;
+  --txt-secondary: #3B4252;
+  --txt-muted: #4C566A;
+
+  --acc-primary: #5E81AC;   /* Deep blue accent for readability */
+  --acc-secondary: #B48EAD;
+  --acc-tertiary: #88C0D0;
+  --acc-hover: #81A1C1;
+  --acc-active: #434C5E;
+
+  --stat-success: #8FBCBB;
+  --stat-error: #BF616A;
+  --stat-warning: #D08770;
+
+  --bdr: #D8DEE9;
+  --bdr-hover: #C1CBDB;
+}
+
+/* Dracula Dark (High contrast, vibrant neon) */
+[data-theme="dracula-dark"] {
+  --bg-primary: #282a36;
+  --bg-secondary: #44475a;
+  --bg-hover: #6272a4;
+  --bg-active: #525569;
+
+  --txt-primary: #f8f8f2;
+  --txt-secondary: #e2e2dc;
+  --txt-muted: #6272a4;
+
+  --acc-primary: #bd93f9;   /* Dracula Purple */
+  --acc-secondary: #ff79c6; /* Dracula Pink */
+  --acc-tertiary: #8be9fd;  /* Dracula Cyan */
+  --acc-hover: #caa9fa;
+  --acc-active: #9e6be0;
+
+  --stat-success: #50fa7b;
+  --stat-error: #ff5555;
+  --stat-warning: #f1fa8c;
+
+  --bdr: #44475a;
+  --bdr-hover: #6272a4;
+}
+
+/* Dracula Light (Alucard / Day Mode) */
+[data-theme="dracula-light"] {
+  --bg-primary: #f8f8f2;
+  --bg-secondary: #e9e9e4;
+  --bg-hover: #d7d7d0;
+  --bg-active: #c5c5be;
+
+  --txt-primary: #282a36;
+  --txt-secondary: #44475a;
+  --txt-muted: #6272a4;
+
+  --acc-primary: #8b54e3;   /* Darkened purple */
+  --acc-secondary: #d5358f; /* Darkened pink */
+  --acc-tertiary: #0097a7;  /* Darkened cyan */
+  --acc-hover: #a170f0;
+  --acc-active: #6e3ebd;
+
+  --stat-success: #1b9c3e;
+  --stat-error: #cc241d;
+  --stat-warning: #b58900;
+
+  --bdr: #d7d7d0;
+  --bdr-hover: #c5c5be;
+}
+
+/* =========================================
+   EVERFOREST (Warm, woody greens - very soothing)
+   ========================================= */
+[data-theme="everforest-dark"] {
+  --bg-primary: #2d353b;
+  --bg-secondary: #343f44;
+  --bg-hover: #3d484d;
+  --bg-active: #475258;
+
+  --txt-primary: #d3c6aa;
+  --txt-secondary: #9da9a0;
+  --txt-muted: #859289;
+
+  --acc-primary: #a7c080;   /* Forest Green */
+  --acc-secondary: #e67e80; /* Soft Red */
+  --acc-tertiary: #7fbbb3;  /* Soft Blue */
+  --acc-hover: #b8d095;
+  --acc-active: #8ba563;
+
+  --stat-success: #a7c080;
+  --stat-error: #e67e80;
+  --stat-warning: #dbbc7f;
+
+  --bdr: #3d484d;
+  --bdr-hover: #475258;
+}
+
+[data-theme="everforest-light"] {
+  --bg-primary: #fdf6e3;
+  --bg-secondary: #f4f0d9;
+  --bg-hover: #efebd4;
+  --bg-active: #e6e2cc;
+
+  --txt-primary: #5c6a72;
+  --txt-secondary: #829181;
+  --txt-muted: #939f91;
+
+  --acc-primary: #8da101;   /* Deeper Green */
+  --acc-secondary: #f85552; /* Deeper Red */
+  --acc-tertiary: #3a94c5;  /* Deeper Blue */
+  --acc-hover: #a5bd02;
+  --acc-active: #6f8000;
+
+  --stat-success: #8da101;
+  --stat-error: #f85552;
+  --stat-warning: #dfa000;
+
+  --bdr: #efebd4;
+  --bdr-hover: #e6e2cc;
+}
+
+/* =========================================
+   CRIMSON (Deep reds, vampire aesthetics)
+   ========================================= */
+[data-theme="crimson-dark"] {
+  --bg-primary: #150a0f;
+  --bg-secondary: #1f1017;
+  --bg-hover: #2e1823;
+  --bg-active: #3e2231;
+
+  --txt-primary: #f8e6eb;
+  --txt-secondary: #cba8b4;
+  --txt-muted: #987a85;
+
+  --acc-primary: #e63946;   /* Ruby Red */
+  --acc-secondary: #ffb5a7; /* Soft Pink */
+  --acc-tertiary: #f4a261;  /* Soft Orange */
+  --acc-hover: #ff5c6a;
+  --acc-active: #bd2732;
+
+  --stat-success: #4ade80;
+  --stat-error: #ff4d4d;
+  --stat-warning: #facc15;
+
+  --bdr: #2e1823;
+  --bdr-hover: #3e2231;
+}
+
+[data-theme="crimson-light"] {
+  --bg-primary: #fff0f3;
+  --bg-secondary: #ffe3e8;
+  --bg-hover: #ffccd5;
+  --bg-active: #ffb3c1;
+
+  --txt-primary: #4a1525;
+  --txt-secondary: #7a3e51;
+  --txt-muted: #a46b7e;
+
+  --acc-primary: #c1121f;   /* Deep Blood Red */
+  --acc-secondary: #ff4d6d; /* Vibrant Pink */
+  --acc-tertiary: #fb8500;  /* Burnt Orange */
+  --acc-hover: #e01a29;
+  --acc-active: #9e0e18;
+
+  --stat-success: #16a34a;
+  --stat-error: #dc2626;
+  --stat-warning: #d97706;
+
+  --bdr: #ffccd5;
+  --bdr-hover: #ffb3c1;
+}
+
+/* =========================================
+   SOLAR (Warm yellows, sunsets, retro vibes)
+   ========================================= */
+[data-theme="solar-dark"] {
+  --bg-primary: #1f1b13;
+  --bg-secondary: #2a251a;
+  --bg-hover: #383124;
+  --bg-active: #484031;
+
+  --txt-primary: #fdf5e6;
+  --txt-secondary: #d1c1a3;
+  --txt-muted: #9f9176;
+
+  --acc-primary: #e9c46a;   /* Sunset Gold */
+  --acc-secondary: #f4a261; /* Warm Orange */
+  --acc-tertiary: #e76f51;  /* Terracotta */
+  --acc-hover: #f7d583;
+  --acc-active: #c7a452;
+
+  --stat-success: #84a98c;
+  --stat-error: #e07a5f;
+  --stat-warning: #e9c46a;
+
+  --bdr: #383124;
+  --bdr-hover: #484031;
+}
+
+[data-theme="solar-light"] {
+  --bg-primary: #fdf8e1;
+  --bg-secondary: #f8f1d7;
+  --bg-hover: #ece3c3;
+  --bg-active: #dfd4b0;
+
+  --txt-primary: #4a3f2a;
+  --txt-secondary: #716246;
+  --txt-muted: #94856a;
+
+  --acc-primary: #d4952e;   /* Caramel/Dark Gold */
+  --acc-secondary: #d97742; /* Deep Orange */
+  --acc-tertiary: #b54f51;  /* Brick Red */
+  --acc-hover: #e6a740;
+  --acc-active: #b37922;
+
+  --stat-success: #52796f;
+  --stat-error: #bc4749;
+  --stat-warning: #d4952e;
+
+  --bdr: #ece3c3;
+  --bdr-hover: #dfd4b0;
+}
+
+/* =========================================
+   OCEAN (Deep sea blues, neon cyan)
+   ========================================= */
+[data-theme="ocean-dark"] {
+  --bg-primary: #09111e;
+  --bg-secondary: #111b2d;
+  --bg-hover: #1a2842;
+  --bg-active: #243657;
+
+  --txt-primary: #e0f2fe;
+  --txt-secondary: #94a3b8;
+  --txt-muted: #64748b;
+
+  --acc-primary: #0ea5e9;   /* Ocean Blue */
+  --acc-secondary: #2dd4bf; /* Teal/Cyan */
+  --acc-tertiary: #818cf8;  /* Indigo */
+  --acc-hover: #38bdf8;
+  --acc-active: #0284c7;
+
+  --stat-success: #10b981;
+  --stat-error: #ef4444;
+  --stat-warning: #f59e0b;
+
+  --bdr: #1a2842;
+  --bdr-hover: #243657;
+}
+
+[data-theme="ocean-light"] {
+  --bg-primary: #f0f9ff;
+  --bg-secondary: #e0f2fe;
+  --bg-hover: #bae6fd;
+  --bg-active: #7dd3fc;
+
+  --txt-primary: #0f172a;
+  --txt-secondary: #334155;
+  --txt-muted: #64748b;
+
+  --acc-primary: #0284c7;   /* Deep Blue */
+  --acc-secondary: #0d9488; /* Deep Teal */
+  --acc-tertiary: #4f46e5;  /* Deep Indigo */
+  --acc-hover: #0369a1;
+  --acc-active: #0c4a6e;
+
+  --stat-success: #059669;
+  --stat-error: #dc2626;
+  --stat-warning: #d97706;
+
+  --bdr: #bae6fd;
+  --bdr-hover: #7dd3fc;
+}
+
+
+/* =========================================
    2. TAILWIND INTEGRATION (The Engine)
    ========================================= */
 
