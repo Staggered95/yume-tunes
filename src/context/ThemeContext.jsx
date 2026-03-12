@@ -23,35 +23,9 @@ export const ThemeProvider = ({ children }) => {
     });
 
     // 2. Track the Mode (e.g., 'dark', 'light')
-    // 2. Track the Mode — detect system preference as the fallback
-const [themeMode, setThemeMode] = useState(() => {
-  const saved = localStorage.getItem('yumetunes-theme-mode');
-  if (saved) return saved; // User has a saved preference, use it
-  
-  // No saved preference — check the device default
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-});
-
-    useEffect(() => {
-  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-  
-  const handleSystemThemeChange = (e) => {
-    // Only follow system changes if user hasn't manually picked a mode
-    const hasManualPreference = localStorage.getItem('yumetunes-theme-mode');
-    if (!hasManualPreference) {
-      setThemeMode(e.matches ? 'dark' : 'light');
-    }
-  };
-
-  mediaQuery.addEventListener('change', handleSystemThemeChange);
-  return () => mediaQuery.removeEventListener('change', handleSystemThemeChange);
-}, []);
-
-    const resetToSystemTheme = () => {
-  localStorage.removeItem('yumetunes-theme-mode');
-  const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  setThemeMode(systemDark ? 'dark' : 'light');
-};
+    const [themeMode, setThemeMode] = useState(() => {
+        return localStorage.getItem('yumetunes-theme-mode') || 'dark';
+    });
 
     // 3. The universal toggle function for your Navbar sun/moon icon
     const toggleThemeMode = () => {
