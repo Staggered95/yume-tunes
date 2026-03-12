@@ -296,7 +296,7 @@ const SiteContentManager = () => {
                                             <p className="text-xs text-text-secondary mb-1">{b.subtitle || 'No subtitle'}</p>
                                             <p className="text-xs text-text-muted truncate max-w-[200px]">{b.target_url || 'No link'}</p>
                                         </div>
-                                        <button onClick= {() => requestDelete('banner', banner.id, "Delete Banner", "Delete this banner? The image file will also be permanently removed from the cloud.")} className="text-text-muted hover:text-error p-2 transition-colors shrink-0">Delete</button>
+                                        <button onClick= {() => requestDelete('banner', b.id, "Delete Banner", "Delete this banner? The image file will also be permanently removed from the cloud.")} className="text-text-muted hover:text-error p-2 transition-colors shrink-0">Delete</button>
                                     </div>
                                 </div>
                             ))}
