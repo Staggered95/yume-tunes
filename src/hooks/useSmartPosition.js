@@ -16,7 +16,7 @@ export const useSmartPosition = (isOpen, anchorRef, popoverRef) => {
         
         let newStyles = {};
 
-        // Vertical Collision
+        // Vertical collision
         if (spaceBelow < popoverRect.height && spaceAbove > spaceBelow) {
             newStyles.bottom = '100%';
             newStyles.marginBottom = '8px';
