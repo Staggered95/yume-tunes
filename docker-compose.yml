@@ -5,11 +5,14 @@ services:
     container_name: yumetunes-db
     restart: unless-stopped
     environment:
-      POSTGRES_USER: Shubham
-      POSTGRES_PASSWORD: Staggered@95
-      POSTGRES_DB: yume_db
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
+      CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
     ports:
-      - "5433:5432"
+      - "5433:${DB_PORT}"
     volumes:
       - pgdata:/var/lib/postgresql/data
 
