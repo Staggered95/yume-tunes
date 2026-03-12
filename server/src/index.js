@@ -18,6 +18,7 @@ import homeRoutes from './routes/homeRoutes.js'
 import adminRoutes from './routes/adminRoutes.js'
 
 const app = express();
+app.set('trust proxy', 1);
 
 const port = 5000;
 const __file_url_path = import.meta.url;
