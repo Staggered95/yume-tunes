@@ -41,10 +41,12 @@ services:
     container_name: yumetunes-web
     restart: unless-stopped
     ports:
-      - "${WEB_PORT:-8080}:80"
+      - "80:80"     # Keep 80 open for redirects
+      - "443:443"   # NEW: Open the secure HTTPS port!
     volumes:
-      # Give Nginx direct read-only access to your media!
       - ./public:/usr/share/nginx/html/media:ro
+      # NEW: Poke a hole for the SSL certificates!
+      - /etc/letsencrypt:/etc/letsencrypt:ro
     depends_on:
       - api
   
