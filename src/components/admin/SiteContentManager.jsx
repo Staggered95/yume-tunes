@@ -129,7 +129,7 @@ const SiteContentManager = () => {
         try {
             // FIX: Pass formData directly, NOT inside curly braces {formData}
             const { data } = await api.post('/admin/banners', formData);
-            if (res.data.success) {
+            if (data.success) {
                 addToast("Banner uploaded!", "success");
                 setIsBannerModalOpen(false);
                 setBannerForm({ title: '', subtitle: '', target_url: '', banner_type: 'home' });
@@ -140,7 +140,8 @@ const SiteContentManager = () => {
                 addToast(data.message, "error");
             }
         } catch (err) {
-            addToast("Network error", "error");
+            console.error("Upload failed:", err); 
+            addToast("Network error uploading banner", "error");
         } finally {
             setIsSubmitting(false);
         }

@@ -19,7 +19,13 @@ const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
         folder: folderName, 
-        allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'gif'],
+        format: 'webp', // Force WebP conversion
+        transformation: [
+            // 'limit' means it will only shrink it if the width is larger than 1920px
+            // (Standard 1080p monitor width). It won't stretch smaller images.
+            { width: 1920, crop: 'limit' },
+            { quality: 'auto' }
+        ]
     },
 });
 

@@ -1,31 +1,24 @@
 import { query } from '../config/db.js';
-import fs from 'fs';
-import path from 'path';
+import { v2 as cloudinary } from 'cloudinary';
 
-// Helper for safe file deletion
-const deletePhysicalFile = (relativePath) => {
-    if (!relativePath) return;
-    try {
-        // Use the exact base path where Multer saves the files
-        const basePath = '/home/Shubham/YumeTunes/public';
-        const absolutePath = path.join(basePath, relativePath);
-        
-        // I added a console.log here so you can verify the exact path in your terminal!
-        console.log("Attempting to delete:", absolutePath);
+// Configure Cloudinary (it's fine to do this in multiple files)
+cloudinary.config({ 
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME, 
+  api_key: process.env.CLOUDINARY_API_KEY, 
+  api_secret: process.env.CLOUDINARY_API_SECRET 
+});
 
-        if (fs.existsSync(absolutePath)) {
-            fs.unlinkSync(absolutePath);
-            console.log("Successfully deleted:", absolutePath);
-        } else {
-            console.log("File not found on disk, skipping deletion.");
-        }
-    } catch (err) {
-        console.error("Could not delete old file:", err);
-    }
+// Helper to extract Cloudinary Public ID from a secure_url
+const getPublicIdFromUrl = (url) => {
+    if (!url || !url.includes('cloudinary')) return null;
+    const splitUrl = url.split('/');
+    const filename = splitUrl[splitUrl.length - 1];
+    const folder = splitUrl[splitUrl.length - 2];
+    return `${folder}/${filename.split('.')[0]}`;
 };
 
 // ==========================================
-// QUOTES MANAGEMENT
+// QUOTES MANAGEMENT (Unchanged)
 // ==========================================
 const getQuotes = async (req, res) => {
     try {
@@ -62,8 +55,6 @@ const editQuote = async (req, res) => {
     }
 };
 
-// Don't forget to add editQuote to the export default at the bottom!
-
 const toggleQuoteStatus = async (req, res) => {
     try {
         await query(`UPDATE quotes SET is_active = NOT is_active WHERE id = $1`, [req.params.id]);
@@ -83,7 +74,7 @@ const deleteQuote = async (req, res) => {
 };
 
 // ==========================================
-// HERO BANNERS MANAGEMENT
+// HERO BANNERS MANAGEMENT (Cloudinary Upgraded)
 // ==========================================
 const getBanners = async (req, res) => {
     try {
@@ -101,10 +92,30 @@ const addBanner = async (req, res) => {
         return res.status(400).json({ success: false, message: 'Banner image is required' });
     }
 
-    const imagePath = `/images/banners/${req.file.filename}`;
+    // If using Cloudinary middleware, the URL is in req.file.path. 
+    // If you are still using local multer here, we upload it manually:
+    let imagePath = req.file.path; 
+
+    // Hybrid Upload Check: If the path is a local temp file, upload to Cloudinary now
+    if (!imagePath.includes('cloudinary')) {
+        try {
+            const folderName = process.env.NODE_ENV === 'production' ? 'carousel_banners' : 'dev_carousel';
+            const result = await cloudinary.uploader.upload(req.file.path, { 
+                folder: folderName,
+                format: 'webp',
+                transformation: [{ width: 1920, crop: 'limit' }, { quality: 'auto:best' }]
+            });
+            imagePath = result.secure_url;
+            
+            // Clean up the local temp file Multer created
+            import('fs').then(fs => fs.unlinkSync(req.file.path)).catch(()=>console.log("Cleanup skipped"));
+        } catch (uploadErr) {
+            console.error("Cloudinary upload failed:", uploadErr);
+            return res.status(500).json({ success: false, message: 'Error uploading image to CDN' });
+        }
+    }
 
     try {
-        // Find the current highest display_order so we can put this one at the end
         const orderRes = await query(`SELECT COALESCE(MAX(display_order), -1) + 1 AS next_order FROM hero_banners`);
         const nextOrder = orderRes.rows[0].next_order;
 
@@ -116,8 +127,7 @@ const addBanner = async (req, res) => {
         res.status(201).json({ success: true, message: 'Banner uploaded!' });
     } catch (err) {
         console.error(err);
-        deletePhysicalFile(imagePath); // Rollback physical file if DB fails
-        res.status(500).json({ success: false, message: 'Error uploading banner' });
+        res.status(500).json({ success: false, message: 'Error saving banner to database' });
     }
 };
 
@@ -133,8 +143,17 @@ const toggleBannerStatus = async (req, res) => {
 const deleteBanner = async (req, res) => {
     try {
         const bannerRes = await query(`SELECT image_path FROM hero_banners WHERE id = $1`, [req.params.id]);
+        
         if (bannerRes.rows.length > 0) {
-            deletePhysicalFile(bannerRes.rows[0].image_path);
+            const imageUrl = bannerRes.rows[0].image_path;
+            const publicId = getPublicIdFromUrl(imageUrl);
+            
+            // Delete from Cloudinary
+            if (publicId) {
+                await cloudinary.uploader.destroy(publicId);
+            }
+            
+            // Delete from DB
             await query(`DELETE FROM hero_banners WHERE id = $1`, [req.params.id]);
         }
         res.status(200).json({ success: true, message: 'Banner deleted!' });

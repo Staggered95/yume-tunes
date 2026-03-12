@@ -19,7 +19,13 @@ const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
         folder: folderName, 
-        allowed_formats: ['jpg', 'jpeg', 'png', 'webp', 'gif'],
+        format: 'webp', // Force conversion to WebP immediately to save your 1GB storage
+        transformation: [
+            // Crop to a perfect 400x400 square, and use AI to center on the face!
+            { width: 400, height: 400, crop: 'fill', gravity: 'face' },
+            // Auto-compress to the perfect balance of size/quality
+            { quality: 'auto' }
+        ]
     },
 });
 

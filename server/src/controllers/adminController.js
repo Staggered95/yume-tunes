@@ -65,9 +65,17 @@ const addSong = async (req, res) => {
     const folderName = process.env.NODE_ENV === 'production' ? 'covers' : 'dev_covers';
 
     const result = await cloudinary.uploader.upload(localImagePath, { 
-        folder: folderName,
-        public_id: req.files['cover_image'][0].originalname.split('.')[0].replace(/\s+/g, '_')
-    });
+    folder: folderName,
+    public_id: req.files['cover_image'][0].originalname.split('.')[0].replace(/\s+/g, '_'),
+    
+    // Add the optimization here!
+    format: 'webp',
+    transformation: [
+        // Song covers are usually square. 'limit' prevents upscaling.
+        { width: 800, height: 800, crop: 'limit' },
+        { quality: 'auto' }
+    ]
+});
     
     coverPath = result.secure_url;
     
@@ -346,6 +354,90 @@ const updateUserRole = async (req, res) => {
     }
 };
 
+// ==========================================
+// ENTITY MANAGEMENT (ARTISTS & ANIMES)
+// ==========================================
+
+const getAllArtists = async (req, res) => {
+    try {
+        const result = await query(`SELECT id, name FROM artists ORDER BY name ASC`);
+        res.status(200).json({ success: true, data: result.rows });
+    } catch (err) {
+        console.error("Error fetching artists:", err);
+        res.status(500).json({ success: false, message: 'Server error fetching artists' });
+    }
+};
+
+const getAllAnimes = async (req, res) => {
+    try {
+        // Alias 'title' as 'name' so it perfectly matches the React frontend expectation!
+        const result = await query(`SELECT id, title AS name FROM animes ORDER BY title ASC`);
+        res.status(200).json({ success: true, data: result.rows });
+    } catch (err) {
+        console.error("Error fetching animes:", err);
+        res.status(500).json({ success: false, message: 'Server error fetching animes' });
+    }
+};
+
+const deleteArtist = async (req, res) => {
+    const artistId = req.params.id;
+    try {
+        await query(`DELETE FROM artists WHERE id = $1`, [artistId]);
+        res.status(200).json({ success: true, message: 'Artist deleted successfully' });
+    } catch (err) {
+        // Postgres Error 23503 means "Foreign Key Violation" (Songs are still attached!)
+        if (err.code === '23503') {
+            return res.status(400).json({ success: false, message: 'Cannot delete: This artist still has songs linked to them.' });
+        }
+        console.error("Error deleting artist:", err);
+        res.status(500).json({ success: false, message: 'Server error deleting artist' });
+    }
+};
+
+const deleteAnime = async (req, res) => {
+    const animeId = req.params.id;
+    try {
+        await query(`DELETE FROM animes WHERE id = $1`, [animeId]);
+        res.status(200).json({ success: true, message: 'Anime deleted successfully' });
+    } catch (err) {
+        // Postgres Error 23503 means "Foreign Key Violation"
+        if (err.code === '23503') {
+            return res.status(400).json({ success: false, message: 'Cannot delete: This anime still has songs linked to it.' });
+        }
+        console.error("Error deleting anime:", err);
+        res.status(500).json({ success: false, message: 'Server error deleting anime' });
+    }
+};
+
+// === UPDATE ARTIST ===
+const updateArtist = async (req, res) => {
+    const { id } = req.params;
+    const { name } = req.body; // The new name
+
+    try {
+        await query(`UPDATE artists SET name = $1 WHERE id = $2`, [name, id]);
+        res.status(200).json({ success: true, message: 'Artist updated successfully' });
+    } catch (err) {
+        console.error("Error updating artist:", err);
+        res.status(500).json({ success: false, message: 'Server error updating artist' });
+    }
+};
+
+// === UPDATE ANIME ===
+const updateAnime = async (req, res) => {
+    const { id } = req.params;
+    const { name } = req.body; // The new name coming from React
+
+    try {
+        // Remember, your DB column is 'title' for Animes, not 'name'!
+        await query(`UPDATE animes SET title = $1 WHERE id = $2`, [name, id]);
+        res.status(200).json({ success: true, message: 'Anime updated successfully' });
+    } catch (err) {
+        console.error("Error updating anime:", err);
+        res.status(500).json({ success: false, message: 'Server error updating anime' });
+    }
+};
+
 // === 9. GET ANALYTICS DASHBOARD STATS ===
 const getDashboardStats = async (req, res) => {
     try {
@@ -382,4 +474,4 @@ const getDashboardStats = async (req, res) => {
 
 
 
-export default { getAllSongs, addSong, updateSong, deleteSong, updateLyrics, autoGenerateLyrics, getAllUsers, updateUserRole, getDashboardStats };
+export default { getAllSongs, addSong, updateSong, deleteSong, updateLyrics, autoGenerateLyrics, getAllUsers, updateUserRole, getDashboardStats, getAllArtists, getAllAnimes, deleteArtist, deleteAnime, updateArtist, updateAnime };

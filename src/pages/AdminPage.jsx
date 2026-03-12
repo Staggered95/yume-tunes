@@ -8,6 +8,7 @@ import LyricsSyncer from '../components/admin/LyricsSyncer';
 import UserManager from '../components/admin/UserManager';
 import SiteContentManager from '../components/admin/SiteContentManager';
 import AnalyticsDashboard from '../components/admin/AnalyticsDashboard';
+import ArtistAnimeManager from '../components/admin/ArtistAnimeManager'; // <-- 1. Import it!
 
 // ==========================================
 // THE MAIN ADMIN SHELL
@@ -21,7 +22,6 @@ const AdminPage = () => {
     const [isSyncingLyrics, setIsSyncingLyrics] = useState(false);
     const [currentSongData, setCurrentSongData] = useState(null);
 
-    // --- RBAC Check ---
     const isAdmin = user?.role === 'admin';
 
     const handleEditSong = (songObj) => {
@@ -76,6 +76,8 @@ const AdminPage = () => {
         }
         
         switch (activeTab) {
+            case 'entities': // <-- 2. Add to switch statement!
+                return <ArtistAnimeManager />;
             case 'users': 
                 return isAdmin ? <UserManager /> : <div className="text-error p-6 font-bold">Access Denied</div>;
             case 'analytics': 
@@ -87,8 +89,10 @@ const AdminPage = () => {
         }
     };
 
+    // 3. Add to the Navigation Sidebar
     const navItems = [
         { id: 'songs', label: 'Manage Songs', icon: '🎵' },
+        { id: 'entities', label: 'Artists & Anime', icon: '🎭' }, 
         ...(isAdmin ? [{ id: 'users', label: 'Users & Roles', icon: '👥' }] : []),
         { id: 'analytics', label: 'Analytics', icon: '📊' },
         { id: 'content', label: 'Site Content', icon: '🖼️' },
@@ -129,7 +133,6 @@ const AdminPage = () => {
                     ))}
                 </nav>
 
-                {/* Back to main site button */}
                 <div className="p-4 border-t border-border">
                     <button 
                         onClick={() => navigate('/')}

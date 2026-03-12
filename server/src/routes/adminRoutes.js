@@ -44,6 +44,15 @@ router.get('/songs/auto-lyrics', adminAndMod, adminController.autoGenerateLyrics
 // Destructive action: Admin only
 router.delete('/songs/:id', adminOnly, adminController.deleteSong);
 
+// ==========================================
+// ANIME & ARTISTS MANAGEMENT
+// ==========================================
+router.get('/artists', verifyToken, adminAndMod, adminController.getAllArtists);
+router.delete('/artists/:id', verifyToken, adminOnly, adminController.deleteArtist);
+router.put('/artists/:id', verifyToken, adminOnly, adminController.updateArtist);
+router.get('/animes', verifyToken, adminAndMod, adminController.getAllAnimes);
+router.delete('/animes/:id', verifyToken, adminOnly, adminController.deleteAnime);
+router.put('/animes/:id', verifyToken, adminOnly, adminController.updateAnime);
 
 // ==========================================
 // QUOTES MANAGEMENT
