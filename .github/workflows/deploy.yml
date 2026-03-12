@@ -1,0 +1,31 @@
+name: YumeTunes Production Deploy
+
+# 1. This tells GitHub to run this script EVERY time you push to the 'main' branch
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: SSH into EC2 and Deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          # 2. These are the exact commands the action will type into your EC2 terminal!
+          script: |
+            echo "🚀 Starting Deployment..."
+            cd ~/yume-tunes
+            
+            echo "📥 Pulling latest code from GitHub..."
+            git pull origin main
+            
+            echo "🐳 Rebuilding and restarting Docker containers..."
+            sudo docker compose up -d --build
+            
+            echo "✅ Deployment Successful!"
