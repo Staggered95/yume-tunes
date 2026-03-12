@@ -3,15 +3,23 @@ import api from '../api/axios'; // Native Axios import
 import { useToast } from '../context/ToastContext';
 import BaseModal from '../minicomps/BaseModal';
 
-const PlaylistModal = ({ isOpen, onClose, songId }) => {
+const PlaylistModal = ({ isOpen, onClose, initialView = 'list', songId }) => {
     const { addToast } = useToast(); 
     
-    const [view, setView] = useState('list'); 
+    const [view, setView] = useState(initialView); 
     const [isLoading, setIsLoading] = useState(true);
     
     const [playlists, setPlaylists] = useState([]);
     const [newPlaylistName, setNewPlaylistName] = useState('');
     const [newPlaylistDesc, setNewPlaylistDesc] = useState('');
+
+    useEffect(() => {
+        if (isOpen) {
+            setView(initialView);
+            setNewPlaylistName(''); // Clean up previous form data
+            setNewPlaylistDesc('');
+        }
+    }, [isOpen, initialView]);
 
     useEffect(() => {
         if (!isOpen) {

@@ -5,11 +5,11 @@ import { usePlayback } from '../context/PlaybackContext';
 
 const MediaControllers = ({ variant = 'bottomplayer', className = '' }) => {
     const { nextSong, prevSong } = useSongs(); 
-    const { isPlaying, togglePlay } = usePlayback();
+    // 1. Pull isBuffering into the component
+    const { isPlaying, isBuffering, togglePlay } = usePlayback();
 
     // ==========================================
     // VARIANT 1: FULLSCREEN (Minimal View)
-    // Massive, cinematic controls for the giant desktop/minimal view
     // ==========================================
     if (variant === 'fullscreen') {
         return (
@@ -30,10 +30,16 @@ const MediaControllers = ({ variant = 'bottomplayer', className = '' }) => {
                     className="p-5 md:p-6 bg-text-primary text-background-primary rounded-full hover:scale-110 active:scale-95 transition-all duration-300 shadow-xl shadow-text-primary/20 hover:shadow-text-primary/40 flex items-center justify-center shrink-0"
                     aria-label={isPlaying ? "Pause" : "Play"}
                 >
-                    {isPlaying ? (
-                    <svg className="w-8 h-8 md:w-10 md:h-10 ml-0.5" fill="current" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                    {/* 2. Conditionally render the Spinner vs Play/Pause */}
+                    {isBuffering ? (
+                        <svg className="animate-spin w-8 h-8 md:w-10 md:h-10 text-background-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    ) : isPlaying ? (
+                        <svg className="w-8 h-8 md:w-10 md:h-10 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
                     ) : (
-                    <svg className="w-8 h-8 md:w-10 md:h-10 ml-1.5" fill="current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                        <svg className="w-8 h-8 md:w-10 md:h-10 ml-1.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                     )}
                 </button>
 
@@ -53,7 +59,6 @@ const MediaControllers = ({ variant = 'bottomplayer', className = '' }) => {
 
     // ==========================================
     // VARIANT 2: UTILITY (Split-Pane View)
-    // Medium-sized, high-contrast controls optimized for the Left/Top Pane
     // ==========================================
     if (variant === 'utility') {
         return (
@@ -70,7 +75,12 @@ const MediaControllers = ({ variant = 'bottomplayer', className = '' }) => {
                     onClick={(e) => { e.stopPropagation(); togglePlay(); }}
                     className="p-3 md:p-4 lg:p-5 bg-text-primary text-background-primary rounded-full hover:scale-105 active:scale-95 transition-all shadow-xl shadow-text-primary/10 shrink-0"
                 >
-                    {isPlaying ? (
+                    {isBuffering ? (
+                        <svg className="animate-spin w-7 h-7 md:w-8 md:h-8 text-background-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    ) : isPlaying ? (
                         <svg className="w-7 h-7 md:w-8 md:h-8 ml-0.5" fill="current" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
                     ) : (
                         <svg className="w-7 h-7 md:w-8 md:h-8 ml-1" fill="current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
@@ -90,7 +100,6 @@ const MediaControllers = ({ variant = 'bottomplayer', className = '' }) => {
 
     // ==========================================
     // VARIANT 3: BOTTOM PLAYER (Default)
-    // Compact row layout with the glowing morphing play button
     // ==========================================
     return (
         <div className={`flex gap-3 md:gap-8 items-center justify-center text-text-primary ${className}`}>
@@ -110,14 +119,24 @@ const MediaControllers = ({ variant = 'bottomplayer', className = '' }) => {
                     isPlaying ? 'bg-accent-primary/30 opacity-100' : 'opacity-0'
                 }`} />
                 
-                <div className="relative border-2 md:border-[3px] border-accent-primary group-hover/play:border-accent-hover group-hover/play:scale-105 rounded-full transition-all duration-300 shadow-lg shadow-accent-primary/10">
-                    <MorphingPlayPauseButton
-                      isPlaying={isPlaying}
-                      onToggle={(e) => { 
-                          if(e) e.stopPropagation(); 
-                          togglePlay(); 
-                      }}
-                    />
+                <div className="relative border-2 md:border-[3px] border-accent-primary group-hover/play:border-accent-hover group-hover/play:scale-105 rounded-full transition-all duration-300 shadow-lg shadow-accent-primary/10 flex items-center justify-center">
+                    {/* 3. Swap the morphing button with a spinner to keep the glowing border intact! */}
+                    {isBuffering ? (
+                        <div className="p-[10px] md:p-[12px]">
+                            <svg className="animate-spin w-6 h-6 md:w-8 md:h-8 text-accent-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        </div>
+                    ) : (
+                        <MorphingPlayPauseButton
+                          isPlaying={isPlaying}
+                          onToggle={(e) => { 
+                              if(e) e.stopPropagation(); 
+                              togglePlay(); 
+                          }}
+                        />
+                    )}
                 </div>
             </div>
 

@@ -7,6 +7,7 @@ export const PlaybackProvider = ({children}) => {
     const [volume, setVolume] = useState(1.0);
     const [isPlaying, setIsPlaying] = useState(false);
     const [isEnded, setIsEnded] = useState(false);
+    const [isBuffering, setIsBuffering] = useState(false);
 
     useEffect(() => {
         const audio = audioRef.current;
@@ -48,12 +49,19 @@ export const PlaybackProvider = ({children}) => {
         // (Since there is no setState here, it does NOT slow down React!)
         const handleTimeUpdate = () => updateOSPosition();
 
+        const handleWaiting = () => setIsBuffering(true); // Fired when data runs out
+        const handlePlaying = () => setIsBuffering(false); // Fired when resuming after buffering
+        const handleCanPlay = () => setIsBuffering(false); // Fired when enough data is ready
+
         // === 3. ATTACH LISTENERS ===
         audio.addEventListener("play", handlePlay);
         audio.addEventListener("pause", handlePause);
         audio.addEventListener("ended", handleEnded);
         audio.addEventListener("durationchange", handleDurationChange);
         audio.addEventListener("timeupdate", handleTimeUpdate);
+        audio.addEventListener("waiting", handleWaiting);
+        audio.addEventListener("playing", handlePlaying);
+        audio.addEventListener("canplay", handleCanPlay);
 
         // === 4. OS LOCK SCREEN SCRUBBING ===
         if ('mediaSession' in navigator) {
@@ -73,6 +81,9 @@ export const PlaybackProvider = ({children}) => {
             audio.removeEventListener("ended", handleEnded);
             audio.removeEventListener("durationchange", handleDurationChange);
             audio.removeEventListener("timeupdate", handleTimeUpdate);
+            audio.removeEventListener("waiting", handleWaiting);
+            audio.removeEventListener("playing", handlePlaying);
+            audio.removeEventListener("canplay", handleCanPlay);
             
             if ('mediaSession' in navigator) {
                 navigator.mediaSession.setActionHandler('seekto', null);
@@ -82,12 +93,14 @@ export const PlaybackProvider = ({children}) => {
 
     const playSong = useCallback((url) => {
         setIsEnded(false);
+        setIsBuffering(true);
         audioRef.current.pause();
         audioRef.current.src = url;
         audioRef.current.play().catch(err => {
             //check
             console.warn("Autoplay blocked by browser. User must click play.", err);
             setIsPlaying(false);
+            setIsBuffering(false);
         });
     }, []);
 
@@ -115,10 +128,11 @@ export const PlaybackProvider = ({children}) => {
         isPlaying,
         volume,
         isEnded, 
+        isBuffering,
         playSong,
         togglePlay,
         handleVolumeChange
-    }), [isPlaying, volume, isEnded, playSong, togglePlay, handleVolumeChange]);
+    }), [isPlaying, volume, isEnded, isBuffering, playSong, togglePlay, handleVolumeChange]);
 
     return (
         <PlaybackContext.Provider value={values}>

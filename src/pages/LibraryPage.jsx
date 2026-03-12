@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../api/axios'; // Native Axios instance
 import { useAuth } from '../context/AuthContext';
 import Collage from '../minicomps/Collage';
+import PlaylistModal from '../components/PlaylistModal';
 
 const LibraryPage = () => {
     const navigate = useNavigate();
@@ -10,6 +11,7 @@ const LibraryPage = () => {
     
     const [playlists, setPlaylists] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
         if (!isLoggedIn) return;
@@ -51,7 +53,7 @@ const LibraryPage = () => {
                     </p>
                 </div>
                 
-                <button 
+                <button onClick={() => setIsModalOpen(true)}
                     className="w-fit px-6 py-3 bg-background-secondary hover:bg-background-hover text-accent-primary border border-border hover:border-accent-primary/30 rounded-xl font-black text-xs uppercase tracking-widest transition-all duration-300 active:scale-95 shadow-lg shadow-black/20"
                 >
                     + Create New Playlist
@@ -100,14 +102,17 @@ const LibraryPage = () => {
                             <h3 className="font-black text-sm tracking-tight truncate group-hover:text-accent-primary transition-colors">
                                 {playlist.name}
                             </h3>
-                            <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest mt-1 truncate">
-                                {playlist.song_count || 0} Tracks • Playlist
-                            </p>
+                            
                         </div>
                     ))}
                     
                 </div>
             )}
+            <PlaylistModal 
+                isOpen={isModalOpen} 
+                onClose={() => setIsModalOpen(false)} 
+                initialView='create' 
+            />
         </div>
     );
 };

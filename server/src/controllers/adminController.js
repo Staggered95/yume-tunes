@@ -198,7 +198,7 @@ const updateSong = async (req, res) => {
             SET title = $1, artist_id = $2, anime_id = $3, file_path = $4, cover_path = $5, song_type = $6, duration_seconds=$7
             WHERE id = $8
         `;
-        await query(updateQuery, [title, artistId, animeId, audioPath, coverPath, song_type, duration_seconds, songId]);
+        await query(updateQuery, [title, artistId, animeId, audioPath, coverPath, song_type, duration_seconds || null, songId]);
 
         await query(`DELETE FROM song_genres WHERE song_id = $1`, [songId]);
         if (genre && genre.trim() !== "") {

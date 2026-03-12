@@ -4,7 +4,7 @@ import { usePlayback } from "../context/PlaybackContext";
 const LiveLyrics = ({ lyrics, language }) => {
     const [time, setTime] = useState(0);
     const lyricRefs = useRef([]);
-    const rAFRef = useRef(null); // Ref to hold our animation frame
+    const rAFRef = useRef(null);
     const { audioRef } = usePlayback();
 
     // === 1. THE 60FPS TIME TRACKER ===
@@ -12,21 +12,14 @@ const LiveLyrics = ({ lyrics, language }) => {
         const audio = audioRef.current;
         if (!audio) return;
 
-        // This loop runs 60 times a second for buttery smooth liquid fills!
         const updateLoop = () => {
             setTime(audio.currentTime);
             rAFRef.current = requestAnimationFrame(updateLoop);
         };
 
-        const handlePlay = () => {
-            rAFRef.current = requestAnimationFrame(updateLoop);
-        };
+        const handlePlay = () => rAFRef.current = requestAnimationFrame(updateLoop);
+        const handlePause = () => cancelAnimationFrame(rAFRef.current);
 
-        const handlePause = () => {
-            cancelAnimationFrame(rAFRef.current);
-        };
-
-        // If it's already playing when we mount, start the loop
         if (!audio.paused) handlePlay();
 
         audio.addEventListener('play', handlePlay);
@@ -46,18 +39,16 @@ const LiveLyrics = ({ lyrics, language }) => {
 
     useEffect(() => {
         if (activeIndex !== -1 && lyricRefs.current[activeIndex]) {
-            // Added block: 'center' to keep it perfectly in the middle of the screen
             lyricRefs.current[activeIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
     }, [activeIndex]);
 
     const handleSeek = (targetTime) => {
         if (audioRef.current) audioRef.current.currentTime = targetTime;
-        setTime(targetTime); // Instant visual feedback
+        setTime(targetTime); 
     };
 
     return (
-        // Added a CSS mask to create a beautiful fade-out effect at the top and bottom edges!
         <div 
             className="relative w-full h-full overflow-y-auto scrollbar-none px-4 md:px-10 py-[40vh]"
             style={{ 
@@ -73,18 +64,12 @@ const LiveLyrics = ({ lyrics, language }) => {
                 let fillPercent = 0;
                 
                 if (isPast) {
-                    fillPercent = 100; // Fully colored if it's already sung
+                    fillPercent = 100;
                 } else if (isActive) {
                     const startTime = line.time;
-                    // Find the duration of this line. 
-                    // (If it's the last line, we default to 5 seconds so it still fills)
                     const nextTime = lyrics[i + 1]?.time || startTime + 5;
-                    
-                    // Cap the fill duration at 4 seconds so it doesn't fill too slowly during long instrumental breaks
                     const duration = Math.min(nextTime - startTime, 4); 
-                    
                     const progress = (time - startTime) / duration;
-                    // Clamp between 0 and 100
                     fillPercent = Math.min(Math.max(progress * 100, 0), 100); 
                 }
 
@@ -93,26 +78,38 @@ const LiveLyrics = ({ lyrics, language }) => {
                         key={i}
                         ref={el => lyricRefs.current[i] = el}
                         onClick={() => handleSeek(line.time)}
-                        className={`text-2xl md:text-5xl font-black py-4 transition-all duration-500 cursor-pointer origin-left ${
+                        className={`text-2xl md:text-5xl font-black py-4  transition-all duration-500 cursor-pointer origin-left ${
                             isActive 
                                 ? 'scale-105 blur-0' 
                                 : isPast
-                                    ? 'opacity-50 blur-[0.5px] hover:opacity-100 hover:blur-none'
-                                    : 'opacity-20 blur-[1.5px] hover:opacity-50 hover:blur-none'
+                                    ? 'blur-[0.5px] hover:blur-none'
+                                    : 'blur-[1.5px] hover:blur-none'
                         }`}
                     >
-                        {/* THE MAGIC GRADIENT SPAN */}
-                        <span 
-                            className="inline-block bg-clip-text text-transparent"
-                            style={{
-                                backgroundImage: `linear-gradient(to right, #ffffff ${fillPercent}%, rgba(255, 255, 255, 0.2) ${fillPercent}%)`,
-                                WebkitBackgroundClip: 'text',
-                                WebkitTextFillColor: 'transparent',
-                                // Fallback base color just in case
-                                backgroundColor: 'rgba(255, 255, 255, 0.2)' 
-                            }}
-                        >
-                            {line.text}
+                        {/* === THE THEME-AWARE LAYERED TEXT === */}
+                        <span className="relative inline-block">
+                            
+                            {/* BOTTOM LAYER (Unfilled Future Text) */}
+                            <span className={`transition-colors duration-300 ${
+                                isPast ? 'text-text-secondary opacity-60' : 'text-text-muted opacity-30'
+                            }`}>
+                                {line.text}
+                            </span>
+
+                            {/* TOP LAYER (The Liquid Fill) */}
+                            <span 
+                                className={`absolute left-0 top-0 whitespace-pre-wrap ${
+                                    isActive ? 'text-accent-primary drop-shadow-[0_0_8px_rgba(var(--accent-primary-rgb),0.5)]' : 'text-text-primary'
+                                }`}
+                                style={{ 
+                                    // This dynamically clips the top layer from the right side!
+                                    clipPath: `inset(0 ${100 - fillPercent}% 0 0)`,
+                                    WebkitClipPath: `inset(0 ${100 - fillPercent}% 0 0)`
+                                }}
+                            >
+                                {line.text}
+                            </span>
+                            
                         </span>
                     </p>
                 );

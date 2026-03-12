@@ -1,5 +1,5 @@
 import React from 'react';
-import MediaControllers from '../minicomps/MediaControllerIcons'; // Make sure this path is right!
+import MediaControllers from '../minicomps/MediaControllerIcons'; 
 import VolumeIcon from '../minicomps/VolumeIcons';
 import ProgressBar from '../minicomps/ProgressBar';
 import ShuffleButton from '../minicomps/ShuffleButton';
@@ -14,7 +14,7 @@ import { useScrollDirection } from '../hooks/useScrollDirection';
 
 export default function BottomPlayer({ onExpand }) {
     const { currentSong } = useSongs();
-    const { volume, handleVolumeChange } = usePlayback();
+    const { volume, isPlaying, isBuffering, handleVolumeChange, togglePlay } = usePlayback();
     const scrollDirection = useScrollDirection();
     
     const volumePercent = volume * 100;
@@ -24,11 +24,11 @@ export default function BottomPlayer({ onExpand }) {
 
     return (
         <div 
+            // ADDED: isBuffering conditionally dims the entire player to 75% opacity
             className={`fixed left-0 right-0 bg-background-secondary/90 backdrop-blur-xl md:border-t border-border z-50 transition-all duration-300 safe-area-pb md:bottom-0 ${
                 scrollDirection === 'down' ? 'bottom-0' : 'bottom-14 md:bottom-0'
-            }`}
+            } ${isBuffering ? 'opacity-75 grayscale-[10%]' : 'opacity-100'}`}
         >            
-            {/* CHANGED: -translate-y-full perfectly rests the bar ON TOP of the player */}
             <div className="absolute top-0 left-0 w-full -translate-y-full z-10">
                 <ProgressBar variant="bottom" />
             </div>
@@ -43,6 +43,16 @@ export default function BottomPlayer({ onExpand }) {
                             alt={currentSong.title} 
                             className="w-full h-full object-cover transition-transform duration-500 group-hover/cover:scale-110"
                         />
+                        
+                        {/* ADDED: The Loading Spinner Overlay */}
+                        {isBuffering && (
+                            <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px] flex items-center justify-center z-10 animate-in fade-in duration-200">
+                                <svg className="animate-spin h-4 w-4 md:h-6 md:w-6 text-accent-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            </div>
+                        )}
                     </div>
 
                     <div className="flex flex-col min-w-0 w-full justify-center">
@@ -58,8 +68,6 @@ export default function BottomPlayer({ onExpand }) {
 
                 {/* 2. CENTER SECTION (Playback Controls + Mobile Like Button) */}
                 <div className="flex items-center justify-end md:justify-center shrink-0 md:w-1/3 gap-1 md:gap-6">
-                    
-                    {/* NEW: Like button that ONLY shows on mobile, right next to Play/Pause! */}
                     <div className="md:hidden flex items-center pr-7">
                         <LikeButton songId={currentSong.id} initialIsLiked={false} />
                     </div>
@@ -73,7 +81,6 @@ export default function BottomPlayer({ onExpand }) {
                 {/* 3. RIGHT SECTION (Desktop Only: Like, Add, Volume) */}
                 <div className="hidden md:flex items-center justify-end gap-4 w-1/3 min-w-0">
                     <div className="flex items-center gap-1 text-text-muted">
-                        {/* Desktop Like Button stays here */}
                         <LikeButton songId={currentSong.id} initialIsLiked={false} />
                         <AddToPlaylistButton songId={currentSong.id} variant="bottom" />
                     </div>

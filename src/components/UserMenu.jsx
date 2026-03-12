@@ -103,7 +103,7 @@ const UserMenu = ({ user, onLogoutClick }) => {
                         </button>
 
                         <button 
-                            onClick={() => { navigate('/settings'); setIsOpen(false); }}
+                            onClick={() => { navigate('/user', { state: { activeTab: "settings" }} ); setIsOpen(false); }}
                             className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-text-primary hover:bg-background-hover rounded-xl transition-all duration-300 group"
                         >
                             <svg className="w-4 h-4 text-text-secondary group-hover:text-accent-tertiary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">

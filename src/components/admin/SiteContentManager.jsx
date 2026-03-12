@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import api from '../../api/axios';
 import { useToast } from '../../context/ToastContext';
 import { getMediaUrl } from '../../utils/media';
+import ConfirmDialog from '../../minicomps/ConfirmDialog';
 
 const SiteContentManager = () => {
     const { addToast } = useToast();
@@ -9,6 +10,13 @@ const SiteContentManager = () => {
     const [activeView, setActiveView] = useState('quotes'); 
     const [isLoading, setIsLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [deleteModal, setDeleteModal] = useState({
+                            isOpen: false,
+                            type: null,    // e.g., 'quote', 'banner', 'user'
+                            id: null,      // The ID of the item
+                            title: '',     // Dynamic title
+                            message: ''    // Dynamic message
+    });
 
     // --- DATA STATES ---
     const [quotes, setQuotes] = useState([]);
@@ -25,6 +33,7 @@ const SiteContentManager = () => {
     const [bannerFile, setBannerFile] = useState(null);
     const [bannerPreview, setBannerPreview] = useState(null);
     const bannerInputRef = useRef(null);
+
 
     // --- FETCHERS ---
     useEffect(() => {
@@ -95,14 +104,6 @@ const SiteContentManager = () => {
         } catch (err) { addToast("Failed to toggle quote", "error"); }
     };
 
-    const deleteQuote = async (id) => {
-        if (!window.confirm("Delete this quote forever?")) return;
-        try {
-            await api.delete(`/admin/quotes/${id}`);
-            setQuotes(quotes.filter(q => q.id !== id));
-            addToast("Quote deleted", "success");
-        } catch (err) { addToast("Failed to delete quote", "error"); }
-    };
 
     // --- BANNER HANDLERS ---
     const handleBannerFileChange = (e) => {
@@ -152,13 +153,36 @@ const SiteContentManager = () => {
         } catch (err) { addToast("Failed to toggle banner", "error"); }
     };
 
-    const deleteBanner = async (id) => {
-        if (!window.confirm("Delete this banner? The image file will also be removed.")) return;
+    const requestDelete = (type, id, title, message) => {
+        setDeleteModal({ isOpen: true, type, id, title, message });
+    };
+
+    // 2. The Execution (The Modal calls this)
+    const executeDelete = async () => {
+        const { type, id } = deleteModal;
+        if (!id || !type) return;
+        
         try {
-            await api.delete(`/admin/banners/${id}`);
-            setBanners(banners.filter(b => b.id !== id));
-            addToast("Banner deleted", "success");
-        } catch (err) { addToast("Failed to delete banner", "error"); }
+            if (type === 'quote') {
+                await api.delete(`/admin/quotes/${id}`);
+                setQuotes(quotes.filter(q => q.id !== id));
+                addToast("Quote deleted", "success");
+            
+            } else if (type === 'banner') {
+                await api.delete(`/admin/banners/${id}`);
+                setBanners(banners.filter(b => b.id !== id));
+                addToast("Banner deleted", "success");
+            }
+            // ... you can add 'song', 'user', etc. here later!
+        
+        } catch (err) { 
+            const errorMessage = err.response?.data?.error || `Failed to delete ${type}`;
+            //addToast(`Failed to delete ${type}`, "error"); 
+            addToast(errorMessage, "error");
+        } finally {
+            // Reset the state to close the modal and clear data
+            setDeleteModal({ isOpen: false, type: null, id: null, title: '', message: '' });
+        }   
     };
 
     return (
@@ -228,7 +252,7 @@ const SiteContentManager = () => {
                                             </td>
                                             <td className="p-4 text-right">
                                                 <button onClick={() => openQuoteModal(q)} className="text-text-muted hover:text-accent-primary p-2 transition-colors">✎</button>
-                                                <button onClick={() => deleteQuote(q.id)} className="text-text-muted hover:text-error p-2 transition-colors">✕</button>
+                                                <button onClick={() => requestDelete('quote', q.id, "Delete Quote", "Delete this quote forever?")} className="text-text-muted hover:text-error p-2 transition-colors">✕</button>
                                             </td>
                                         </tr>
                                     ))}
@@ -272,7 +296,7 @@ const SiteContentManager = () => {
                                             <p className="text-xs text-text-secondary mb-1">{b.subtitle || 'No subtitle'}</p>
                                             <p className="text-xs text-text-muted truncate max-w-[200px]">{b.target_url || 'No link'}</p>
                                         </div>
-                                        <button onClick={() => deleteBanner(b.id)} className="text-text-muted hover:text-error p-2 transition-colors shrink-0">Delete</button>
+                                        <button onClick= {() => requestDelete('banner', banner.id, "Delete Banner", "Delete this banner? The image file will also be permanently removed from the cloud.")} className="text-text-muted hover:text-error p-2 transition-colors shrink-0">Delete</button>
                                     </div>
                                 </div>
                             ))}
@@ -343,6 +367,15 @@ const SiteContentManager = () => {
                     </form>
                 </div>
             )}
+            <ConfirmDialog 
+                isOpen={deleteModal.isOpen}
+                onClose={() => setDeleteModal({ ...deleteModal, isOpen: false })}
+                onConfirm={executeDelete}
+                title={deleteModal.title}
+                message={deleteModal.message}
+                confirmText="Delete"
+                isDestructive={true} 
+            />
         </div>
     );
 };

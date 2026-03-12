@@ -152,7 +152,7 @@ const UserPage = () => {
 
                 <button 
                     onClick={() => bannerInputRef.current?.click()}
-                    className="absolute right-8 top-8 px-6 py-2.5 bg-background-primary/60 hover:bg-background-primary rounded-xl opacity-0 group-hover:opacity-100 transition-all backdrop-blur-xl border border-border flex items-center gap-3 active:scale-95"
+                    className="absolute right-8 top-8 px-6 py-2.5 bg-background-primary/60 hover:bg-background-primary rounded-xl opacity-40 md:opacity-0 group-hover:opacity-100 transition-all backdrop-blur-xl border border-border flex items-center gap-3 active:scale-95"
                 >
                     <svg className="w-4 h-4 text-accent-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /></svg>
                     <span className="text-[10px] font-black uppercase tracking-[0.2em]">Change Banner</span>

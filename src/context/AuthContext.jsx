@@ -103,23 +103,7 @@ export const AuthProvider = ({children}) => {
         //setLikedSongIds(new Set());
     }
 
-    const authFetch = async (url, options = {}) => {
-        const response = await fetch(`http://localhost:5000${url}`, {
-            ...options,
-            headers: {
-                ...options.headers,
-                'Authorization': `Bearer ${token}`
-            }
-        });
-
-        // THE INTERCEPTOR: If the backend says the token is expired/invalid...
-        if (response.status === 401 || response.status === 403) {
-            console.warn("Token expired or invalid. Auto-logging out.");
-            logout(); // Shred the token!
-        }
-
-        return response; // Pass the response back to whoever called it (like UserContext)
-    }
+    
 
     const isLoggedIn = !!user;
 
@@ -133,7 +117,7 @@ export const AuthProvider = ({children}) => {
     }
 
     // FIX 2: Added 'token' to the exported values
-    const values = { isLoggedIn, user, token, likedSongIds, isCheckingAuth, isAuthModalOpen, authModalView, login, logout, authFetch, updateLikedSongsState, openAuthModal, closeAuthModal }; 
+    const values = { isLoggedIn, user, token, likedSongIds, isCheckingAuth, isAuthModalOpen, authModalView, login, logout, updateLikedSongsState, openAuthModal, closeAuthModal }; 
 
     return (
         <AuthContext.Provider value={values}>

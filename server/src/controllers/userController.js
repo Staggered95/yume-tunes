@@ -1,4 +1,5 @@
 import { query } from '../config/db.js';
+import { deleteMedia } from '../utils/mediaManager.js';
 
 
 const toggleLikeSong = async (req, res) => {
@@ -33,13 +34,13 @@ const getLikedSongs = async (req, res) => {
             s.id, s.title, s.song_type, s.duration_seconds, s.file_path, s.cover_path,
             a.title AS anime,
             ar.name AS artist,
-            ls.added_at
+            ls.liked_at
         FROM liked_songs ls
         JOIN songs s ON ls.song_id = s.id
         JOIN animes a ON s.anime_id = a.id
         JOIN artists ar ON s.artist_id = ar.id
         WHERE ls.user_id = $1
-        ORDER BY ls.added_at DESC
+        ORDER BY ls.liked_at DESC
         LIMIT $2 OFFSET $3;
     `;
 
@@ -185,13 +186,23 @@ const uploadAvatar = async (req, res) => {
             return res.status(400).json({ success: false, message: 'No file provided' });
         }
 
-        const userId = req.user.id; // From your auth middleware
-        // Path relative to your frontend's 'public' folder or static serving route
-        const imagePath = `/images/users/${req.file.filename}`;
+        const userId = req.user.id; 
+        
+        // 2. THE FIX: Grab the fully complete Cloudinary URL directly!
+        const imagePath = req.file.path;
 
-        // Example PostgreSQL/MySQL DB query
+        // 3. Fetch the old avatar before we overwrite it in the database
+        const oldUserRes = await query(`SELECT user_image FROM users WHERE id = $1`, [userId]);
+        const oldAvatar = oldUserRes.rows[0]?.user_image;
+
+        // 4. Update the database with the new Cloudinary URL
         const updateQuery = `UPDATE users SET user_image = $1 WHERE id = $2 RETURNING user_image`;
-        const result = await query(updateQuery, [imagePath, userId]);
+        await query(updateQuery, [imagePath, userId]);
+
+        // 5. Smart Deletion: Wipe the old avatar from Cloud/Disk so storage stays clean!
+        if (oldAvatar && oldAvatar !== imagePath) {
+            await deleteMedia(oldAvatar);
+        }
 
         return res.json({ 
             success: true, 
@@ -210,10 +221,22 @@ const uploadBanner = async (req, res) => {
         }
 
         const userId = req.user.id;
-        const bannerPath = `/images/users/${req.file.filename}`;
+        
+        // THE FIX: Grab the fully complete Cloudinary URL
+        const bannerPath = req.file.path;
 
+        // Fetch the old banner
+        const oldUserRes = await query(`SELECT banner_image FROM users WHERE id = $1`, [userId]);
+        const oldBanner = oldUserRes.rows[0]?.banner_image;
+
+        // Update the database
         const updateQuery = `UPDATE users SET banner_image = $1 WHERE id = $2 RETURNING banner_image`;
-        const result = await query(updateQuery, [bannerPath, userId]);
+        await query(updateQuery, [bannerPath, userId]);
+
+        // Smart Deletion
+        if (oldBanner && oldBanner !== bannerPath) {
+            await deleteMedia(oldBanner);
+        }
 
         return res.json({ 
             success: true, 
