@@ -14,7 +14,7 @@
 
 <br>
 
-![YumeTunes Hero Banner](https://via.placeholder.com/1200x400/181828/9D5CFA?text=YumeTunes+-+Anime+Music+Sanctuary)
+<img src="assets/carousal.png" alt="YumeTunes Hero Carousel" width="100%" style="border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);"/>
 
 </div>
 
@@ -24,31 +24,55 @@
 
 YumeTunes is a highly modular, responsive, full-stack PERN application designed with performance, UX, and robust DevOps practices in mind.
 
+### 🤖 Telemetry & Smart Discovery
+YumeTunes doesn't just play music; it learns what you love.
+* **Intelligent Recommendations:** A Node.js backend engine analyzes user telemetry (listening history, skip rates, and playback duration) to serve highly customized daily recommendations.
+* **Continue Listening:** Instantly pick up where you left off with a dynamically generated feed based on your most recent active sessions.
+
+<div align="center">
+  <img src="assets/continue-recommended.png" alt="Smart Recommendations and Continue Listening Feed" width="100%" style="border-radius: 8px; margin-top: 10px;"/>
+</div>
+
 ### 🎧 The Playback Engine
-* **Modular Audio System:** Three distinct player views powered by a global Playback Context:
-  * **Utility Player:** Always accessible background playback.
-  * **Bottom Player:** Visual indicator of the current track.
-  * **Fullscreen Player:** A focused theater mode featuring **Pretty Timed Lyrics** synced to the audio.
-* **Smart Queue & Shuffle:** Custom implementation of the **Fisher-Yates algorithm** for true, unbiased shuffling.
-* **Optimized Rendering:** Built using React Hooks and Contexts (Audio, Song, Theme, Auth, User, Loading, Toast) to prevent unnecessary re-renders.
+* **Modular Audio System:** Three distinct player views powered by a global React Playback Context (Utility Player, Bottom Player, and Fullscreen Theater Mode).
+* **True Shuffle:** Custom implementation of the **Fisher-Yates algorithm** for completely unbiased, mathematical queue shuffling.
+* **Optimized Rendering:** Built using heavily memoized React Hooks and Contexts to prevent audio stuttering and unnecessary DOM re-renders during playback.
 
-### 👤 Personalization & Telemetry
-* **Intelligent Recommendations:** A Node.js `node-cron` job runs in the background, analyzing user telemetry (songs played, listen time, skip rate) to serve customized recommendations.
-* **User Customization:** Users can upload custom Profile Pictures (PFP) and Banners using an integrated **Smart Image Cropper**, managed via Cloudinary upload middlewares.
-* **Interactive Library:** Manage Liked Songs, custom Playlists, and view full Listening History.
-* **Dynamic Theming:** Seamless switching between Light/Dark modes and multiple premium color palettes via global ThemeContext.
+### 🎨 Dynamic UI & Personalization
+* **Multi-Theme Engine:** 10+ dynamically injected themes featuring 5 premium color palettes, each with meticulously mapped Light and Dark mode variants, managed via a global `ThemeContext` and CSS variables.
+* **Interactive Library:** Curate Liked Songs, manage custom Playlists, and view your complete chronological Listening History.
+* **Smart Image Cropping:** Users can upload custom Profile Pictures and Banners using an integrated React Cropper, directly piped into **Cloudinary** for on-the-fly edge CDN compression.
 
-### 🛡️ Roles & Admin Dashboard
-* **Role-Based Access Control (RBAC):**
-  * `User`: Read access and personal library management.
-  * `Moderator`: Read and update access for community curation.
-  * `Admin`: Full CRUD access and deletion rights.
-* **Admin Control Panel:** A dedicated portal with full data visualizations to manage users, site content, and the music catalog.
+<div align="center">
+  <img src="assets/user-page.png" alt="Custom User Profile Page" width="49%" style="border-radius: 8px;"/>
+  <img src="assets/library.png" alt="User Library and Playlists" width="49%" style="border-radius: 8px;"/>
+</div>
 
-### ⚡ UI/UX Engineering
-* **Smart UI Components:** Custom-built "Smart Box Auto Positioner" for dynamic dropdowns, and a modular `BaseModal` handling diverse components (PlaylistModal, UserMenu, Auth, etc.).
-* **Performance:** Implemented frontend **Pagination** and search **Debouncing** to drastically reduce API load.
-* **Responsive Design:** Flawlessly scales across `sm`, `md`, and `lg` devices using modern CSS.
+### 🛡️ Enterprise-Grade Security & Auth
+* **Dual-Token Architecture:** Highly secure JWT authentication utilizing short-lived Access Tokens alongside long-lived, HttpOnly Refresh Tokens.
+* **Silent Token Rotation:** Global Axios Interceptors automatically catch 401 Unauthorized errors, request a new access token in the background, and retry the failed request without interrupting the user's session.
+* **Role-Based Access Control (RBAC):** Strict middleware protecting administrative routes, with granular read/write/delete permissions separated across `User`, `Moderator`, and `Admin` tiers.
+
+### ⚙️ Content Management System (CMS)
+* **Catalog Management:** Dedicated interfaces to manage the complex relational database of Artists, Animes, and Songs.
+* **Timed Lyrics Editor:** A specialized admin tool to perfectly sync `.lrc` formatted lyrics to audio timestamps.
+
+<div align="center">
+  <img src="assets/admin-page.png" alt="Admin Dashboard Overview" width="49%" style="border-radius: 8px;"/>
+  <img src="assets/admin-add-times-lyrics.png" alt="Timed Lyrics Editor" width="49%" style="border-radius: 8px;"/>
+</div>
+<br>
+<div align="center">
+  <img src="assets/animes.png" alt="Anime Database Management" width="49%" style="border-radius: 8px;"/>
+  <img src="assets/artists.png" alt="Artist Database Management" width="49%" style="border-radius: 8px;"/>
+</div>
+
+### 📊 Admin Analytics
+A comprehensive data visualization suite giving server administrators a bird's-eye view of platform health, user registration velocity, and global listening telemetry.
+
+<div align="center">
+  <img src="assets/analytics.png" alt="Analytics and Telemetry Dashboard" width="100%" style="border-radius: 8px;"/>
+</div>
 
 ---
 
@@ -60,38 +84,20 @@ YumeTunes is a highly modular, responsive, full-stack PERN application designed 
 | **Backend** | Node.js, Express.js, RESTful APIs |
 | **Database** | PostgreSQL |
 | **Network/API** | Axios (Global Interceptors for Auth/Token Refresh) |
-| **Media Hosting** | Cloudinary |
+| **Media Hosting** | Cloudinary CDN (On-the-fly WebP optimization) |
 | **DevOps & Cloud** | Docker (Alpine), AWS EC2, Nginx, DuckDNS, GitHub Actions |
-| **Security** | Let's Encrypt (Certbot HTTPS), CORS, JWT |
+| **Security** | Let's Encrypt (Certbot HTTPS), CORS, JWT Dual-Token |
 
 ---
 
 ## 🚀 DevOps & CI/CD Pipeline
 
-The infrastructure of YumeTunes is built for production, heavily utilizing Docker and automated workflows.
-
-![Architecture Diagram](https://via.placeholder.com/1000x300/22223a/58E1FA?text=GitHub+Actions+%E2%86%92+AWS+EC2+%E2%86%92+Docker+%E2%86%92+Nginx)
+The infrastructure of YumeTunes is built for production, heavily utilizing Docker and automated workflows to ensure zero-downtime deployments on an AWS Free Tier instance.
 
 1. **Dockerized Environment:** The entire application runs on ultra-lightweight **Alpine Linux Docker images**, orchestrated via `docker-compose.yml`.
-2. **Nginx Reverse Proxy:** Nginx acts as the gatekeeper, automatically routing API requests to the Node backend while efficiently serving static audio files directly from the mounted volume.
-3. **Automated CI/CD:** Powered by **GitHub Actions**. Every push to the `main` branch triggers an automated sequence that connects to the AWS EC2 instance via SSH keys, pulls the latest code, and rebuilds the Docker containers with zero downtime using `rsync` and `scp`.
-4. **SSL & Networking:** Bound to `yumetunes.duckdns.org` (Dynamic DNS) with automated HTTPS certificate generation and renewal via **Certbot**.
-
----
-
-## 📸 Screenshots
-
-*(Replace these placeholder links with screenshots of your actual app!)*
-
-<div align="center">
-  <img src="https://via.placeholder.com/800x450/181828/F2F2F5?text=Homepage+&+Discover+Feed" width="49%" alt="Home Page">
-  <img src="https://via.placeholder.com/800x450/181828/F2F2F5?text=Fullscreen+Player+with+Timed+Lyrics" width="49%" alt="Fullscreen Player">
-</div>
-<br>
-<div align="center">
-  <img src="https://via.placeholder.com/800x450/181828/F2F2F5?text=Custom+Profile+&+Smart+Cropper" width="49%" alt="User Profile">
-  <img src="https://via.placeholder.com/800x450/181828/F2F2F5?text=Admin+Data+Visualization+Dashboard" width="49%" alt="Admin Dashboard">
-</div>
+2. **Nginx Reverse Proxy:** Nginx acts as the gatekeeper, automatically routing API requests to the Node backend while efficiently caching and serving assets.
+3. **Automated CI/CD:** Powered by **GitHub Actions**. Every push to the `main` branch triggers an automated sequence that connects to the AWS EC2 instance via SSH keys, pulls the latest code, and rebuilds the Docker containers.
+4. **Memory Management:** Configured with Linux Swap Files to ensure stable builds on low-memory cloud instances without locking up the server.
 
 ---
 

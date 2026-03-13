@@ -157,7 +157,7 @@ const SongEditor = ({ initialData, onCancel, onSaveSuccess }) => {
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="bg-background-secondary border border-border rounded-2xl p-6 md:p-8 flex flex-col md:flex-row gap-8 md:gap-10 shadow-xl transition-all duration-300">
+                <form onSubmit={handleSubmit} className="bg-background-secondary border border-border rounded-2xl p-6 md:p-8 flex flex-col md:flex-row gap-8 z-20 md:gap-10 shadow-xl transition-all duration-300">
                     
                     {/* LEFT: Cover Image Upload */}
                     <div className="w-full md:w-64 shrink-0 flex flex-col items-center">
