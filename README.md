@@ -1,6 +1,9 @@
 <div align="center">
 
+<img src="assets/logo.png" alt="YumeTunes Logo" width="120" style="margin-bottom: 10px;" />
+
 # 🎵 YumeTunes
+
 **Your Personal Anime Music Sanctuary**
 
 [![Website](https://img.shields.io/website?url=https%3A%2F%2Fyumetunes.duckdns.org&up_message=online&up_color=success&down_message=offline&down_color=red&label=YumeTunes)](https://yumetunes.duckdns.org)
