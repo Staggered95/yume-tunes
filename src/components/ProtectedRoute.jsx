@@ -22,7 +22,7 @@ export const ProtectedRoute = ({ children }) => {
 
     // If they aren't logged in, kick them to the home page
     if (!isLoggedIn) {
-        return <Navigate to="/" replace />;
+        return <Navigate to="/home" replace />;
     }
 
     // If they are allowed, render the component!

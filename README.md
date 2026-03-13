@@ -2,7 +2,7 @@
 
 <img src="assets/logo.png" alt="YumeTunes Logo" width="120" style="margin-bottom: 10px;" />
 
-# 🎵 YumeTunes
+# YumeTunes
 
 **Your Personal Anime Music Sanctuary**
 
