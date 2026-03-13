@@ -45,7 +45,7 @@ export default function Navbar() {
                 ) : (
                     <>
                         <div 
-                            onClick={() => navigate('/')} 
+                            onClick={() => navigate('/home')} 
                             className='flex items-center gap-3 cursor-pointer group shrink-0'
                         >
                             <div className="transition-transform duration-300 group-hover:scale-110">

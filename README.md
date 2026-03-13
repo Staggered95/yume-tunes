@@ -38,7 +38,13 @@ YumeTunes doesn't just play music; it learns what you love.
 * **True Shuffle:** Custom implementation of the **Fisher-Yates algorithm** for completely unbiased, mathematical queue shuffling.
 * **Optimized Rendering:** Built using heavily memoized React Hooks and Contexts to prevent audio stuttering and unnecessary DOM re-renders during playback.
 
+<div align="center">
+  <img src="assets/-with-lyrics.png" alt="Desktop Player with Lyrics" width="65%" style="border-radius: 8px;"/>
+  <img src="assets/lyrics-in-player-sm.jpg" alt="Mobile Player with Lyrics" width="30%" style="border-radius: 8px; margin-left: 2%;"/>
+</div>
+
 ### 🎨 Dynamic UI & Personalization
+* **Mobile-First Responsive Design:** Flawlessly scales across desktop, tablet, and mobile devices with dedicated bottom navigation and responsive modals.
 * **Multi-Theme Engine:** 10+ dynamically injected themes featuring 5 premium color palettes, each with meticulously mapped Light and Dark mode variants, managed via a global `ThemeContext` and CSS variables.
 * **Interactive Library:** Curate Liked Songs, manage custom Playlists, and view your complete chronological Listening History.
 * **Smart Image Cropping:** Users can upload custom Profile Pictures and Banners using an integrated React Cropper, directly piped into **Cloudinary** for on-the-fly edge CDN compression.
@@ -47,6 +53,12 @@ YumeTunes doesn't just play music; it learns what you love.
   <img src="assets/user-page.png" alt="Custom User Profile Page" width="49%" style="border-radius: 8px;"/>
   <img src="assets/library.png" alt="User Library and Playlists" width="49%" style="border-radius: 8px;"/>
 </div>
+<br>
+<div align="center">
+  <img src="assets/usermenu-sm.jpg" alt="Mobile User Menu" width="31%" style="border-radius: 8px;"/>
+  <img src="assets/userprofile-sm.jpg" alt="Mobile Profile" width="31%" style="border-radius: 8px; margin: 0 2%;"/>
+  <img src="assets/settings-sm.jpg" alt="Mobile Settings" width="31%" style="border-radius: 8px;"/>
+</div>
 
 ### 🛡️ Enterprise-Grade Security & Auth
 * **Dual-Token Architecture:** Highly secure JWT authentication utilizing short-lived Access Tokens alongside long-lived, HttpOnly Refresh Tokens.
@@ -54,17 +66,17 @@ YumeTunes doesn't just play music; it learns what you love.
 * **Role-Based Access Control (RBAC):** Strict middleware protecting administrative routes, with granular read/write/delete permissions separated across `User`, `Moderator`, and `Admin` tiers.
 
 ### ⚙️ Content Management System (CMS)
-* **Catalog Management:** Dedicated interfaces to manage the complex relational database of Artists, Animes, and Songs.
+* **Catalog Management:** Dedicated interfaces to manage the complex relational database of Artists, Animes, and Songs. Fully functional on both desktop and mobile.
 * **Timed Lyrics Editor:** A specialized admin tool to perfectly sync `.lrc` formatted lyrics to audio timestamps.
 
 <div align="center">
-  <img src="assets/admin-page.png" alt="Admin Dashboard Overview" width="49%" style="border-radius: 8px;"/>
-  <img src="assets/admin-add-times-lyrics.png" alt="Timed Lyrics Editor" width="49%" style="border-radius: 8px;"/>
+  <img src="assets/admin-page.png" alt="Admin Dashboard Desktop" width="65%" style="border-radius: 8px;"/>
+  <img src="assets/admin-sm.jpg" alt="Admin Dashboard Mobile" width="30%" style="border-radius: 8px; margin-left: 2%;"/>
 </div>
 <br>
 <div align="center">
-  <img src="assets/animes.png" alt="Anime Database Management" width="49%" style="border-radius: 8px;"/>
-  <img src="assets/artists.png" alt="Artist Database Management" width="49%" style="border-radius: 8px;"/>
+  <img src="assets/admin-add-times-lyrics.png" alt="Timed Lyrics Editor" width="49%" style="border-radius: 8px;"/>
+  <img src="assets/add-song.png" alt="Add Song Interface" width="49%" style="border-radius: 8px;"/>
 </div>
 
 ### 📊 Admin Analytics

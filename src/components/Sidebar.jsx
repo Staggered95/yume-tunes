@@ -98,7 +98,7 @@ const Sidebar = () => {
 
       {/* Navigation */}
       <nav className="mt-4 space-y-2">
-        <SidebarItem icon={HomeIcon} label="Home" isOpen={isOpen} active={location.pathname === '/'} onClick={() => navigate('/')} />
+        <SidebarItem icon={HomeIcon} label="Home" isOpen={isOpen} active={location.pathname === '/home'} onClick={() => navigate('/home')} />
         <SidebarItem icon={LibraryIcon} label="Library" isOpen={isOpen} active={location.pathname === '/library'} onClick={() => navigate('/library')} />
         <SidebarItem icon={AnimeIcon} label="Animes" isOpen={isOpen} active={location.pathname === '/animes'} onClick={() => navigate('/animes')}/>
         <SidebarItem icon={ArtistIcon} label="Artists" isOpen={isOpen} active={location.pathname === '/artists'} onClick={() => navigate('/artists')} />
