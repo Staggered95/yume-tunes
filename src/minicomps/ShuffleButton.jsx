@@ -53,6 +53,9 @@ const ShuffleButton = ({ variant = 'bottomplayer', className = '', onClick }) =>
     // ==========================================
     // VARIANT 2: FULLSCREEN (Minimal / Utility View)
     // ==========================================
+    // ==========================================
+    // VARIANT 2: FULLSCREEN (Minimal / Utility View)
+    // ==========================================
     if (variant === 'fullscreen') {
         return (
             <button 
@@ -62,10 +65,11 @@ const ShuffleButton = ({ variant = 'bottomplayer', className = '', onClick }) =>
                 className={`p-2 transition-all duration-300 hover:scale-110 active:scale-95 ${
                     isShuffle 
                         ? 'text-accent-primary drop-shadow-[0_0_12px_rgba(157,92,250,0.6)]' 
-                        : 'text-text-muted hover:text-text-primary'
+                        : 'text-text-secondary hover:text-text-primary'
                 } ${className}`}
             >
-                <ShuffleIcon className="w-5 h-5 md:w-6 md:h-6" />
+                {/* LARGER SIZES FOR MOBILE PLAYER */}
+                <ShuffleIcon className="w-7 h-7 sm:w-8 sm:h-8 md:w-8 md:h-8" />
             </button>
         );
     }
