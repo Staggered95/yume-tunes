@@ -2,7 +2,7 @@ import React, { useRef, useCallback } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useUser } from '../context/UserContext';
 import { useSongs } from '../context/SongContext';
-import AddToPlaylistButton from '../minicomps/AddToPlaylistButton';
+import ShuffleButton from '../minicomps/ShuffleButton';
 import SkeletonCard from '../components/loading/SkeletonCard'; // Our master skeleton!
 import { getMediaUrl } from '../utils/media';
 import { usePagination } from '../hooks/usePagination'; // The custom hook
@@ -11,7 +11,7 @@ import OptionsMenu from '../minicomps/OptionsMenu';
 const LikedSongsPage = () => {
     const { isLoggedIn } = useAuth();
     const { userProfile } = useUser();
-    const { playQueue } = useSongs();
+    const { playQueue, playShuffledQueue } = useSongs();
     
     // 1. Swap out manual state for the pagination hook
     const { 
@@ -91,6 +91,10 @@ const LikedSongsPage = () => {
                     >
                         <svg viewBox="0 0 24 24" className="w-8 h-8 ml-1 transition-transform group-hover:scale-110" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
                     </button>
+                    <ShuffleButton 
+                        variant="action" 
+                        onClick={() => { if (songs.length > 0) playShuffledQueue(songs);}}
+                    />
                 </div>
             </div>
 

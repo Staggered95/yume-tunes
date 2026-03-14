@@ -1,7 +1,6 @@
 import React from 'react';
 import { useSongs } from '../context/SongContext';
 
-// Extracted the SVG to keep the variants super clean and readable
 const ShuffleIcon = ({ className }) => (
     <svg 
         xmlns="http://www.w3.org/2000/svg" 
@@ -22,46 +21,43 @@ const ShuffleIcon = ({ className }) => (
 );
 
 const ShuffleButton = ({ variant = 'bottomplayer', className = '', onClick }) => {
-    const { isShuffle, toggleShuffle } = useSongs();
+    // We only need the context for the player variants
+    const { isShuffle, toggleShuffle, playQueue } = useSongs();
 
-    // Consolidated the click logic so you can easily add external onClick handlers later
-    // (e.g., if clicking the big action button should also trigger playQueue)
-    const handleClick = (e) => {
+    // ==========================================
+    // VARIANT 1: PLAYLIST ACTION (Big Hero Button)
+    // This is an ACTION, not a state toggle. It should never light up based on global state.
+    // ==========================================
+    if (variant === 'action') {
+        return (
+            <button 
+                type="button"
+                onClick={onClick} // Just fires the action passed from the page
+                className={`flex items-center justify-center gap-2 px-6 py-3 md:px-8 md:py-4 rounded-full font-bold tracking-widest uppercase transition-all duration-300 active:scale-95 shadow-lg bg-background-secondary text-text-primary border border-border hover:bg-background-hover hover:text-accent-primary hover:border-accent-primary/50 ${className}`}
+            >
+                <ShuffleIcon className="w-4 h-4 md:w-5 md:h-5" />
+                <span className="text-[10px] md:text-xs">Shuffle Play</span>
+            </button>
+        );
+    }
+
+    // ==========================================
+    // PLAYER TOGGLE LOGIC (For variants 2 & 3)
+    // ==========================================
+    const handleToggleClick = (e) => {
         e.stopPropagation();
         toggleShuffle();
         if (onClick) onClick(e); 
     };
 
     // ==========================================
-    // VARIANT 1: PLAYLIST ACTION (Big Hero Button)
-    // A highly visible pill button for the top of Anime/Playlist pages
-    // ==========================================
-    if (variant === 'action') {
-        return (
-            <button 
-                type="button"
-                onClick={handleClick}
-                className={`flex items-center justify-center gap-2 px-6 py-3 md:px-8 md:py-4 rounded-full font-bold tracking-widest uppercase transition-all duration-300 active:scale-95 shadow-lg ${
-                    isShuffle 
-                        ? 'bg-accent-primary text-white shadow-accent-primary/30 hover:bg-accent-hover' 
-                        : 'bg-background-secondary text-text-primary border border-border hover:bg-background-hover'
-                } ${className}`}
-            >
-                <ShuffleIcon className="w-4 h-4 md:w-5 md:h-5" />
-                <span className="text-[10px] md:text-xs">Shuffle</span>
-            </button>
-        );
-    }
-
-    // ==========================================
     // VARIANT 2: FULLSCREEN (Minimal / Utility View)
-    // Larger icon with a stronger glow, stripped of the tiny dot
     // ==========================================
     if (variant === 'fullscreen') {
         return (
             <button 
                 type="button"
-                onClick={handleClick}
+                onClick={handleToggleClick}
                 title={isShuffle ? "Order: Shuffled" : "Order: Sequential"}
                 className={`p-2 transition-all duration-300 hover:scale-110 active:scale-95 ${
                     isShuffle 
@@ -76,12 +72,11 @@ const ShuffleButton = ({ variant = 'bottomplayer', className = '', onClick }) =>
 
     // ==========================================
     // VARIANT 3: BOTTOM PLAYER (Default)
-    // Standard icon with hover scaling and the active indicator dot
     // ==========================================
     return (
         <button 
             type="button"
-            onClick={handleClick}
+            onClick={handleToggleClick}
             title={isShuffle ? "Order: Shuffled" : "Order: Sequential"}
             className={`relative group flex items-center justify-center p-2 transition-all duration-300 active:scale-90 ${
                 isShuffle 
@@ -91,7 +86,6 @@ const ShuffleButton = ({ variant = 'bottomplayer', className = '', onClick }) =>
         >
             <ShuffleIcon className="w-5 h-5 transition-transform duration-300 group-hover:scale-110" />
             
-            {/* The Active Indicator (Dot) */}
             <div className={`absolute bottom-0 w-1 h-1 bg-accent-primary rounded-full transition-all duration-500 shadow-[0_0_10px_var(--accent-primary)] ${
                 isShuffle ? 'opacity-100 scale-100' : 'opacity-0 scale-0'
             }`} />

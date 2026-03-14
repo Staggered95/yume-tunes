@@ -8,7 +8,7 @@ import ShuffleButton from '../minicomps/ShuffleButton';
 
 const PlaylistPage = () => {
     const { id } = useParams(); 
-    const { playQueue } = useSongs();
+    const { playQueue, playShuffledQueue } = useSongs();
     
     const [playlistMeta, setPlaylistMeta] = useState(null);
     const [songs, setSongs] = useState([]);
@@ -98,12 +98,11 @@ const PlaylistPage = () => {
                         </svg>
                     </button>
 
-                {/* The New Shuffle Action Button */}
-                <ShuffleButton 
-                    variant="action" 
-                    // Optional: If you want clicking the big shuffle button to ALSO start playing the first song instantly:
-                    // onClick={() => { if (songs.length > 0) playQueue(songs, 0); }}
-                />
+                    {/* The New Shuffle Action Button */}
+                    <ShuffleButton 
+                        variant="action" 
+                        onClick={() => { if (songs.length > 0) playShuffledQueue(songs);}}
+                    />
 
                 </div>
             </div>

@@ -93,6 +93,36 @@ export const SongProvider = ({children}) => {
         });
     }, [queue, originalQueue, currentIndex]);
 
+
+    const playShuffledQueue = useCallback((newSongs) => {
+        if (!newSongs || newSongs.length === 0) return;
+
+        // 1. Save the untouched array so we can un-shuffle later
+        setOriginalQueue(newSongs);
+
+        // 2. Perform a fresh Fisher-Yates Shuffle on a copy of the new songs
+        const shuffled = [...newSongs];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+
+        // 3. Mount the new shuffled queue to the state
+        setQueue(shuffled);
+        setCurrentIndex(0);
+        setIsShuffle(true);
+        
+        // 4. CRITICAL FIX: Play the first song directly from the new 'shuffled' array!
+        // Do NOT call playQueue(), because playQueue will overwrite originalQueue.
+        const songToPlay = shuffled[0];
+        if (songToPlay) {
+            // We use getMediaUrl exactly like you did in your playQueue function
+            const fullUrl = getMediaUrl(songToPlay.file_path, 'audio');
+            playSong(fullUrl);
+        }
+    }, [playSong]); // Make sure to add playSong to the dependency array!
+
+
     const playQueue = useCallback((newQueue, startingIndex = 0) => {
         setQueue(newQueue);
         setOriginalQueue(newQueue);
@@ -226,7 +256,8 @@ export const SongProvider = ({children}) => {
         toggleShuffle,
         addToQueue,
         reorderQueue,
-        playNextInQueue
+        playNextInQueue,
+        playShuffledQueue
     }), [queue, currentIndex, currentSong, playQueue, nextSong, prevSong]);
 
     // Add this inside your context or player component

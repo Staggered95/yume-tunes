@@ -2,7 +2,7 @@ import { query } from '../config/db.js';
 
 const BASE_SONG_QUERY = `
     SELECT 
-        s.id, s.title, s.song_type, s.file_path, s.cover_path, s.lyrics,
+        s.id, s.title, s.song_type, s.file_path, s.cover_path, s.lyrics, duration_seconds,
         a.title AS anime,
         ar.name AS artist,
         COALESCE(json_agg(g.name) FILTER (WHERE g.name IS NOT NULL), '[]') AS genres
