@@ -11,6 +11,13 @@ const ArtistPage = () => {
   const [data, setData] = useState({ songs: [], animes: [] });
   const [loading, setLoading] = useState(true);
 
+  const formatTime = (seconds) => {
+        if (!seconds) return '--:--';
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins}:${secs.toString().padStart(2, '0')}`;
+    };
+
   useEffect(() => {
     const fetchArtistData = async () => {
       setLoading(true);
@@ -103,7 +110,7 @@ const ArtistPage = () => {
 
                 {/* Duration / Meta */}
                 <span className="text-xs font-mono text-text-muted pr-4">
-                  04:20
+                  {formatTime(song.duration_seconds ) || '---'}
                 </span>
               </div>
             ))}

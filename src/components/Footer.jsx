@@ -49,7 +49,7 @@ export default function Footer() {
                         <div>
                             <h3 className="text-xs font-black text-text-primary uppercase tracking-widest mb-5">Explore</h3>
                             <ul className="space-y-3 text-sm font-semibold text-text-secondary">
-                                <li><Link to="/" className="hover:text-accent-primary transition-colors">Home</Link></li>
+                                <li><Link to="/home" className="hover:text-accent-primary transition-colors">Home</Link></li>
                                 <li><Link to="/library" className="hover:text-accent-primary transition-colors">Library</Link></li>
                                 <li><Link to="/animes" className="hover:text-accent-primary transition-colors">Anime OSTs</Link></li>
                                 <li><Link to="/artists" className="hover:text-accent-primary transition-colors">Artists</Link></li>

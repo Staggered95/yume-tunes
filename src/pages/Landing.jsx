@@ -56,13 +56,13 @@ const Landing = () => {
                 {/* ✨ THE NEW DATA: Glassmorphism Feature Pills ✨ */}
                 <div className="flex flex-wrap justify-center gap-3 md:gap-6 mb-12">
                     <div className="px-4 py-2 rounded-full bg-background-secondary/30 backdrop-blur-md border border-border/50 text-text-primary text-sm font-semibold tracking-wide shadow-lg">
-                        🎧 Clean UI
+                        Clean UI
                     </div>
                     <div className="px-4 py-2 rounded-full bg-background-secondary/30 backdrop-blur-md border border-border/50 text-text-primary text-sm font-semibold tracking-wide shadow-lg">
-                        📜 Precision Timed Lyrics
+                        Precision Timed Lyrics
                     </div>
                     <div className="px-4 py-2 rounded-full bg-background-secondary/30 backdrop-blur-md border border-border/50 text-text-primary text-sm font-semibold tracking-wide shadow-lg">
-                        🤖 Recommendation engine
+                        Recommendation engine
                     </div>
                 </div>
 

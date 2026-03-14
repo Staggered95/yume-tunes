@@ -121,7 +121,7 @@ export default function Navbar() {
                 onConfirm={() => {
                     logout();
                     setIsLogoutModalOpen(false);
-                    navigate('/'); 
+                    navigate('/home'); 
                 }}
                 title="Log Out"
                 message="Are you sure you want to log out of YumeTunes?"
