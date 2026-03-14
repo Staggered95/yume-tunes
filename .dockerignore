@@ -3,4 +3,7 @@ dist
 .env
 .git
 server
-public
+
+# Ignore the massive media directories so they don't bloat the build
+public/audio
+public/images
