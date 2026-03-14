@@ -6,6 +6,7 @@ import AddToPlaylistButton from '../minicomps/AddToPlaylistButton';
 import SkeletonCard from '../components/loading/SkeletonCard'; // Our master skeleton!
 import { getMediaUrl } from '../utils/media';
 import { usePagination } from '../hooks/usePagination'; // The custom hook
+import OptionsMenu from '../minicomps/OptionsMenu';
 
 const LikedSongsPage = () => {
     const { isLoggedIn } = useAuth();
@@ -94,17 +95,18 @@ const LikedSongsPage = () => {
             </div>
 
             {/* 3. THE TRACK LIST */}
-            <div className="max-w-7xl mx-auto px-6 md:px-12 pt-8">
-                <div className="grid grid-cols-[40px_1fr_auto_80px] gap-4 px-4 py-3 text-text-muted text-[10px] font-black uppercase tracking-widest border-b border-border mb-4">
+            <div className="max-w-7xl mx-auto md:px-12 pt-8">
+                
+                {/* DYNAMIC HEADER GRID: 3 cols on mobile, 4 cols on md */}
+                <div className="grid grid-cols-[40px_1fr_40px] md:grid-cols-[40px_1fr_80px_60px] gap-2 md:gap-4 px-2 md:px-4 py-3 text-text-muted text-[10px] font-black uppercase tracking-widest border-b border-border mb-4">
                     <div className="text-center">#</div>
                     <div>Title</div>
-                    <div className="hidden md:block">Action</div>
-                    <div className="text-right">Time</div>
+                    <div className="hidden md:block text-right">Time</div>
+                    <div className="text-right hidden md:block">Action</div>
                 </div>
 
                 <div className="flex flex-col gap-1">
                     {songs.map((song, index) => {
-                        // Trigger fetch 9 items early
                         const isTriggerElement = index === songs.length - 9;
 
                         return (
@@ -112,22 +114,25 @@ const LikedSongsPage = () => {
                                 key={`liked-${song.id}-${index}`} 
                                 ref={isTriggerElement ? lastSongElementRef : null}
                                 onClick={() => playQueue(songs, index)}
-                                className="group grid grid-cols-[40px_1fr_auto_80px] gap-4 px-4 py-3 items-center rounded-2xl hover:bg-background-secondary transition-all duration-300 cursor-pointer border border-transparent hover:border-border animate-fade-in will-change-transform"
+                                /* DYNAMIC ROW GRID: Matches the header exactly */
+                                className="group grid grid-cols-[40px_1fr_40px] md:grid-cols-[40px_1fr_80px_60px] gap-2 md:gap-4 px-2 md:px-4 py-2 md:py-3 items-center rounded-2xl hover:bg-background-secondary transition-all duration-300 cursor-pointer border border-transparent hover:border-border animate-fade-in will-change-transform"
                             >
+                                {/* COLUMN 1: Index / Play Icon */}
                                 <div className="text-text-muted text-xs font-bold text-center relative flex items-center justify-center">
                                     <span className="group-hover:opacity-0 transition-opacity">{index + 1}</span>
                                     <svg viewBox="0 0 24 24" className="w-4 h-4 text-accent-primary absolute opacity-0 group-hover:opacity-100 transition-all transform scale-50 group-hover:scale-100" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
                                 </div>
                                 
-                                <div className="flex items-center gap-4 overflow-hidden">
+                                {/* COLUMN 2: Image & Title (min-w-0 forces truncation inside a grid) */}
+                                <div className="flex items-center gap-3 md:gap-4 overflow-hidden min-w-0">
                                     <img 
                                         src={getMediaUrl(song.cover_path)} 
                                         alt="" 
                                         loading="lazy"
-                                        decoding="async" /* Background decoding */
-                                        className="w-10 h-10 md:w-12 md:h-12 rounded-lg shadow-lg object-cover shrink-0 bg-border/20" 
+                                        decoding="async"
+                                        className="w-10 h-10 md:w-12 md:h-12 rounded-lg shadow-md object-cover shrink-0 bg-border/20" 
                                     />
-                                    <div className="flex flex-col truncate">
+                                    <div className="flex flex-col min-w-0 overflow-hidden">
                                         <span className="text-text-primary font-bold text-sm md:text-base truncate group-hover:text-accent-primary transition-colors">
                                             {song.title}
                                         </span>
@@ -137,18 +142,20 @@ const LikedSongsPage = () => {
                                     </div>
                                 </div>
 
-                                <div className="opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
-                                    <AddToPlaylistButton songId={song.id} variant="bottom" className="p-2 hover:bg-background-active rounded-lg" />
-                                </div>
-
-                                <div className="text-text-muted text-xs md:text-sm font-mono text-right">
+                                {/* COLUMN 3: Time (Hidden entirely on mobile) */}
+                                <div className="hidden md:block text-text-muted text-xs md:text-sm font-mono text-right">
                                     {formatTime(song.duration_seconds)}
                                 </div>
+
+                                {/* COLUMN 4: Options Menu (Takes minimal space on mobile, flex-end aligns it right) */}
+                                <div className="flex items-center justify-end opacity-100 md:opacity-0 group-hover:opacity-100 transition-all">
+                                    <OptionsMenu song={song} />
+                                </div>
+                                
                             </div>
                         );
                     })}
 
-                    {/* 4. Appending Skeletons (Uses the 'list' shape!) */}
                     {loading && songs.length > 0 && (
                         <div className="mt-4 flex flex-col gap-2">
                             {[...Array(5)].map((_, i) => (
@@ -158,7 +165,6 @@ const LikedSongsPage = () => {
                     )}
                 </div>
 
-                {/* 5. End of list indicator */}
                 {!hasMore && songs.length > 0 && (
                     <div className="text-center text-text-muted mt-12 italic text-sm">
                         That's everything in your collection.
