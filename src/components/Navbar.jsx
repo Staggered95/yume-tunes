@@ -7,6 +7,7 @@ import { useUser } from '../context/UserContext';
 import ConfirmDialog from '../minicomps/ConfirmDialog'; 
 import UserMenu from './UserMenu';
 import ThemeToggle from '../minicomps/ThemeToggle';
+import InstallButton from '../utils/InstallButton';
 
 export default function Navbar() {
     const navigate = useNavigate();
@@ -142,6 +143,7 @@ export default function Navbar() {
                 cancelText="Cancel"
                 isDestructive={true} 
             />
+            <InstallButton/>
         </>
     );
 }

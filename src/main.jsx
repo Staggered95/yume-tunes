@@ -1,9 +1,9 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom' 
+import { registerSW } from 'virtual:pwa-register'
 import './index.css'
 import App from './App.jsx'
-
 // Contexts
 import { SongProvider } from './context/SongContext.jsx'
 import { PlaybackProvider } from './context/PlaybackContext.jsx'
@@ -12,9 +12,18 @@ import { UserProvider } from './context/UserContext.jsx'
 import { ToastProvider } from './context/ToastContext.jsx'
 import { LoadingProvider } from './context/LoadingContext.jsx'
 import { ThemeProvider } from './context/ThemeContext.jsx'
-
 // Helpers
-import AxiosInterceptorSetup from './helpers/AxiosInterceptorSetup.jsx' // <-- Adjust this path to your helper directory!
+import AxiosInterceptorSetup from './helpers/AxiosInterceptorSetup.jsx'
+
+const updateSW = registerSW({
+  onNeedRefresh() {
+    // Optional: You could show a toast here saying "New update available! Click to refresh."
+    console.log("New content available, please refresh.");
+  },
+  onOfflineReady() {
+    console.log("YumeTunes is ready to work offline.");
+  },
+})
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
