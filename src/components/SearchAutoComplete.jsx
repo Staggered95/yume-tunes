@@ -135,7 +135,7 @@ export default function SearchAutocomplete({autoFocus}) {
                                 key={song.id} 
                                 ref={el => itemRefs.current[index] = el}
                                 onClick={() => { 
-                                    selectSong(song); 
+                                    playQueue(results, index); 
                                     setShowDropdown(false); 
                                     setQuery('');
                                 }}

@@ -147,7 +147,7 @@ const FullscreenMinimalView = ({ isOpen, onClose, onToggle, song }) => {
       </div>
 
       {/* 4. ZEN CONTROLS (Bottom Playback Row) */}
-      <div className="flex flex-col items-center gap-6 md:gap-8">
+      <div className="flex flex-col items-center gap-6 md:gap-8 lg:gap-2">
         <MediaControllers variant="fullscreen" />
         <ProgressBar variant="fullscreen" />
       </div>
