@@ -27,6 +27,7 @@ import GlobalProgressBar from './minicomps/loading/GlobalProgressBar';
 import Footer from './components/Footer';
 import ScrollToTop from './helpers/ScrollToTop';
 import ResetPassword from './pages/ResetPassword';
+import ContactPage from './pages/ContactPage';
 
 // IMPORT THE GUARDS
 import { ProtectedRoute, AdminRoute } from './components/ProtectedRoute';
@@ -77,9 +78,11 @@ const App = () => {
         {/* 🎬 ISOLATED ROUTE: No Sidebars, No Players */}
         <Route path="/" element={<Landing />} />
         <Route path="/reset-password/:id/:token" element={<ResetPassword />} />
+        
 
         {/* 🎧 MAIN APP ROUTES: Wrapped inside the MainLayout */}
         <Route element={<MainLayout />}>
+        <Route path="/contact" element={<ContactPage />} />
           
           {/* Note: Moved HomePage to /home */}
           <Route path="/home" element={<HomePage />} />

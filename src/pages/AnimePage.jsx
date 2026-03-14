@@ -16,10 +16,12 @@ const getTypeWeight = (type) => {
 const formatSongType = (type) => {
     if (!type) return 'OST';
     const t = type.toUpperCase();
-    if (t === 'OP') return 'OP 1';
-    if (t === 'ED') return 'ED 1';
-    if (t.startsWith('OP') && t.length > 2) return `OP ${t.slice(2)}`;
-    if (t.startsWith('ED') && t.length > 2) return `ED ${t.slice(2)}`;
+    
+    // If it starts with OP or ED, just return the letters and strip the numbers completely
+    if (t.startsWith('OP')) return 'OP';
+    if (t.startsWith('ED')) return 'ED';
+    
+    // Fallback for OST, INSERTS, or anything else
     return t;
 };
 

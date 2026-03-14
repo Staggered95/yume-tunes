@@ -16,6 +16,7 @@ import userRoutes from './routes/userRoutes.js'
 import searchRoutes from './routes/searchRoutes.js'
 import homeRoutes from './routes/homeRoutes.js'
 import adminRoutes from './routes/adminRoutes.js'
+import contactRoutes from './routes/contactRoutes.js';
 
 const app = express();
 app.set('trust proxy', 1);
@@ -71,6 +72,7 @@ app.use('/user', userRoutes);
 app.use('/search', searchRoutes);
 app.use('/home', homeRoutes);
 app.use('/admin', adminRoutes);
+app.use('/contact', contactRoutes);
 
 //RECOMMENDATION CRON
 cron.schedule('0 3 * * *', () => {

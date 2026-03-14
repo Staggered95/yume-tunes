@@ -14,13 +14,9 @@ const FullscreenMinimalView = ({ isOpen, onClose, onToggle, song }) => {
   const { isPlaying, togglePlay } = usePlayback();
   const { nextSong, prevSong } = useSongs(); 
   const [lyrics, setLyrics] = useState([]);
-  
-  // 1. New State for the Lyrics Language Toggle
   const [lyricLang, setLyricLang] = useState('EN'); 
 
   useEffect(() => {
-    // TODO: In the future, pass `lyricLang` into parseLRC if your backend sends an object like: 
-    // { EN: "...", RO: "...", JP: "..." }
     if (song?.lyrics) {
       setLyrics(parseLRC(song.lyrics));
     } else {
@@ -43,7 +39,6 @@ const FullscreenMinimalView = ({ isOpen, onClose, onToggle, song }) => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
-  // 2. The Toggle Cycle Logic
   const handleLangToggle = () => {
       setLyricLang(prev => {
           if (prev === 'EN') return 'RO';
@@ -64,8 +59,8 @@ const FullscreenMinimalView = ({ isOpen, onClose, onToggle, song }) => {
         </div>
       )}
 
-      {/* 2. TOP NAV */}
-      <div className="relative z-10 flex justify-between items-center w-full max-w-[98vw] mx-auto">
+      {/* 2. TOP NAV (z-10, shrink-0 so it never squishes) */}
+      <div className="relative z-10 shrink-0 flex justify-between items-center w-full max-w-[98vw] mx-auto">
         <button onClick={onClose} className="p-3 bg-background-secondary rounded-full hover:bg-background-hover text-text-secondary hover:text-text-primary transition-all duration-300 group shrink-0" title="Close fullscreen">
            <svg className="w-6 h-6 group-hover:-translate-y-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
@@ -79,7 +74,6 @@ const FullscreenMinimalView = ({ isOpen, onClose, onToggle, song }) => {
         </div>
         
         <div className="flex items-center gap-3 shrink-0">
-            {/* 3. THE LYRICS TOGGLE BUTTON */}
             {lyrics.length > 0 && (
                 <button 
                     onClick={handleLangToggle}
@@ -104,13 +98,13 @@ const FullscreenMinimalView = ({ isOpen, onClose, onToggle, song }) => {
         </div>
       </div>
 
-      {/* 3. THE STAGE (Expanded Width) */}
-      <div className="flex-1 w-full max-w-[95vw] 2xl:max-w-screen-2xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8 md:gap-16 lg:gap-24 overflow-hidden mt-8 md:mt-0 px-2 lg:px-8">
+      {/* 3. THE STAGE (z-20 so it pops OVER the navs, overflow-visible, py-8 for vertical breathing room) */}
+      <div className="relative z-20 flex-1 min-h-0 w-full max-w-[95vw] 2xl:max-w-screen-2xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8 md:gap-16 lg:gap-24 overflow-visible py-8 md:py-12 mt-4 md:mt-0 px-2 lg:px-8">
         
         {/* ARTWORK WRAPPER */}
-        <div className="w-56 md:w-full md:max-w-md lg:max-w-[28rem] xl:max-w-[32rem] shrink-0 flex flex-col items-center md:items-start">
+        <div className="w-56 md:w-full md:max-w-md lg:max-w-[28rem] xl:max-w-[32rem] shrink-0 flex flex-col items-center md:items-start relative z-30">
           
-          <div className="relative group w-full aspect-square rounded-2xl shadow-2xl overflow-hidden transition-transform duration-700 hover:scale-[1.02] border border-border">
+          <div className="relative group w-full aspect-square rounded-2xl shadow-2xl overflow-hidden transition-transform duration-700 hover:scale-[1.05] border border-border">
             <img 
               src={getMediaUrl(song?.cover_path)} 
               className="w-full h-full object-cover" 
@@ -118,25 +112,30 @@ const FullscreenMinimalView = ({ isOpen, onClose, onToggle, song }) => {
             />
             
             <div className="absolute inset-0 bg-background-primary/40 backdrop-blur-sm opacity-0 group-hover:opacity-100 hidden md:flex items-center justify-center transition-all duration-300">
-                <LikeButton songId={song?.id} variant="massive" className="w-full h-full" />
+                <LikeButton songId={song?.id} variant='massive' className="w-full h-full" />
             </div>
           </div>
 
-          <div className="mt-6 md:mt-8 text-center md:text-left w-full flex flex-col items-center md:items-start">
+          {/* TEXT BOX (shrink-0 prevents vertical squishing) */}
+          <div className="mt-6 md:mt-8 text-center md:text-left w-full flex flex-col items-center md:items-start shrink-0">
             <div className="flex items-center justify-center md:justify-start gap-4 w-full">
-                <h1 className="text-xl md:text-2xl lg:text-3xl xl:text-4xl font-black tracking-tighter truncate max-w-[85%] text-text-primary">{song?.title}</h1>
+                <h1 className="text-xl md:text-2xl lg:text-3xl xl:text-4xl font-black tracking-tighter truncate max-w-[85%] text-text-primary">
+                    {song?.title}
+                </h1>
                 <div className="md:hidden mt-1">
-                    <LikeButton songId={song?.id} />
+                    <LikeButton variant='massive' songId={song?.id} />
                 </div>
             </div>
-            <p className="text-sm md:text-xl lg:text-2xl text-text-secondary font-medium mt-1 md:mt-3 truncate w-full">{song?.artist}</p>
+            {/* Added line-clamp-2 just in case an artist name is paragraph-length! */}
+            <p className="text-sm md:text-xl lg:text-2xl text-text-secondary font-medium mt-1 md:mt-3 w-full break-words whitespace-normal line-clamp-2 md:pr-4">
+                {song?.artist}
+            </p>
           </div>
         </div>
 
         {/* Focused Lyrics */}
         <div className="flex-1 w-full max-w-2xl lg:max-w-4xl xl:max-w-5xl h-48 md:h-full flex items-center">
             {lyrics.length > 0 ? (
-                // Pass the current language down to LiveLyrics if it supports filtering!
                 <LiveLyrics lyrics={lyrics} language={lyricLang} />
             ) : (
                 <div className="w-full text-center md:text-left text-text-muted text-xl md:text-2xl font-bold tracking-widest uppercase">
@@ -146,8 +145,8 @@ const FullscreenMinimalView = ({ isOpen, onClose, onToggle, song }) => {
         </div>
       </div>
 
-      {/* 4. ZEN CONTROLS (Bottom Playback Row) */}
-      <div className="flex flex-col items-center gap-6 md:gap-8 lg:gap-2">
+      {/* 4. ZEN CONTROLS (z-10, shrink-0) */}
+      <div className="relative z-10 shrink-0 flex flex-col items-center gap-6 md:gap-8 lg:gap-2 pb-2 md:pb-4">
         <MediaControllers variant="fullscreen" />
         <ProgressBar variant="fullscreen" />
       </div>

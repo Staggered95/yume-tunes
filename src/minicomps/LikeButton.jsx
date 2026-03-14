@@ -2,15 +2,13 @@ import React, { useState } from 'react';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext'; 
 import { useToast } from '../context/ToastContext';
-import Spinner from './Spinner'; // <-- 1. Import your new micro-spinner!
+import Spinner from './Spinner';
 
 const LikeButton = ({ songId, className = "", variant = "default" }) => {
     const { token, likedSongIds, updateLikedSongsState } = useAuth(); 
     const { addToast } = useToast();
     
-    // 2. The Network State
     const [isLiking, setIsLiking] = useState(false);
-
     const isLiked = likedSongIds?.has(songId);
 
     const toggleLike = async (e) => {
@@ -21,37 +19,32 @@ const LikeButton = ({ songId, className = "", variant = "default" }) => {
             return;
         }
 
-        // Prevent spam-clicking the API
         if (isLiking) return;
-
-        // 3. Start the spinner!
         setIsLiking(true);
 
         try {
-            // Wait for the server to successfully process the request
             await api.post(`/user/likedsongs/${songId}`);
             
-            // Only update the global UI AFTER the server confirms it
             const newLikeState = !isLiked;
             updateLikedSongsState(songId, newLikeState);
-            
-            // You can keep the toasts, or remove them entirely since the spinner gives feedback!
         } catch (error) {
             console.error(error);
             addToast("Couldn't sync with server", "error");
         } finally {
-            // 4. Stop the spinner!
             setIsLiking(false);
         }
     };
 
     const isMassive = variant === 'massive';
     
+    // ✨ UPGRADED RESPONSIVE STYLES ✨
     const iconStyles = isMassive 
-        ? `w-4/5 h-4/5 max-w-[180px] max-h-[180px] drop-shadow-[0_0_30px_rgba(157,92,250,0.4)] ${
-            isLiked ? 'text-accent-primary fill-accent-primary' : 'text-text-primary/20 fill-transparent'
+        // FULLSCREEN: Scales from 50% width on mobile up to a massive 320px on desktops
+        ? `w-1/2 h-1/2 sm:w-3/5 sm:h-3/5 md:w-3/4 md:h-3/4 max-w-[200px] max-h-[200px] md:max-w-[280px] md:max-h-[280px] lg:max-w-[320px] lg:max-h-[320px] drop-shadow-[0_0_40px_rgba(157,92,250,0.5)] ${
+            isLiked ? 'text-accent-primary fill-accent-primary' : 'text-text-primary/30 fill-transparent hover:text-text-primary/50'
           }`
-        : `w-5 h-5 md:w-6 md:h-6 ${
+        // NORMAL: Scales smoothly from 20px (mobile) to 28px (desktop)
+        : `w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 ${
             isLiked ? 'text-accent-primary fill-accent-primary' : 'text-text-secondary hover:text-text-primary fill-transparent'
           }`;
 
@@ -59,13 +52,12 @@ const LikeButton = ({ songId, className = "", variant = "default" }) => {
         <button 
             type="button"
             onClick={toggleLike}
-            disabled={isLiking} // Visually disable the button while loading
+            disabled={isLiking}
             className={`relative flex items-center justify-center transition-transform duration-300 ${
                 !isLiking && 'active:scale-90 hover:scale-110'
             } ${className}`}
             title={isLiked ? "Remove from Liked Songs" : "Save to Liked Songs"}
         >
-            {/* 5. The Magic Swap: Show Spinner OR the SVG Heart */}
             {isLiking ? (
                 <Spinner size={isMassive ? "xl" : "md"} />
             ) : (

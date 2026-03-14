@@ -79,7 +79,7 @@ const LibraryPage = () => {
                         className="group cursor-pointer bg-background-secondary/20 p-4 rounded-3xl hover:bg-background-hover border border-transparent hover:border-border transition-all duration-500 shadow-xl hover:shadow-accent-primary/5"
                     >
                         <div className="w-full aspect-square mb-4 shadow-2xl rounded-2xl overflow-hidden bg-gradient-to-br from-accent-primary to-accent-secondary flex items-center justify-center transition-all duration-700 group-hover:scale-[1.03] group-hover:rotate-1">
-                            <svg className="w-16 h-16 text-background-primary drop-shadow-[0_5px_15px_rgba(0,0,0,0.3)]" viewBox="0 0 24 24" fill="currentColor">
+                            <svg className="w-40 h-40 text-background-primary drop-shadow-[0_5px_15px_rgba(0,0,0,0.3)]" viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
                             </svg>
                         </div>
@@ -102,6 +102,7 @@ const LibraryPage = () => {
                             <h3 className="font-black text-sm tracking-tight truncate group-hover:text-accent-primary transition-colors">
                                 {playlist.name}
                             </h3>
+                            <p className="text-[10px] font-bold text-text-muted uppercase tracking-widest mt-1">{playlist.song_count} tracks</p>
                             
                         </div>
                     ))}

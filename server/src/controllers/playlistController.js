@@ -32,10 +32,16 @@ const getPlaylists = async (req, res) => {
                     FROM playlist_songs ps
                     JOIN songs ON ps.song_id = songs.id
                     WHERE ps.playlist_id = p.id
-                    ORDER BY ps.added_at ASC -- or position_order, depending on your schema
+                    ORDER BY ps.added_at ASC 
                     LIMIT 4
                 ) s
-            ) AS auto_covers
+            ) AS auto_covers,
+            (
+                -- Grab the total count and cast it to a standard integer
+                SELECT COUNT(*)::int
+                FROM playlist_songs
+                WHERE playlist_id = p.id
+            ) AS song_count
         FROM playlists p
         WHERE p.user_id = $1
         ORDER BY p.created_at DESC
@@ -44,10 +50,13 @@ const getPlaylists = async (req, res) => {
 
     try {
         const result = await query(text, values);
+        
         const formattedPlaylists = result.rows.map(playlist => ({
             ...playlist,
-            auto_covers: playlist.auto_covers || [] 
+            auto_covers: playlist.auto_covers || [],
+            // song_count will automatically be included here as a number!
         }));
+        
         res.status(200).json({ success: true, data: formattedPlaylists });
     } catch (err) {
         console.error("Error fetching Playlists", err);

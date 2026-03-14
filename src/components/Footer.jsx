@@ -56,8 +56,11 @@ export default function Footer() {
                             </ul>
                         </div>
                         <div>
-                            <h3 className="text-xs font-black text-text-primary uppercase tracking-widest mb-5">Legal</h3>
+                            {/* Renamed the header slightly to make Contact fit logically */}
+                            <h3 className="text-xs font-black text-text-primary uppercase tracking-widest mb-5">Support & Legal</h3>
                             <ul className="space-y-3 text-sm font-semibold text-text-secondary">
+                                {/* ✨ Added the Contact link right at the top! ✨ */}
+                                <li><Link to="/contact" className="hover:text-accent-primary transition-colors flex items-center gap-2">Contact Us <span className="w-1.5 h-1.5 rounded-full bg-accent-primary animate-pulse"></span></Link></li>
                                 <li><Link to="/terms" className="hover:text-accent-primary transition-colors">Terms of Service</Link></li>
                                 <li><Link to="/privacy" className="hover:text-accent-primary transition-colors">Privacy Policy</Link></li>
                                 <li><Link to="/dmca" className="hover:text-accent-primary transition-colors">DMCA</Link></li>
