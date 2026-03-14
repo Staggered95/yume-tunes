@@ -12,13 +12,12 @@ import { getMediaUrl } from '../utils/media';
 
 const FullscreenUtilityView = ({ isOpen, onClose, onToggle, song }) => {
   const { isPlaying } = usePlayback();
-  const { queue, currentIndex, playQueue, reorderQueue } = useSongs(); 
+  const { queue, currentIndex, playQueue, reorderQueue,isShuffle, toggleShuffle } = useSongs(); 
   
   const [activeTab, setActiveTab] = useState('queue'); 
   const [lyricLang, setLyricLang] = useState('EN');
   const [lyrics, setLyrics] = useState([]);
   
-  const [isShuffle, setIsShuffle] = useState(false);
   const [isRepeat, setIsRepeat] = useState(false);
 
   // === RESPONSIVE STATE ===
@@ -193,9 +192,50 @@ const FullscreenUtilityView = ({ isOpen, onClose, onToggle, song }) => {
                 <ProgressBar variant="fullscreen" />
             </div>
 
-            {/* PLAYBACK CONTROLS (Using your modular setup!) */}
-            <div className="flex flex-col items-center gap-6 md:gap-8">
-                <MediaControllers variant="fullscreen" />
+            {/* --- UPGRADED PLAYBACK CONTROLS (Responsive Row) --- */}
+            <div className="flex items-center justify-between w-full max-w-[90%] sm:max-w-sm mx-auto gap-2">
+                
+                {/* 1. MOBILE ONLY: Like Button */}
+                <div className="flex lg:hidden shrink-0">
+                    <LikeButton songId={song?.id} />
+                </div>
+
+                {/* 2. CORE MEDIA CONTROLLERS */}
+                <div className="flex-1 flex justify-center shrink-0">
+                    <MediaControllers variant="fullscreen" />
+                </div>
+
+                {/* 3. MOBILE ONLY: Global Shuffle Toggle */}
+                <div className="flex lg:hidden shrink-0">
+                    <button 
+                        onClick={toggleShuffle} 
+                        className={`p-2 transition-colors duration-300 active:scale-95 ${isShuffle ? 'text-accent-primary drop-shadow-[0_0_8px_rgba(157,92,250,0.5)]' : 'text-text-secondary hover:text-text-primary'}`}
+                        title="Toggle Shuffle"
+                    >
+                        <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            {/* --- DESKTOP ONLY: UTILITY ACTION ROW --- */}
+            <div className="hidden lg:flex items-center justify-center gap-4 mt-auto pt-8 shrink-0">
+                  <LikeButton songId={song?.id} className="p-3 bg-background-secondary hover:bg-background-hover rounded-full transition-colors" />
+                  
+                  {/* Added Shuffle to the Desktop row so it isn't lost! */}
+                  <button 
+                      onClick={toggleShuffle} 
+                      className={`p-3 rounded-full transition-colors duration-300 ${isShuffle ? 'bg-accent-primary/20 text-accent-primary' : 'bg-background-secondary text-text-secondary hover:bg-background-hover hover:text-text-primary'}`}
+                      title="Toggle Shuffle"
+                  >
+                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/>
+                      </svg>
+                  </button>
+
+                  <AddToPlaylistButton songId={song?.id} variant="bottom" className="p-3 bg-background-secondary hover:bg-background-hover rounded-full transition-colors" />
+                  <OptionsMenu song={song} className="p-3 bg-background-secondary hover:bg-background-hover rounded-full transition-colors" />
             </div>
 
             <div className="hidden lg:flex items-center justify-center gap-4 mt-auto pt-8 shrink-0">
