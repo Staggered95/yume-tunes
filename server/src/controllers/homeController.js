@@ -4,7 +4,7 @@ const getPublicHomeData = async (req, res) => {
     // 1. Trending Songs (Last 30 days)
     const trendingQuery = `
         SELECT 
-            s.id, s.title, s.cover_path, s.file_path, s.lyrics, 
+            s.id, s.title, s.cover_path, s.file_path, s.lyrics, s.song_type,
             ar.name AS artist, a.title AS anime,
             COUNT(lh.id) as recent_plays
         FROM songs s 
@@ -21,7 +21,7 @@ const getPublicHomeData = async (req, res) => {
     // 2. This Season (Randomized OPs/EDs)
     const seasonQuery = `
         SELECT 
-            s.id, s.title, s.cover_path, s.file_path, s.lyrics, 
+            s.id, s.title, s.cover_path, s.file_path, s.lyrics, s.song_type,
             ar.name AS artist, a.title AS anime
         FROM songs s 
         JOIN artists ar ON s.artist_id = ar.id
@@ -53,7 +53,7 @@ const getPublicHomeData = async (req, res) => {
     // 5. Recently Added (Newest to the Database)
     const latestQuery = `
         SELECT 
-            s.id, s.title, s.cover_path, s.file_path, s.lyrics, 
+            s.id, s.title, s.cover_path, s.file_path, s.lyrics, s.song_type,
             ar.name AS artist, a.title AS anime
         FROM songs s 
         JOIN artists ar ON s.artist_id = ar.id

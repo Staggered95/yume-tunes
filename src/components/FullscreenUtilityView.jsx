@@ -159,7 +159,7 @@ const FullscreenUtilityView = ({ isOpen, onClose, onToggle, song }) => {
               <div className="w-full max-w-md mx-auto flex flex-col pointer-events-auto">
                 
                 <div className="hidden sm:flex flex-wrap items-center gap-2 mb-4 lg:mb-6">
-                    <span className="px-2 py-1 bg-background-secondary text-text-secondary text-[10px] font-bold tracking-widest rounded-sm border border-border">HIGH-RES</span>
+                    <span className="px-2 py-1 bg-background-secondary text-text-secondary text-[10px] font-bold tracking-widest rounded-sm border border-border">LISTEN</span>
                     {song?.song_type && <span className="px-2 py-1 bg-accent-primary/20 text-accent-primary text-[10px] font-bold tracking-widest rounded-sm border border-accent-primary/30">{song.song_type}</span>}
                 </div>
     
@@ -188,22 +188,7 @@ const FullscreenUtilityView = ({ isOpen, onClose, onToggle, song }) => {
             </div>
     
                 {/* --- DESKTOP ONLY: UTILITY ACTION ROW (Only renders ONCE now!) --- */}
-                <div className="hidden lg:flex items-center justify-center gap-4 mt-auto pt-8 shrink-0">
-                      <LikeButton songId={song?.id} className="p-3 bg-background-secondary hover:bg-background-hover rounded-full transition-colors" />
-                      
-                      <button 
-                          onClick={toggleShuffle} 
-                          className={`p-3 rounded-full transition-colors duration-300 ${isShuffle ? 'bg-accent-primary/20 text-accent-primary' : 'bg-background-secondary text-text-secondary hover:bg-background-hover hover:text-text-primary'}`}
-                          title="Toggle Shuffle"
-                      >
-                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                              <path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/>
-                          </svg>
-                      </button>
-    
-                      <AddToPlaylistButton songId={song?.id} variant="bottom" className="p-3 bg-background-secondary hover:bg-background-hover rounded-full transition-colors" />
-                      <OptionsMenu song={song} className="p-3 bg-background-secondary hover:bg-background-hover rounded-full transition-colors" />
-                </div>
+                
     
               </div>
             </div>
@@ -264,7 +249,7 @@ const FullscreenUtilityView = ({ isOpen, onClose, onToggle, song }) => {
                 </div>
     
                 {/* Scrollable Content Area */}
-                <div className={`flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent ${!isDesktop && !isSheetExpanded ? 'pointer-events-none opacity-0' : 'pointer-events-auto opacity-100'} transition-opacity duration-300`}>
+                <div className={`flex-1 overflow-y-auto scrollbar-none ${!isDesktop && !isSheetExpanded ? 'pointer-events-none opacity-0' : 'pointer-events-auto opacity-100'} transition-opacity duration-300`}>
                     
                     <div className="px-2 md:px-4 lg:px-8 py-4 lg:py-6 pb-32 lg:pb-24">
                         
