@@ -1,5 +1,4 @@
 services:
-  # 1. The Database (Just Postgres stuff here!)
   db:
     image: postgres:15-alpine
     container_name: yumetunes-db
@@ -9,11 +8,10 @@ services:
       POSTGRES_PASSWORD: ${DB_PASS}
       POSTGRES_DB: ${DB_NAME}
     ports:
-      - "5433:5432" # Note: Default internal postgres port is 5432
+      - "5433:5432" 
     volumes:
       - pgdata:/var/lib/postgresql/data
 
-  # 2. The Node.js Backend (Cloudinary goes here!)
   api:
     build: 
       context: ./server
@@ -25,7 +23,6 @@ services:
     env_file:
       - ./.env 
     environment:
-      # Explicitly pass the Cloudinary keys to Node.js!
       CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
       CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
       CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
@@ -36,7 +33,6 @@ services:
     volumes:
       - ./public:/public
 
-  # 3. The React Frontend
   web:
     build:
       context: .
