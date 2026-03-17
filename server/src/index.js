@@ -38,16 +38,21 @@ const allowedOrigins = [
 
 app.use(cors({
     origin: function (origin, callback) {
-        if (!origin && process.env.NODE_ENV !== 'production') {
+        // 1. ALWAYS allow requests with no origin. 
+        // Since your frontend and backend share the exact same DuckDNS domain via Nginx, 
+        // the browser will often omit the origin header. We must let these through!
+        if (!origin) {
             return callback(null, true);
         }
         
+        // 2. Exact match check for cross-origin requests
         if (allowedOrigins.includes(origin)) {
             return callback(null, true);
         }
         
+        // 3. Gently block everything else (Return false instead of a fatal Error object!)
         console.warn(`Blocked CORS request from origin: ${origin}`); 
-        return callback(new Error('Not allowed by CORS'), false);
+        return callback(null, false); 
     },
     credentials: true, 
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
