@@ -7,7 +7,7 @@ const InstallButton = () => {
     useEffect(() => {
         // Catch the event when the browser says the PWA is ready
         const handleBeforeInstallPrompt = (e) => {
-            e.preventDefault(); // Stop the default browser prompt
+            //e.preventDefault(); // Stop the default browser prompt
             setDeferredPrompt(e); // Save the event to trigger it later
             setIsInstallable(true);
         };
