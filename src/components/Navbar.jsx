@@ -140,7 +140,6 @@ export default function Navbar() {
                 cancelText="Cancel"
                 isDestructive={true} 
             />
-            <InstallButton/>
         </>
     );
 }
