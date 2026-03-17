@@ -1,14 +1,12 @@
 import { query } from '../config/db.js';
 import { v2 as cloudinary } from 'cloudinary';
 
-// Configure Cloudinary (it's fine to do this in multiple files)
 cloudinary.config({ 
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME, 
   api_key: process.env.CLOUDINARY_API_KEY, 
   api_secret: process.env.CLOUDINARY_API_SECRET 
 });
 
-// Helper to extract Cloudinary Public ID from a secure_url
 const getPublicIdFromUrl = (url) => {
     if (!url || !url.includes('cloudinary')) return null;
     const splitUrl = url.split('/');
@@ -17,9 +15,7 @@ const getPublicIdFromUrl = (url) => {
     return `${folder}/${filename.split('.')[0]}`;
 };
 
-// ==========================================
-// QUOTES MANAGEMENT (Unchanged)
-// ==========================================
+
 const getQuotes = async (req, res) => {
     try {
         const result = await query(`SELECT * FROM quotes ORDER BY created_at DESC`);
@@ -73,9 +69,7 @@ const deleteQuote = async (req, res) => {
     }
 };
 
-// ==========================================
-// HERO BANNERS MANAGEMENT (Cloudinary Upgraded)
-// ==========================================
+
 const getBanners = async (req, res) => {
     try {
         const result = await query(`SELECT * FROM hero_banners ORDER BY display_order ASC`);
@@ -92,11 +86,8 @@ const addBanner = async (req, res) => {
         return res.status(400).json({ success: false, message: 'Banner image is required' });
     }
 
-    // If using Cloudinary middleware, the URL is in req.file.path. 
-    // If you are still using local multer here, we upload it manually:
     let imagePath = req.file.path; 
 
-    // Hybrid Upload Check: If the path is a local temp file, upload to Cloudinary now
     if (!imagePath.includes('cloudinary')) {
         try {
             const folderName = process.env.NODE_ENV === 'production' ? 'carousel_banners' : 'dev_carousel';
@@ -107,7 +98,6 @@ const addBanner = async (req, res) => {
             });
             imagePath = result.secure_url;
             
-            // Clean up the local temp file Multer created
             import('fs').then(fs => fs.unlinkSync(req.file.path)).catch(()=>console.log("Cleanup skipped"));
         } catch (uploadErr) {
             console.error("Cloudinary upload failed:", uploadErr);
@@ -148,12 +138,10 @@ const deleteBanner = async (req, res) => {
             const imageUrl = bannerRes.rows[0].image_path;
             const publicId = getPublicIdFromUrl(imageUrl);
             
-            // Delete from Cloudinary
             if (publicId) {
                 await cloudinary.uploader.destroy(publicId);
             }
             
-            // Delete from DB
             await query(`DELETE FROM hero_banners WHERE id = $1`, [req.params.id]);
         }
         res.status(200).json({ success: true, message: 'Banner deleted!' });

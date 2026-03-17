@@ -22,7 +22,6 @@ const createResponse = (rows, page, limit) => ({
     pagination: {
         currentPage: page,
         limit: limit,
-        // If we got exactly the limit back, there's likely more data waiting!
         hasMore: rows.length === limit 
     }
 });
@@ -124,12 +123,11 @@ const getSearchResults = async (req, res) => {
 
     const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : "";
 
-    // Safely add Limit and Offset to our dynamically growing values array!
     values.push(limit);
-    const limitParam = `$${values.length}`; // e.g., $2 or $4 depending on filters
+    const limitParam = `$${values.length}`; 
     
     values.push(offset);
-    const offsetParam = `$${values.length}`; // e.g., $3 or $5
+    const offsetParam = `$${values.length}`; 
 
     const text = `
         ${BASE_SONG_QUERY}

@@ -3,13 +3,11 @@ import {sendEmail} from '../utils/sendEmail.js';
 export const submitContactForm = async (req, res) => {
     const { name, email, type, message } = req.body;
 
-    // 1. Basic Validation
     if (!name || !email || !type || !message) {
         return res.status(400).json({ success: false, message: 'All fields are required.' });
     }
 
     try {
-        // 2. Format the email that YOU will receive
         const htmlContent = `
             <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background-color: #1a1a2e; color: #e0e0e0; padding: 30px; border-radius: 10px; border: 1px solid #9D5CFA;">
                 <h2 style="color: #ffffff; margin-top: 0; border-bottom: 2px solid #9D5CFA; padding-bottom: 10px;">
@@ -24,13 +22,12 @@ export const submitContactForm = async (req, res) => {
             </div>
         `;
 
-        // 3. Fire the email to YOURSELF
         await sendEmail({
-            to: process.env.EMAIL_USER, // Assuming your admin email is the one sending it
+            to: process.env.EMAIL_USER, 
             subject: `[YumeTunes ${type}] from ${name}`,
             text: message,
             html: htmlContent,
-            replyTo: email // This lets you hit "Reply" in your email client and talk directly to the user!
+            replyTo: email 
         });
 
         res.status(200).json({ success: true, message: 'Message sent successfully. We will get back to you soon!' });

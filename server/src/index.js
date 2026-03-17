@@ -22,34 +22,34 @@ const app = express();
 app.set('trust proxy', 1);
 
 const port = 5000;
+// i will be removing this in future because files are being served by nginx now
 const __file_url_path = import.meta.url;
 const __filepath = fileURLToPath(__file_url_path);
 const __dirpath = path.dirname(__filepath);
 
-//MIDDLEWARES
-//app.use(cors());
 
 
-// A dynamic CORS setup that allows localhost AND your phone's IP!
+
+const allowedOrigins = [
+    'http://localhost:5173',       
+    'https://yumetunes.duckdns.org',      
+    'https://www.yumetunes.duckdns.org'   
+];
+
 app.use(cors({
     origin: function (origin, callback) {
-        // 1. Allow requests with no origin (like Postman or curl)
-        if (!origin) return callback(null, true);
-        
-        // 2. Allow localhost OR any local network IP (192.168.x.x)
-        if (origin.startsWith('http://localhost') || 
-            origin.startsWith('http://10.214.') || 
-            origin.startsWith('http://192.168.') ||
-            origin.startsWith('http://13.60.26.11') ||
-            origin.startsWith('https://yumetunes') ||
-            origin === 'https://yume-tunes.vercel.app') { // <-- Add your exact Vercel URL!
+        if (!origin && process.env.NODE_ENV !== 'production') {
             return callback(null, true);
         }
         
-        // 3. Block anyone else
+        if (allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        }
+        
+        console.warn(`Blocked CORS request from origin: ${origin}`); 
         return callback(new Error('Not allowed by CORS'), false);
     },
-    credentials: true, // STILL REQUIRED for the HTTP-Only cookies to work!
+    credentials: true, 
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
@@ -74,13 +74,12 @@ app.use('/home', homeRoutes);
 app.use('/admin', adminRoutes);
 app.use('/contact', contactRoutes);
 
-//RECOMMENDATION CRON
 cron.schedule('0 3 * * *', () => {
     console.log('🌙 Running Nightly Recommendation Engine...');
     generateRecommendations();
 });
 
-// FOR TESTING RIGHT NOW: Uncomment the line below to run it every 1 minute!
+// FOR TESTING: Uncomment the line below to run it every 1 minute!
 //cron.schedule('* * * * *', () => { console.log('Testing Engine...'); generateRecommendations(); });
 
 app.listen(5000, '0.0.0.0', () => {

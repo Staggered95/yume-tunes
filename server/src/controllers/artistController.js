@@ -53,11 +53,8 @@ const getArtistDetails = async (req, res) => {
     `;
 
     try {
-        // Notice we pass [artistName, limit, offset] here!
         const animeResult = await query(animeText, [artistName, limit, offset]);
         
-        // Since we are nesting this inside a 'featuredAnimes' object, 
-        // we manually construct the response instead of using the helper
         res.status(200).json({
             success: true,
             data: {

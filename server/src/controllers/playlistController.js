@@ -1,7 +1,6 @@
 import { query } from "../config/db.js";
 
 const createPlaylist = async (req, res) => {
-    // Pulls the ID from the verifyToken middleware
     const userID = req.user.id; 
     const { name, description } = req.body;
     
@@ -14,7 +13,7 @@ const createPlaylist = async (req, res) => {
     try {
         const result = await query(text, values);
         res.status(201).json({ success: true, data: result.rows[0] });
-    } catch (err) { // BUG FIX: added (err)
+    } catch (err) { 
         console.error("Error creating Playlist", err);
         res.status(500).json({ success: false, error: "Server error" });
     }
@@ -54,7 +53,6 @@ const getPlaylists = async (req, res) => {
         const formattedPlaylists = result.rows.map(playlist => ({
             ...playlist,
             auto_covers: playlist.auto_covers || [],
-            // song_count will automatically be included here as a number!
         }));
         
         res.status(200).json({ success: true, data: formattedPlaylists });
@@ -64,13 +62,11 @@ const getPlaylists = async (req, res) => {
     }
 }
 
-// Replace getSongsFromPlaylist with this:
 const getPlaylistById = async (req, res) => {
-    const playlistID = req.params.id; // Make sure your route is router.get('/:id', ...)
+    const playlistID = req.params.id; 
     const userID = req.user.id;
 
     try {
-        // 1. Fetch the Playlist Meta (with the dynamic auto_covers!)
         const metaText = `
             SELECT 
                 p.*,
@@ -97,7 +93,6 @@ const getPlaylistById = async (req, res) => {
         const playlistMeta = metaResult.rows[0];
         playlistMeta.auto_covers = playlistMeta.auto_covers || [];
 
-        // 2. Fetch the Songs (We JOIN artists here so your React UI can display the artist name!)
         const songsText = `
             SELECT s.*, ps.position_order, ps.added_at, ar.name AS artist
             FROM songs s
@@ -108,7 +103,6 @@ const getPlaylistById = async (req, res) => {
         `;
         const songsResult = await query(songsText, [playlistID]);
 
-        // 3. Return the exact JSON structure your React page is waiting for
         res.status(200).json({ 
             success: true, 
             data: {
@@ -124,7 +118,7 @@ const getPlaylistById = async (req, res) => {
 }
 
 const addToPlaylist = async (req, res) => {
-    const playlistID = req.params.playlistId; // from URL: /playlists/:playlistId/songs
+    const playlistID = req.params.playlistId; 
     const { songID, positionOrder } = req.body; 
     const userID = req.user.id;
 
@@ -153,7 +147,7 @@ const addToPlaylist = async (req, res) => {
 
 const deleteFromPlaylist = async (req, res) => {
     const playlistID = req.params.playlistId;
-    const songID = req.params.songId; // e.g. /playlists/5/songs/12
+    const songID = req.params.songId; 
     const userID = req.user.id;
 
     try {

@@ -8,13 +8,13 @@ const generateTokens = (userId) => {
     const accessToken = jwt.sign(
         { id: userId }, 
         process.env.JWT_SECRET, 
-        { expiresIn: '15m' } // Very short lifespan!
+        { expiresIn: '15m' } 
     );
     
     const refreshToken = jwt.sign(
         { id: userId }, 
         process.env.REFRESH_TOKEN_SECRET, 
-        { expiresIn: '7d' } // Logs them out after 7 days of inactivity
+        { expiresIn: '7d' } 
     );
 
     return { accessToken, refreshToken };
@@ -42,7 +42,6 @@ const register = async (req, res) => {
         const insertedUser = await query(text, [first_name, last_name, username, email, hashedPassword]);
         const user = insertedUser.rows[0];
 
-        // 1. Generate both tokens
         const { accessToken, refreshToken } = generateTokens(user.id);
 
         // 2. Send the Refresh Token in a secure, HTTP-Only cookie!
@@ -118,8 +117,6 @@ const logout = (req, res) => {
 
 const me = async (req, res) => {
     try {
-        // req.user.id comes directly from the verifyToken middleware.
-        // We select everything EXCEPT the password_hash.
         const text = `
             SELECT id, first_name, last_name, username, email, user_image, role, created_at 
             FROM users 
@@ -132,7 +129,6 @@ const me = async (req, res) => {
             return res.status(404).json({ success: false, error: "User no longer exists" });
         }
 
-        // Send the clean user profile back to the frontend
         res.status(200).json({ 
             success: true, 
             data: result.rows[0] 
@@ -144,21 +140,16 @@ const me = async (req, res) => {
 };
 
 
-// NEW: The Refresh Endpoint! React will call this quietly when the 15m token dies.
 const refresh = async (req, res) => {
-    // Note: You will need to `npm install cookie-parser` and add it to your Express app!
     const cookies = req.cookies;
     
-    // If there is no cookie, they are completely logged out.
     if (!cookies?.jwt) return res.status(401).json({ success: false, error: "Unauthorized" });
     
     const refreshToken = cookies.jwt;
 
     try {
-        // Verify the refresh token is still valid
         const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
         
-        // Give them a fresh 15-minute VIP pass!
         const accessToken = jwt.sign(
             { id: decoded.id }, 
             process.env.JWT_SECRET, 
@@ -167,7 +158,6 @@ const refresh = async (req, res) => {
 
         res.json({ success: true, token: accessToken });
     } catch (err) {
-        // If the refresh token is expired or tampered with, force them to log in again.
         return res.status(403).json({ success: false, error: "Forbidden - Please log in again" });
     }
 }
@@ -176,32 +166,23 @@ export const forgotPassword = async (req, res) => {
     const { email } = req.body;
 
     try {
-        // 1. Check if the user exists in the database
         const userResult = await query('SELECT * FROM users WHERE email = $1', [email]);
         
         if (userResult.rows.length === 0) {
-            // SECURITY RULE: Always return a success message even if the email doesn't exist.
-            // This prevents hackers from guessing which emails belong to your users.
             return res.status(200).json({ success: true, message: 'If that email exists in our system, a reset link has been sent.' });
         }
 
         const user = userResult.rows[0];
 
-        // 2. The Magic Secret: Combine your global JWT Secret with the user's CURRENT hashed password
-        // When they change their password, this hash changes, instantly destroying this token!
         const secret = process.env.JWT_SECRET + user.password_hash;
 
-        // 3. Generate a 15-minute VIP Token
         const payload = { email: user.email, id: user.id };
         const token = jwt.sign(payload, secret, { expiresIn: '15m' });
 
-        // 4. Construct the Frontend Reset Link
-        // We pass BOTH the user ID and the Token in the URL so the frontend can read them
         const frontendUrl = process.env.MAIN_URL;
             
         const resetLink = `${frontendUrl}/reset-password/${user.id}/${token}`;
 
-        // 5. Build the HTML Email
         const htmlContent = `
             <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background-color: #121212; border: 1px solid #2a2a3a; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
                 
@@ -235,7 +216,6 @@ export const forgotPassword = async (req, res) => {
             </div>
         `;
 
-        // 6. Send it!
         await sendEmail({
             to: user.email,
             subject: 'YumeTunes - Password Reset Request',

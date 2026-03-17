@@ -30,7 +30,6 @@ const getGlobalSearch = async (req, res) => {
 
         songValues.push(`%${q}%`);
         
-        // FIX: Now we strictly search ONLY the song's title!
         songConditions.push(`s.title ILIKE $${songValues.length}`);
 
         if (genre) {

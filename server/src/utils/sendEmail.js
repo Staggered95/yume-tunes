@@ -1,7 +1,6 @@
 import nodemailer from 'nodemailer';
 
 export const sendEmail = async (options) => {
-    // 1. Create the transporter with your Gmail credentials
     const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
@@ -10,7 +9,6 @@ export const sendEmail = async (options) => {
         }
     });
 
-    // 2. Define the email options
     const mailOptions = {
         from: `"YumeTunes Support" <${process.env.EMAIL_USER}>`,
         to: options.to,
@@ -18,6 +16,5 @@ export const sendEmail = async (options) => {
         html: options.html
     };
 
-    // 3. Send the email
     await transporter.sendMail(mailOptions);
 };

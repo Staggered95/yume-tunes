@@ -2,7 +2,6 @@ import fs from 'fs';
 import path from 'path';
 import { v2 as cloudinary } from 'cloudinary';
 
-// Configure Cloudinary (Make sure your .env has these!)
 cloudinary.config({ 
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME, 
   api_key: process.env.CLOUDINARY_API_KEY, 
@@ -18,8 +17,6 @@ export const deleteMedia = async (fileString) => {
 
     try {
         if (fileString.startsWith('http')) {
-            // --- CLOUDINARY DELETION --- 
-            // (Keep your existing Cloudinary deletion logic here, it works perfectly!)
             const urlParts = fileString.split('/upload/');
             if (urlParts.length > 1) {
                 const pathAfterUpload = urlParts[1];
@@ -34,18 +31,15 @@ export const deleteMedia = async (fileString) => {
                 console.log("☁️ Successfully deleted from Cloudinary:", publicId);
             }
         } else {
-            // --- LOCAL DISK DELETION ---
             const baseDir = fs.existsSync('/public') 
                 ? '/public' 
                 : '/home/Shubham/YumeTunes/public';
                 
             let absolutePath;
 
-            // THE FIX: Check if Multer already gave us the full physical path!
             if (fileString.startsWith(baseDir)) {
                 absolutePath = fileString; 
             } else {
-                // Otherwise, it's a relative path from the DB (e.g., '/audio/song.mp3')
                 absolutePath = path.join(baseDir, fileString);
             }
 

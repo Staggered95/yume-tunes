@@ -10,27 +10,8 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET 
 });
 
-// Helper function to safely delete files from the server
-const deletePhysicalFile = (relativePath) => {
-    if (!relativePath) return;
-    try {
-        // Use the exact base path where Multer saves the files
-        const basePath = '/home/Shubham/YumeTunes/public';
-        const absolutePath = path.join(basePath, relativePath);
-        
 
-        if (fs.existsSync(absolutePath)) {
-            fs.unlinkSync(absolutePath);
-            console.log("Successfully deleted:", absolutePath);
-        } else {
-            console.log("File not found on disk, skipping deletion.");
-        }
-    } catch (err) {
-        console.error("Could not delete old file:", err);
-    }
-};
-
-// === 1. GET ALL SONGS (For the SongManager Table) ===
+// get all songs for song manager
 const getAllSongs = async (req, res) => {
     try {
         const text = `
@@ -48,45 +29,37 @@ const getAllSongs = async (req, res) => {
     }
 };
 
-// === 2. ADD A NEW SONG ===
+// add new song
 const addSong = async (req, res) => {
-    // These come from the formData.append() in your React component
     const { title, artist_name, anime_title, song_type, duration_seconds, genre } = req.body;
     
     try {
         let audioPath = `/audio/${req.files['audio_file'][0].filename}`;
         let coverPath = null;
 
-        // The Hybrid Upload Logic for Images!
         if (req.files && req.files['cover_image']) {
     const localImagePath = req.files['cover_image'][0].path;
     
-    // The environment switch happens HERE instead of in Multer!
     const folderName = process.env.NODE_ENV === 'production' ? 'covers' : 'dev_covers';
 
     const result = await cloudinary.uploader.upload(localImagePath, { 
     folder: folderName,
     public_id: req.files['cover_image'][0].originalname.split('.')[0].replace(/\s+/g, '_'),
     
-    // Add the optimization here!
     format: 'webp',
     transformation: [
-        // Song covers are usually square. 'limit' prevents upscaling.
         { width: 800, height: 800, crop: 'limit' },
         { quality: 'auto' }
     ]
 });
     
     coverPath = result.secure_url;
-    
-    // Nuke the temporary image off the disk!
     await deleteMedia(localImagePath); 
 }
 
         // START TRANSACTION
         await query('BEGIN');
 
-        // 1. Get or Create ARTIST
         const artistQuery = `
             INSERT INTO artists (name) VALUES ($1) 
             ON CONFLICT (name) DO UPDATE SET name = EXCLUDED.name RETURNING id
@@ -94,7 +67,6 @@ const addSong = async (req, res) => {
         const artistRes = await query(artistQuery, [artist_name]);
         const artistId = artistRes.rows[0].id;
 
-        // 2. Get or Create ANIME (Only if provided)
         let animeId = null;
         if (anime_title && anime_title.trim() !== "") {
             const animeQuery = `
@@ -105,17 +77,14 @@ const addSong = async (req, res) => {
             animeId = animeRes.rows[0].id;
         }
 
-        // 3. Insert SONG
         const songQuery = `
             INSERT INTO songs (title, artist_id, anime_id, file_path, cover_path, song_type, duration_seconds) 
             VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id
         `;
-        // Make sure to capture the songId so we can link the genre!
         const songRes = await query(songQuery, [title, artistId, animeId, audioPath, coverPath, song_type, duration_seconds || null]);
         const songId = songRes.rows[0].id;
 
         if (genre && genre.trim() !== "") {
-            // Insert the genre into the 'genres' table
             const genreQuery = `
                 INSERT INTO genres (name) VALUES ($1) 
                 ON CONFLICT (name) DO UPDATE SET name = EXCLUDED.name RETURNING id
@@ -123,7 +92,6 @@ const addSong = async (req, res) => {
             const genreRes = await query(genreQuery, [genre.trim()]);
             const genreId = genreRes.rows[0].id;
 
-            // Link the song and the genre in the 'song_genres' table!
             await query(`INSERT INTO song_genres (song_id, genre_id) VALUES ($1, $2)`, [songId, genreId]);
         }
 
@@ -139,7 +107,7 @@ const addSong = async (req, res) => {
     }
 };
 
-// === 3. UPDATE AN EXISTING SONG ===
+// update in a song
 const updateSong = async (req, res) => {
     const songId = req.params.id;
     const { title, artist_name, anime_title, song_type, duration_seconds, genre } = req.body;
@@ -158,13 +126,12 @@ const updateSong = async (req, res) => {
 
         if (req.files && req.files['audio_file']) {
             audioPath = `/audio/${req.files['audio_file'][0].filename}`;
-            await deleteMedia(currentSong.file_path); // Smart delete old MP3
+            await deleteMedia(currentSong.file_path); 
         }
         
         if (req.files && req.files['cover_image']) {
     const localImagePath = req.files['cover_image'][0].path;
     
-    // The environment switch happens HERE instead of in Multer!
     const folderName = process.env.NODE_ENV === 'production' ? 'covers' : 'dev_covers';
 
     const result = await cloudinary.uploader.upload(localImagePath, { 
@@ -174,14 +141,12 @@ const updateSong = async (req, res) => {
     
     coverPath = result.secure_url;
     
-    // Nuke the temporary image off the disk!
     await deleteMedia(localImagePath); 
 }
 
         // START TRANSACTION
         await query('BEGIN');
 
-        // 3. Get or Create ARTIST
         const artistQuery = `
             INSERT INTO artists (name) VALUES ($1) 
             ON CONFLICT (name) DO UPDATE SET name = EXCLUDED.name RETURNING id
@@ -189,7 +154,6 @@ const updateSong = async (req, res) => {
         const artistRes = await query(artistQuery, [artist_name]);
         const artistId = artistRes.rows[0].id;
 
-        // 4. Get or Create ANIME
         let animeId = null;
         if (anime_title && anime_title.trim() !== "") {
             const animeQuery = `
@@ -200,7 +164,6 @@ const updateSong = async (req, res) => {
             animeId = animeRes.rows[0].id;
         }
 
-        // 5. Update the SONG row
         const updateQuery = `
             UPDATE songs 
             SET title = $1, artist_id = $2, anime_id = $3, file_path = $4, cover_path = $5, song_type = $6, duration_seconds=$7
@@ -231,7 +194,7 @@ const updateSong = async (req, res) => {
     }
 };
 
-// === 4. DELETE A SONG ===
+// delete a song
 const deleteSong = async (req, res) => {
     const songId = req.params.id;
 
@@ -244,10 +207,8 @@ const deleteSong = async (req, res) => {
         
         const { file_path, cover_path } = currentSongRes.rows[0];
 
-        // 1. Delete from DB (Cascades everywhere)
         await query(`DELETE FROM songs WHERE id = $1`, [songId]);
 
-        // 2. Clean up physical/cloud files concurrently!
         await Promise.all([
             deleteMedia(file_path),
             deleteMedia(cover_path)
@@ -261,7 +222,6 @@ const deleteSong = async (req, res) => {
     }
 };
 
-// === 5. UPDATE TIMED LYRICS ===
 const updateLyrics = async (req, res) => {
     const songId = req.params.id;
     const { lyrics } = req.body;
@@ -277,9 +237,7 @@ const updateLyrics = async (req, res) => {
     }
 };
 
-// === 6. AUTO-GENERATE LYRICS VIA LRCLIB ===
 const autoGenerateLyrics = async (req, res) => {
-    // We grab these straight from the URL now!
     const { title, artist } = req.query;
 
     if (!title || !artist) {
@@ -287,7 +245,6 @@ const autoGenerateLyrics = async (req, res) => {
     }
 
     try {
-        // Fetch directly from LRCLIB using the provided data
         const searchUrl = `https://lrclib.net/api/search?track_name=${encodeURIComponent(title)}&artist_name=${encodeURIComponent(artist)}`;
         
         const response = await fetch(searchUrl, {
@@ -321,7 +278,6 @@ const autoGenerateLyrics = async (req, res) => {
 //user management
 const getAllUsers = async (req, res) => {
     try {
-        // We do NOT select passwords here! Just the safe data.
         const result = await query(`
             SELECT id, username, email, user_image, role, created_at 
             FROM users 
@@ -334,13 +290,10 @@ const getAllUsers = async (req, res) => {
     }
 };
 
-// === 8. UPDATE USER ROLE ===
 const updateUserRole = async (req, res) => {
     const targetUserId = req.params.id;
     const { newRole } = req.body;
 
-    // Optional but highly recommended: Prevent the admin from accidentally demoting themselves!
-    // If you have the logged-in user's ID attached to req.user via your verifyToken middleware:
     if (req.user && req.user.id === parseInt(targetUserId)) {
         return res.status(400).json({ success: false, message: "You cannot change your own role." });
     }
@@ -354,9 +307,6 @@ const updateUserRole = async (req, res) => {
     }
 };
 
-// ==========================================
-// ENTITY MANAGEMENT (ARTISTS & ANIMES)
-// ==========================================
 
 const getAllArtists = async (req, res) => {
     try {
@@ -370,7 +320,6 @@ const getAllArtists = async (req, res) => {
 
 const getAllAnimes = async (req, res) => {
     try {
-        // Alias 'title' as 'name' so it perfectly matches the React frontend expectation!
         const result = await query(`SELECT id, title AS name FROM animes ORDER BY title ASC`);
         res.status(200).json({ success: true, data: result.rows });
     } catch (err) {
@@ -409,10 +358,9 @@ const deleteAnime = async (req, res) => {
     }
 };
 
-// === UPDATE ARTIST ===
 const updateArtist = async (req, res) => {
     const { id } = req.params;
-    const { name } = req.body; // The new name
+    const { name } = req.body; 
 
     try {
         await query(`UPDATE artists SET name = $1 WHERE id = $2`, [name, id]);
@@ -423,13 +371,11 @@ const updateArtist = async (req, res) => {
     }
 };
 
-// === UPDATE ANIME ===
 const updateAnime = async (req, res) => {
     const { id } = req.params;
-    const { name } = req.body; // The new name coming from React
+    const { name } = req.body; 
 
     try {
-        // Remember, your DB column is 'title' for Animes, not 'name'!
         await query(`UPDATE animes SET title = $1 WHERE id = $2`, [name, id]);
         res.status(200).json({ success: true, message: 'Anime updated successfully' });
     } catch (err) {
@@ -438,10 +384,8 @@ const updateAnime = async (req, res) => {
     }
 };
 
-// === 9. GET ANALYTICS DASHBOARD STATS ===
 const getDashboardStats = async (req, res) => {
     try {
-        // Run all aggregation queries simultaneously for speed
         const [usersRes, songsRes, quotesRes, topSongsRes] = await Promise.all([
             query(`SELECT COUNT(*) FROM users`),
             query(`SELECT COUNT(*) FROM songs`),

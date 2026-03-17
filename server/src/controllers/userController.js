@@ -23,12 +23,11 @@ const toggleLikeSong = async (req, res) => {
 }
 
 const getLikedSongs = async (req, res) => {
-    const userId = req.user.id; // Assuming you have auth middleware setting req.user
+    const userId = req.user.id;
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
     const offset = (page - 1) * limit;
 
-    // Notice we JOIN the junction table, and ORDER BY the date they liked it!
     const text = `
         SELECT 
             s.id, s.title, s.song_type, s.duration_seconds, s.file_path, s.cover_path,
@@ -95,12 +94,9 @@ const getUserDetails = async(req, res) => {
     }
 }
 
-// === GET PRIVATE HOME DATA (Continue Listening + Recommendations) ===
 const getUserHomeData = async (req, res) => {
-    // Assuming your verifyToken middleware attaches the user to req.user
     const userId = req.user.id; 
 
-    // 1. Continue Listening (Unique songs, ordered by most recently played)
     const continueQuery = `
         SELECT 
             s.id, s.title, s.cover_path, s.lyrics, s.file_path, 
@@ -116,7 +112,6 @@ const getUserHomeData = async (req, res) => {
         LIMIT 10
     `;
 
-    // 2. Recommendations (From the table our Cron Job populates!)
     const recommendQuery = `
         SELECT 
             s.id, s.title, s.cover_path, s.lyrics, s.file_path, 
@@ -152,7 +147,6 @@ const getUserHomeData = async (req, res) => {
 const getListeningHistory = async (req, res) => {
     const userID = req.user.id;
     
-    // Grabbing the exact chronological ledger, joining artist and anime data
     const text = `
         SELECT 
             lh.id AS history_id,
@@ -188,18 +182,14 @@ const uploadAvatar = async (req, res) => {
 
         const userId = req.user.id; 
         
-        // 2. THE FIX: Grab the fully complete Cloudinary URL directly!
         const imagePath = req.file.path;
 
-        // 3. Fetch the old avatar before we overwrite it in the database
         const oldUserRes = await query(`SELECT user_image FROM users WHERE id = $1`, [userId]);
         const oldAvatar = oldUserRes.rows[0]?.user_image;
 
-        // 4. Update the database with the new Cloudinary URL
         const updateQuery = `UPDATE users SET user_image = $1 WHERE id = $2 RETURNING user_image`;
         await query(updateQuery, [imagePath, userId]);
 
-        // 5. Smart Deletion: Wipe the old avatar from Cloud/Disk so storage stays clean!
         if (oldAvatar && oldAvatar !== imagePath) {
             await deleteMedia(oldAvatar);
         }
@@ -222,18 +212,14 @@ const uploadBanner = async (req, res) => {
 
         const userId = req.user.id;
         
-        // THE FIX: Grab the fully complete Cloudinary URL
         const bannerPath = req.file.path;
 
-        // Fetch the old banner
         const oldUserRes = await query(`SELECT banner_image FROM users WHERE id = $1`, [userId]);
         const oldBanner = oldUserRes.rows[0]?.banner_image;
 
-        // Update the database
         const updateQuery = `UPDATE users SET banner_image = $1 WHERE id = $2 RETURNING banner_image`;
         await query(updateQuery, [bannerPath, userId]);
 
-        // Smart Deletion
         if (oldBanner && oldBanner !== bannerPath) {
             await deleteMedia(oldBanner);
         }

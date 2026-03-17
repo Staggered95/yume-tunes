@@ -1,4 +1,3 @@
-// src/api/axios.js
 import axios from 'axios';
 
 const currentHost = window.location.hostname;
@@ -9,7 +8,6 @@ const api = axios.create({
   withCredentials: true 
 });
 
-// REQUEST INTERCEPTOR: Auto-attach JWT
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {

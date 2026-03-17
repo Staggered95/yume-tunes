@@ -1,6 +1,5 @@
 import { query } from '../config/db.js';
 
-// Notice how it takes an array of roles, and RETURNS the actual middleware function!
 const authorizeRoles = (...allowedRoles) => {
     return async (req, res, next) => {
         try {
@@ -15,7 +14,6 @@ const authorizeRoles = (...allowedRoles) => {
 
             const userRole = result.rows[0].role;
 
-            // THE CHECK: Is their role included in the allowed list for this route?
             if (!allowedRoles.includes(userRole)) {
                 return res.status(403).json({ 
                     success: false, 
@@ -23,7 +21,6 @@ const authorizeRoles = (...allowedRoles) => {
                 });
             }
 
-            // They are on the list! Let them pass.
             next();
             
         } catch (err) {

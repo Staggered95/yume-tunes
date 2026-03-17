@@ -4,7 +4,7 @@ import { submitContactForm } from '../controllers/contactController.js';
 
 const router = express.Router();
 
-// 🛡️ THE BOT SHIELD: Max 3 requests per hour per IP address
+// HE BOT SHIELD: Max 3 requests per hour per IP address
 const contactLimiter = rateLimit({
     windowMs: 60 * 60 * 1000, // 1 hour window
     max: 3, // limit each IP to 3 requests per windowMs
