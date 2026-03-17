@@ -1,38 +1,58 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Logo from '../minicomps/Logo';
-import { useTheme } from '../context/ThemeContext'; // 1. Import your theme context!
+import { useTheme } from '../context/ThemeContext'; 
+import { useAuth } from '../context/AuthContext'; 
 
 export default function Footer() {
-    // 2. Grab the current theme data
-    const { themeFamily, themeMode, themeFamilies } = useTheme();
+    const { themeFamily, setThemeFamily, themeMode, themeFamilies } = useTheme();
+    const { token, openAuthModal } = useAuth(); 
     
-    // Find the active theme object so we can grab its color and label
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const menuRef = useRef(null);
+    
     const activeFamily = themeFamilies.find(f => f.id === themeFamily) || themeFamilies[0];
 
+    // Close menu if clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (menuRef.current && !menuRef.current.contains(event.target)) {
+                setIsMenuOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    const handleThemeSelect = (theme) => {
+        // If they are not logged in and the theme is premium, hit them with the modal!
+        if (!theme.isFree && !token) {
+            setIsMenuOpen(false);
+            openAuthModal('register');
+            return;
+        }
+        setThemeFamily(theme.id);
+        setIsMenuOpen(false);
+    };
+
     return (
-        <footer className="bg-background-secondary border-t border-border rounded-t-3xl mt-auto w-full relative z-10 overflow-hidden">
+        <div className="bg-background-secondary border-t border-border rounded-t-3xl mt-auto w-full relative z-10">
             
-            {/* Subtle Top Gradient for depth */}
-            <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-accent-primary/30 to-transparent"></div>
+            <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-accent-primary/30 to-transparent overflow-hidden"></div>
 
             <div className="max-w-7xl mx-auto px-6 py-12 lg:px-8">
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-12 lg:gap-8">
                     
-                    {/* 1. BRANDING & MASCOT (Col span 5) */}
+                    {/* 1. BRANDING & MASCOT */}
                     <div className="md:col-span-5 flex flex-col sm:flex-row items-start sm:items-center gap-6">
-                        
-                        {/* Mascot Image */}
                         <div className="relative shrink-0 flex items-end justify-center w-24 sm:w-28 group">
                             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 bg-accent-primary/20 rounded-full blur-2xl transition-all duration-500 group-hover:bg-accent-primary/40 group-hover:scale-110"></div>
-                            
                             <img 
                                 src="https://res.cloudinary.com/ddc6silap/image/upload/mascot_ipgjzj"
                                 alt="YumeTunes Mascot" 
                                 className="relative z-10 w-full h-auto object-contain drop-shadow-[0_0_15px_rgba(157,92,250,0.3)] transition-transform duration-500 group-hover:scale-105 group-hover:-translate-y-2"
                             />
                         </div>
-                        
                         <div className="flex flex-col">
                             <div className="flex items-center gap-2 mb-2">
                                 <Logo />
@@ -44,22 +64,20 @@ export default function Footer() {
                         </div>
                     </div>
 
-                    {/* 2. NAVIGATION LINKS (Col span 4) */}
+                    {/* 2. NAVIGATION LINKS */}
                     <div className="md:col-span-4 grid grid-cols-2 gap-8 pt-2 sm:pt-0">
                         <div>
                             <h3 className="text-xs font-black text-text-primary uppercase tracking-widest mb-5">Explore</h3>
                             <ul className="space-y-3 text-sm font-semibold text-text-secondary">
                                 <li><Link to="/home" className="hover:text-accent-primary transition-colors">Home</Link></li>
                                 <li><Link to="/library" className="hover:text-accent-primary transition-colors">Library</Link></li>
-                                <li><Link to="/animes" className="hover:text-accent-primary transition-colors">Animes</Link></li>
+                                <li><Link to="/animes" className="hover:text-accent-primary transition-colors">Anime OSTs</Link></li>
                                 <li><Link to="/artists" className="hover:text-accent-primary transition-colors">Artists</Link></li>
                             </ul>
                         </div>
                         <div>
-                            {/* Renamed the header slightly to make Contact fit logically */}
                             <h3 className="text-xs font-black text-text-primary uppercase tracking-widest mb-5">Support & Legal</h3>
                             <ul className="space-y-3 text-sm font-semibold text-text-secondary">
-                                {/* ✨ Added the Contact link right at the top! ✨ */}
                                 <li><Link to="/contact" className="hover:text-accent-primary transition-colors flex items-center gap-2">Contact Us <span className="w-1.5 h-1.5 rounded-full bg-accent-primary animate-pulse"></span></Link></li>
                                 <li><Link to="/terms" className="hover:text-accent-primary transition-colors">Terms of Service</Link></li>
                                 <li><Link to="/privacy" className="hover:text-accent-primary transition-colors">Privacy Policy</Link></li>
@@ -68,28 +86,48 @@ export default function Footer() {
                         </div>
                     </div>
 
-                    {/* 3. DYNAMIC THEME SELECTOR & SOCIALS (Col span 3) */}
-                    <div className="md:col-span-3 flex flex-col md:items-end gap-8 pt-2 sm:pt-0">
+                    {/* 3. DYNAMIC THEME SELECTOR & SOCIALS */}
+                    <div className="md:col-span-3 flex flex-col md:items-end gap-8 pt-2 sm:pt-0" ref={menuRef}>
                         
-                        <div className="flex flex-col md:items-end w-full">
+                        <div className="flex flex-col md:items-end w-full relative">
                             <h3 className="text-xs font-black text-text-primary uppercase tracking-widest mb-4">Appearance</h3>
                             
-                            {/* NEW: Dynamic Theme Pill serving as a shortcut */}
-                            <Link 
-                                to="/user" 
-                                state={{ activeTab: 'settings' }} 
+                            {/* THEME MENU DROPDOWN */}
+                            <div className={`absolute bottom-full mb-2 right-0 md:right-auto w-56 bg-background-secondary/95 backdrop-blur-xl border border-border rounded-2xl shadow-2xl p-2 transition-all duration-300 origin-bottom flex flex-col gap-1 z-50 ${isMenuOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none'}`}>
+                                <div className="px-3 py-2 text-[10px] font-bold text-text-muted uppercase tracking-widest mb-1">
+                                    Select Theme
+                                </div>
+                                {themeFamilies.map((theme) => {
+                                    const isLocked = !theme.isFree && !token;
+                                    const isSelected = theme.id === themeFamily;
+                                    return (
+                                        <button 
+                                            key={theme.id}
+                                            onClick={() => handleThemeSelect(theme)}
+                                            className={`flex items-center w-full p-2 rounded-xl transition-colors ${isSelected ? 'bg-background-active' : 'hover:bg-background-hover'}`}
+                                        >
+                                            <div className="flex items-center gap-3 flex-1 min-w-0">
+                                                <div className="w-4 h-4 rounded-full shadow-inner shrink-0" style={{ backgroundColor: theme.color }}></div>
+                                                <span className={`text-sm font-bold truncate text-left ${isSelected ? 'text-accent-primary' : 'text-text-primary'}`}>{theme.label}</span>
+                                            </div>
+                                            {isLocked && (
+                                                <svg className="w-4 h-4 text-text-muted shrink-0 ml-2" fill="currentColor" viewBox="0 0 24 24"><path d="M18 10v-4c0-3.313-2.687-6-6-6s-6 2.687-6 6v4h-3v14h18v-14h-3zm-10-4c0-2.206 1.794-4 4-4s4 1.794 4 4v4h-8v-4zm6 11.236v2.764h-4v-2.764c-.596-.341-1-.983-1-1.736 0-1.104.896-2 2-2s2 .896 2 2c0 .753-.404 1.395-1 1.736z"/></svg>
+                                            )}
+                                        </button>
+                                    )
+                                })}
+                            </div>
+
+                            {/* THEME SELECTOR BUTTON */}
+                            <button 
+                                onClick={() => setIsMenuOpen(!isMenuOpen)} 
                                 className="group flex items-center justify-between md:justify-start gap-4 p-2 pr-5 rounded-full border border-border bg-background-primary/50 hover:bg-background-hover hover:border-accent-primary/50 transition-all duration-300 w-full md:w-auto"
-                                title="Change Theme in Settings"
                             >
                                 <div className="flex items-center gap-3">
                                     <div 
                                         className="w-8 h-8 rounded-full shadow-inner flex items-center justify-center transition-transform duration-300 group-hover:scale-110"
-                                        style={{ 
-                                            backgroundColor: activeFamily.color, 
-                                            boxShadow: `0 0 12px ${activeFamily.color}60` 
-                                        }}
+                                        style={{ backgroundColor: activeFamily.color, boxShadow: `0 0 12px ${activeFamily.color}60` }}
                                     >
-                                        {/* Tiny icon inside the orb indicating the mode */}
                                         {themeMode === 'dark' ? (
                                             <svg className="w-4 h-4 text-white/90" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" /></svg>
                                         ) : (
@@ -101,8 +139,8 @@ export default function Footer() {
                                         <span className="text-sm font-black text-text-primary leading-none">{activeFamily.label}</span>
                                     </div>
                                 </div>
-                                <svg className="w-4 h-4 text-text-muted group-hover:text-accent-primary transition-colors transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-                            </Link>
+                                <svg className={`w-4 h-4 text-text-muted group-hover:text-accent-primary transition-transform duration-300 ${isMenuOpen ? '-rotate-90' : 'translate-x-1'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                            </button>
                         </div>
 
                         {/* Social Icons */}
@@ -118,20 +156,18 @@ export default function Footer() {
                 </div>
 
                 {/* BOTTOM BORDER & COPYRIGHT */}
-<div className="mt-16 pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4">
-    <div className="flex items-center gap-3">
-        <p className="text-xs font-semibold text-text-muted">
-            &copy; {new Date().getFullYear()} YumeTunes. All rights reserved.
-        </p>
-        <span className="text-text-muted/30">·</span>
-        <span className="text-xs font-semibold text-text-muted/50">v1.0</span>
-    </div>
-    <p className="text-xs font-semibold text-text-muted flex items-center gap-1.5">
-        Built with <span className="text-error animate-pulse">♥</span> for Anime Fans
-    </p>
-</div>
+                <div className="mt-16 pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                        <p className="text-xs font-semibold text-text-muted">&copy; {new Date().getFullYear()} YumeTunes. All rights reserved.</p>
+                        <span className="text-text-muted/30">·</span>
+                        <span className="text-xs font-semibold text-text-muted/50">v1.0</span>
+                    </div>
+                    <p className="text-xs font-semibold text-text-muted flex items-center gap-1.5">
+                        Built with <span className="text-error animate-pulse">♥</span> for Anime Fans
+                    </p>
+                </div>
 
             </div>
-        </footer>
+        </div>
     );
 }

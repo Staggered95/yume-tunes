@@ -6,14 +6,14 @@ const ThemeContext = createContext();
 // The 'color' property is the primary accent color of the dark mode, 
 // perfect for rendering a little preview circle in a dropdown menu.
 export const THEME_FAMILIES = [
-    { id: 'default', label: 'Default (Purple)', color: '#9D5CFA' },
-    { id: 'gruvbox', label: 'Gruvbox', color: '#d3869b' },
-    { id: 'nord', label: 'Nord (Icy)', color: '#88C0D0' },
-    { id: 'dracula', label: 'Dracula', color: '#bd93f9' },
-    { id: 'everforest', label: 'Everforest', color: '#a7c080' },
-    { id: 'crimson', label: 'Crimson', color: '#e63946' },
-    { id: 'solar', label: 'Solar', color: '#e9c46a' },
-    { id: 'ocean', label: 'Ocean', color: '#0ea5e9' }
+    { id: 'default', label: 'Default (Purple)', color: '#9D5CFA', isFree: true },
+    { id: 'gruvbox', label: 'Gruvbox', color: '#d3869b', isFree: true },
+    { id: 'nord', label: 'Nord (Icy)', color: '#88C0D0', isFree: true },
+    { id: 'dracula', label: 'Dracula', color: '#bd93f9', isFree: false },
+    { id: 'everforest', label: 'Everforest', color: '#a7c080', isFree: false },
+    { id: 'crimson', label: 'Crimson', color: '#e63946', isFree: false },
+    { id: 'solar', label: 'Solar', color: '#e9c46a', isFree: false },
+    { id: 'ocean', label: 'Ocean', color: '#0ea5e9', isFree: false }
 ];
 
 export const ThemeProvider = ({ children }) => {
