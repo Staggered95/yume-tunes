@@ -7,7 +7,7 @@ const LiveLyrics = ({ lyrics, language }) => {
     const rAFRef = useRef(null);
     const { audioRef } = usePlayback();
 
-    // === 1. THE 60FPS TIME TRACKER ===
+    // === 1. TIME TRACKER ===
     useEffect(() => {
         const audio = audioRef.current;
         if (!audio) return;

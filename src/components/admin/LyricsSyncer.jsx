@@ -3,7 +3,6 @@ import { useToast } from '../../context/ToastContext';
 import api from '../../api/axios';
 import { getMediaUrl } from '../../utils/media';
 
-// --- UTILITIES ---
 const formatLrcTime = (timeInSeconds) => {
     const min = Math.floor(timeInSeconds / 60);
     const sec = (timeInSeconds % 60).toFixed(2);
@@ -65,7 +64,7 @@ const LyricsSyncer = ({ songId, songTitle, songArtist, audioUrl, initialLyrics, 
         }
     }, [activeIndex]);
 
-    // Keyboard controls (Desktop)
+    // Keyboard controls
     useEffect(() => {
         const handleKeyDown = (e) => {
             if (phase !== 2) return;
@@ -116,7 +115,7 @@ const LyricsSyncer = ({ songId, songTitle, songArtist, audioUrl, initialLyrics, 
     const stampTime = () => {
         if (!audioRef.current) return;
         
-        // THE GUARD CLAUSE: Stop if we are already past the last line!
+        // Stop if we are already past the last line!
         if (activeIndex >= syncLines.length) {
             addToast("All lines are already synced!", "info");
             return; 
@@ -126,7 +125,6 @@ const LyricsSyncer = ({ songId, songTitle, songArtist, audioUrl, initialLyrics, 
         
         setSyncLines(prev => {
             const newLines = [...prev];
-            // Extra safety check just in case
             if (newLines[activeIndex]) {
                 newLines[activeIndex].time = currentTime;
             }

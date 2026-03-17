@@ -7,14 +7,12 @@ export const usePagination = (endpoint, queryParams, resetDependency) => {
     const [loading, setLoading] = useState(true);
     const [hasMore, setHasMore] = useState(true);
 
-    // 1. Reset everything if the URL changes (e.g., clicking a new Genre)
     useEffect(() => {
         setData([]);
         setPage(1);
         setHasMore(true);
     }, [resetDependency]);
 
-    // 2. Fetch the data whenever the page number changes
     useEffect(() => {
         if (!hasMore) return;
 
@@ -27,7 +25,6 @@ export const usePagination = (endpoint, queryParams, resetDependency) => {
 
                 const newItems = response.data.data;
                 
-                // THE MAGIC: If it's page 1, replace data. If page 2+, append it!
                 setData(prev => page === 1 ? newItems : [...prev, ...newItems]);
                 setHasMore(response.data.pagination.hasMore);
 
@@ -39,10 +36,8 @@ export const usePagination = (endpoint, queryParams, resetDependency) => {
         };
 
         fetchData();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [page, resetDependency]); 
 
-    // 3. The trigger function we will call when the user scrolls down
     const loadNextPage = useCallback(() => {
         if (!loading && hasMore) {
             setPage(prev => prev + 1);

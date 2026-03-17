@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../api/axios'; // Native Axios instance
+import api from '../api/axios'; 
 import { useSongs } from '../context/SongContext';
 import { getMediaUrl } from '../utils/media';
 
@@ -17,12 +17,10 @@ export default function SearchAutocomplete({autoFocus}) {
 
     const { playQueue } = useSongs();
 
-    // Reset focus when query changes
     useEffect(() => {
         setFocusedIndex(-1);
     }, [query]);
 
-    // Keep item refs in sync with results
     useEffect(() => {
         itemRefs.current = [];
     }, [results]);
@@ -64,7 +62,6 @@ export default function SearchAutocomplete({autoFocus}) {
 
     const fetchResults = async (searchTerm) => {
         try {
-            // Using the 'api' instance which already knows the baseURL
             const { data } = await api.get(`/songs/search?q=${searchTerm}`);
             setResults(data.data);
             setShowDropdown(true);
@@ -73,7 +70,6 @@ export default function SearchAutocomplete({autoFocus}) {
         }
     };
 
-    // Add this useEffect to handle auto-focusing when rendered
     useEffect(() => {
         if (autoFocus && inputRef.current) {
             inputRef.current.focus();
@@ -93,7 +89,7 @@ export default function SearchAutocomplete({autoFocus}) {
             if (focusedIndex >= 0 && results[focusedIndex]) {
                 playQueue([results[focusedIndex]]);
                 setShowDropdown(false);
-                setQuery(''); // Clear search on selection
+                setQuery(''); 
             } else if (query.trim()) {
                 setShowDropdown(false);
                 navigate(`/search?q=${encodeURIComponent(query)}`);

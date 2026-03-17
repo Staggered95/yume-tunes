@@ -62,7 +62,6 @@ const ContactPage = () => {
         }
     };
 
-    // The perfectly optimized Cloudinary URL
     const mascotImg = "https://res.cloudinary.com/ddc6silap/image/upload/f_auto,q_auto,w_600/v1773518851/contact_i9lshy.png";
 
     return (

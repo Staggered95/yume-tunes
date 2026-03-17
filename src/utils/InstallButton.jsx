@@ -14,7 +14,6 @@ const InstallButton = () => {
 
         window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
-        // Cleanup
         return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     }, []);
 
@@ -33,12 +32,10 @@ const InstallButton = () => {
             console.log('User dismissed the YumeTunes install prompt');
         }
 
-        // We've used the prompt, and can't use it again, discard it
         setDeferredPrompt(null);
         setIsInstallable(false);
     };
 
-    // If the app is already installed or not ready, hide the button
     if (!isInstallable) return null;
 
     return (

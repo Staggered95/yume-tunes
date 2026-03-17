@@ -65,7 +65,6 @@ export default function Navbar() {
                             
                             {/* THE DYNAMIC NAVIGATION BUTTON */}
                             {hasAdminAccess ? (
-                                /* Renders if User is Admin/Moderator */
                                 <button 
                                     onClick={() => navigate('/admin')}
                                     className="hidden md:flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-xs font-black uppercase tracking-widest text-text-secondary hover:text-accent-primary hover:border-accent-primary/50 transition-all duration-300"
@@ -77,7 +76,6 @@ export default function Navbar() {
                                     {roleLabel} 
                                 </button>
                             ) : (
-                                /* Renders if User is Normal or Not Logged In */
                                 <button 
                                     onClick={() => navigate('/contact')}
                                     className="hidden md:flex items-center gap-2 px-4 py-2 rounded-full border border-transparent text-sm font-bold tracking-widest text-text-muted hover:text-accent-primary transition-all duration-300"
@@ -98,7 +96,6 @@ export default function Navbar() {
                                 </svg>
                             </button>
                             
-                            {/* FIX: Hidden on mobile (md:block) */}
                             <div className="hidden md:block">
                                 <ThemeToggle/>
                             </div>

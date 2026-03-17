@@ -25,7 +25,6 @@ export default function TagChips({ currentGenre = null }) {
         );
       })}
       
-      {/* "Show All" Link with Theme Colors */}
       <button 
         onClick={() => navigate('/genres')}
         className="px-6 py-2 text-sm font-black text-accent-primary hover:text-accent-hover hover:underline transition-colors whitespace-nowrap shrink-0"

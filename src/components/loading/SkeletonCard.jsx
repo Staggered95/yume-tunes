@@ -1,6 +1,5 @@
 import React from 'react';
 
-// 1. MIRRORED STYLES: These exactly match the dimensions of your SongCard.
 const skeletonStyles = {
   square: {
     container: "w-32 md:w-48 flex flex-col gap-2 shrink-0 animate-pulse",

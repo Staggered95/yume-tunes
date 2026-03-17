@@ -8,7 +8,7 @@ import LyricsSyncer from '../components/admin/LyricsSyncer';
 import UserManager from '../components/admin/UserManager';
 import SiteContentManager from '../components/admin/SiteContentManager';
 import AnalyticsDashboard from '../components/admin/AnalyticsDashboard';
-import ArtistAnimeManager from '../components/admin/ArtistAnimeManager'; // <-- 1. Import it!
+import ArtistAnimeManager from '../components/admin/ArtistAnimeManager'; 
 
 // ==========================================
 // THE MAIN ADMIN SHELL
@@ -76,7 +76,7 @@ const AdminPage = () => {
         }
         
         switch (activeTab) {
-            case 'entities': // <-- 2. Add to switch statement!
+            case 'entities': 
                 return <ArtistAnimeManager />;
             case 'users': 
                 return isAdmin ? <UserManager /> : <div className="text-error p-6 font-bold">Access Denied</div>;
@@ -89,7 +89,6 @@ const AdminPage = () => {
         }
     };
 
-    // 3. Add to the Navigation Sidebar
     const navItems = [
         { 
             id: 'songs', 
@@ -105,7 +104,6 @@ const AdminPage = () => {
             label: 'Artists & Anime', 
             icon: (
                 <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    {/* A cool Filmstrip/Media icon to represent Anime & Artists */}
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" />
                 </svg>
             ) 

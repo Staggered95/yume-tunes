@@ -4,7 +4,6 @@ import HeroCarousel from '../components/HeroCarousel';
 import TagChips from '../components/TagChips';
 import GreetingHeader from '../components/GreetingHeader';
 import SectionRow from '../components/SectionRow';
-import { useSongs } from '../context/SongContext';
 import { useAuth } from '../context/AuthContext';
 import { useUser } from '../context/UserContext';
 
@@ -17,7 +16,6 @@ function HomePage() {
   const [quotes, setQuotes] = useState([]);
   const [banners, setBanners] = useState([]);
 
-  // NEW: Dedicated Loading States
   const [isPublicLoading, setIsPublicLoading] = useState(true);
   const [isPrivateLoading, setIsPrivateLoading] = useState(true);
 
@@ -40,7 +38,7 @@ function HomePage() {
       } catch (err) {
         console.error("Failed to fetch public home data:", err);
       } finally {
-        setIsPublicLoading(false); // Stop skeletons
+        setIsPublicLoading(false); 
       }
     };
     fetchPublicData();
@@ -66,7 +64,7 @@ function HomePage() {
       } catch (err) {
         console.error("Failed to fetch private home data:", err);
       } finally {
-        setIsPrivateLoading(false); // Stop skeletons
+        setIsPrivateLoading(false); 
       }
     };
     fetchPrivateData();
@@ -84,8 +82,6 @@ function HomePage() {
           
           {isLoggedIn ? (
             <>
-              {/* No need to check continueListening.length > 0 anymore, 
-                  because SectionRow hides itself if items are empty! */}
               <SectionRow 
                 title="Continue Listening" 
                 type="square" 

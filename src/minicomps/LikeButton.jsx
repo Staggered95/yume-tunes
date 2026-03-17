@@ -34,7 +34,6 @@ const LikeButton = ({ songId, className = "", variant = "default" }) => {
         }
     };
 
-    // ✨ UPGRADED RESPONSIVE STYLES ✨
     let iconStyles = "";
     
     if (variant === 'massive') {

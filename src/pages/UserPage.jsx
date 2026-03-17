@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import api from '../api/axios'; // Centralized Axios instance
+import api from '../api/axios'; 
 import { useAuth } from '../context/AuthContext';
 import { useUser } from '../context/UserContext';
 import { useToast } from '../context/ToastContext';
@@ -50,8 +50,6 @@ const UserPage = () => {
         if (location.state?.activeTab) {
             setActiveTab(location.state.activeTab);
             
-            // Optional: Clear the state from the URL history so if they refresh 
-            // the page later, it doesn't force them back to settings.
             window.history.replaceState({}, document.title);
         }
     }, [location.state]);

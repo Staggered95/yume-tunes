@@ -3,9 +3,9 @@ import { useAuth } from '../context/AuthContext';
 import { useUser } from '../context/UserContext';
 import { useSongs } from '../context/SongContext';
 import ShuffleButton from '../minicomps/ShuffleButton';
-import SkeletonCard from '../components/loading/SkeletonCard'; // Our master skeleton!
+import SkeletonCard from '../components/loading/SkeletonCard'; 
 import { getMediaUrl } from '../utils/media';
-import { usePagination } from '../hooks/usePagination'; // The custom hook
+import { usePagination } from '../hooks/usePagination'; 
 import OptionsMenu from '../minicomps/OptionsMenu';
 
 const LikedSongsPage = () => {
@@ -13,15 +13,13 @@ const LikedSongsPage = () => {
     const { userProfile } = useUser();
     const { playQueue, playShuffledQueue } = useSongs();
     
-    // 1. Swap out manual state for the pagination hook
     const { 
         data: songs, 
         loading, 
         hasMore, 
         loadNextPage 
-    } = usePagination('/user/likedsongs', {}, isLoggedIn); // Re-run if auth changes
+    } = usePagination('/user/likedsongs', {}, isLoggedIn); 
 
-    // 2. The Intersection Observer (Trigger 9 items early!)
     const observer = useRef();
     const lastSongElementRef = useCallback(node => {
         if (loading) return;
@@ -43,7 +41,6 @@ const LikedSongsPage = () => {
         return `${mins}:${secs.toString().padStart(2, '0')}`;
     };
 
-    // 3. Initial Full-Page Loading State
     if (loading && songs.length === 0) {
         return (
             <div className="min-h-screen bg-background-primary flex items-center justify-center">

@@ -4,7 +4,6 @@ import PlaylistModal from '../components/PlaylistModal';
 const AddToPlaylistButton = ({ songId, variant = 'bottom', className = '', children }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    // Standardized Icon for the Bottom Player
     const BottomPlayerIcon = () => (
         <svg 
             xmlns="http://www.w3.org/2000/svg" 
@@ -25,7 +24,6 @@ const AddToPlaylistButton = ({ songId, variant = 'bottom', className = '', child
         </svg>
     );
 
-    // Standardized Icon for the Fullscreen View
     const FullScreenIcon = () => (
         <svg 
             xmlns="http://www.w3.org/2000/svg" 
@@ -56,10 +54,7 @@ const AddToPlaylistButton = ({ songId, variant = 'bottom', className = '', child
                 title="Add to Playlist"
                 className={`group flex items-center justify-center text-text-secondary hover:text-text-primary transition-all duration-300 active:scale-90 ${className}`} 
             >
-                {/* LOGIC: 
-                   1. If children exist (custom text or icon), render them.
-                   2. If no children, render the SVG based on the variant.
-                */}
+                
                 {children ? children : (
                     variant === 'full' ? <FullScreenIcon /> : <BottomPlayerIcon />
                 )}

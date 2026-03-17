@@ -22,7 +22,6 @@ const MobileNav = () => {
             label: 'Artists', 
             path: '/artists', 
             icon: (
-                // Microphone icon for Artists
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z" />
                     <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
@@ -35,7 +34,6 @@ const MobileNav = () => {
             label: 'Animes', 
             path: '/animes', 
             icon: (
-                // TV icon for Animes
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="2" y="7" width="20" height="15" rx="2" ry="2" />
                     <polyline points="17 2 12 7 7 2" />
@@ -63,7 +61,6 @@ const MobileNav = () => {
         >
             <div className="flex justify-around items-center h-14 px-2">
                 {tabs.map((tab) => {
-                    // Logic to ensure exact match for home, but partial match for other routes (e.g. /artists/123)
                     const isActive = tab.path === '/' 
                         ? pathname === '/' 
                         : pathname.startsWith(tab.path);

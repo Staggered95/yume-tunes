@@ -2,13 +2,9 @@ import React from 'react';
 import { useColor } from 'color-thief-react';
 import girl from '../assets/anime-girl.png';
 
-// Added default fallbacks so it doesn't break if props are missing
 const FeaturedCard = ({ imageUrl, title = "Trending", tagline = "Explore richness" }) => {
-  // This hook gets the dominant color from the imageUrl
   const { data: dominantColor, loading } = useColor(imageUrl, 'hex', { crossOrigin: 'anonymous' });
 
-  // Create a dynamic style for the background gradient overlay
-  // Using an opacity hex (e.g., '40' for 25% opacity) to blend it beautifully with your dark theme
   const cardStyle = {
     backgroundImage: loading || !dominantColor
       ? 'none' 
@@ -30,7 +26,6 @@ const FeaturedCard = ({ imageUrl, title = "Trending", tagline = "Explore richnes
         </p>
       </div>
       
-      {/* Mascot Image - Made responsive and added a hover pop effect! */}
       <img 
         src={girl} 
         alt="Featured Mascot" 

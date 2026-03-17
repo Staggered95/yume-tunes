@@ -12,7 +12,7 @@ const SiteContentManager = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [deleteModal, setDeleteModal] = useState({
                             isOpen: false,
-                            type: null,    // e.g., 'quote', 'banner', 'user'
+                            type: null,    // 'quote', 'banner', 'user', etc.
                             id: null,      // The ID of the item
                             title: '',     // Dynamic title
                             message: ''    // Dynamic message
@@ -127,7 +127,6 @@ const SiteContentManager = () => {
         formData.append('banner_image', bannerFile);
 
         try {
-            // FIX: Pass formData directly, NOT inside curly braces {formData}
             const { data } = await api.post('/admin/banners', formData);
             if (data.success) {
                 addToast("Banner uploaded!", "success");
@@ -174,14 +173,11 @@ const SiteContentManager = () => {
                 setBanners(banners.filter(b => b.id !== id));
                 addToast("Banner deleted", "success");
             }
-            // ... you can add 'song', 'user', etc. here later!
         
         } catch (err) { 
             const errorMessage = err.response?.data?.error || `Failed to delete ${type}`;
-            //addToast(`Failed to delete ${type}`, "error"); 
             addToast(errorMessage, "error");
         } finally {
-            // Reset the state to close the modal and clear data
             setDeleteModal({ isOpen: false, type: null, id: null, title: '', message: '' });
         }   
     };
@@ -211,9 +207,7 @@ const SiteContentManager = () => {
                 </div>
             </div>
 
-            {/* =========================================
-                VIEW: QUOTES
-            ========================================= */}
+            {/* QUOTES*/}
             {activeView === 'quotes' && (
                 <div className="space-y-6 animate-fade-in">
                     <div className="flex justify-end">
@@ -264,9 +258,7 @@ const SiteContentManager = () => {
                 </div>
             )}
 
-            {/* =========================================
-                VIEW: BANNERS
-            ========================================= */}
+            {/* BANNERS */}
             {activeView === 'banners' && (
                 <div className="space-y-6 animate-fade-in">
                     <div className="flex justify-end">

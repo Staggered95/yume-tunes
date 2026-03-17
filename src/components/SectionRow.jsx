@@ -1,12 +1,11 @@
 import React from 'react';
 import SongCard from './SongCard';
-import SkeletonCard from './loading/SkeletonCard'; // <-- Import the Master Skeleton!
+import SkeletonCard from './loading/SkeletonCard'; 
 
 export default function SectionRow({ title, type = 'square', items = [], isLoading = false }) {
   
   const isStackedLayout = type === 'wide' || type === 'list';
 
-  // If it's not loading and there are no items, completely hide the row!
   if (!isLoading && items.length === 0) return null;
 
   return (
@@ -37,7 +36,6 @@ export default function SectionRow({ title, type = 'square', items = [], isLoadi
       >
         {isLoading ? (
           /* SHOW SKELETONS */
-          /* If it's a stacked grid, render 9 ghosts. If single row, render 6 ghosts. */
           [...Array(isStackedLayout ? 9 : 6)].map((_, i) => (
              <div key={`skeleton-${i}`} className="snap-start h-full">
                 <SkeletonCard shape={type} />

@@ -23,7 +23,6 @@ export default function UserSettings() {
                             <p className="text-xs font-medium text-text-secondary">Select your core brand aesthetic.</p>
                         </div>
                         
-                        {/* NEW: Premium Radio Cards Grid */}
                         <div className="grid grid-cols-2 gap-3">
                             {themeFamilies.map((family) => {
                                 const isActive = themeFamily === family.id;

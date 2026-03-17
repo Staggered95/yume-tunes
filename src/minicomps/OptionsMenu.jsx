@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom'; 
 import { useSongs } from '../context/SongContext';
 import { useToast } from '../context/ToastContext';
-import { useSmartPositionTwo } from '../hooks/useSmartPositionTwo'; // Welcome back!
+import { useSmartPositionTwo } from '../hooks/useSmartPositionTwo'; 
 import PlaylistModal from '../components/PlaylistModal';
 
 const OptionsMenu = ({ song, className = "" }) => {
@@ -17,7 +17,6 @@ const OptionsMenu = ({ song, className = "" }) => {
     const { addToQueue, playNextInQueue } = useSongs();
     const { addToast } = useToast();
 
-    // The Magic Hook doing all the math behind the scenes
     const portalStyle = useSmartPositionTwo(isOpen, buttonRef);
 
     useEffect(() => {
@@ -56,7 +55,6 @@ const OptionsMenu = ({ song, className = "" }) => {
     const DropdownPortal = () => createPortal(
         <div 
             ref={dropdownRef}
-            // Just plug the style object directly in!
             style={portalStyle}
             className="w-56 bg-background-secondary/95 border border-border rounded-xl shadow-2xl py-2 z-[9999] overflow-hidden animate-in fade-in zoom-in-95 duration-200"
             onClick={(e) => e.stopPropagation()} 

@@ -1,17 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-// Import your fallbacks
-import fallbackBanner1 from '../assets/one.png'; 
-import fallbackBanner2 from '../assets/two.png'; 
-import fallbackBanner3 from '../assets/three.jpg'; 
 import { getMediaUrl } from '../utils/media';
-
-const fallbackBanners = [
-  { id: 'f1', title: "Anime of the Day", subtitle: "Kamisato Ayaka: The Frostflake Heron", image_path: fallbackBanner1 },
-  { id: 'f2', title: "Featured Artist", subtitle: "LiSA - Crossing Field (2026 Remaster)", image_path: fallbackBanner2 },
-  { id: 'f3', title: "New Season", subtitle: "Winter 2026: Top Openings", image_path: fallbackBanner3 },
-];
 
 const overlayGradients = [
     "from-accent-primary/80", 
@@ -28,10 +17,9 @@ export default function HeroCarousel({ dbBanners }) {
   const [touchStartX, setTouchStartX] = useState(null);
   const [touchEndX, setTouchEndX] = useState(null);
 
-  // Minimum distance (in pixels) to be considered a valid swipe
   const minSwipeDistance = 50; 
-
-  const displayBanners = dbBanners?.length > 0 ? dbBanners : fallbackBanners;
+  
+  const displayBanners = dbBanners || [];
 
   // --- NAVIGATION HELPERS ---
   const nextSlide = () => setActive((prev) => (prev + 1) % displayBanners.length);
@@ -39,7 +27,7 @@ export default function HeroCarousel({ dbBanners }) {
 
   // --- TOUCH HANDLERS ---
   const handleTouchStart = (e) => {
-    setTouchEndX(null); // Reset end position on new touch
+    setTouchEndX(null); 
     setTouchStartX(e.targetTouches[0].clientX);
   };
 
@@ -51,34 +39,36 @@ export default function HeroCarousel({ dbBanners }) {
     if (!touchStartX || !touchEndX) return;
     
     const distance = touchStartX - touchEndX;
-    const isLeftSwipe = distance > minSwipeDistance;
-    const isRightSwipe = distance < -minSwipeDistance;
-
-    if (isLeftSwipe) nextSlide();
-    if (isRightSwipe) prevSlide();
+    if (distance > minSwipeDistance) nextSlide();
+    if (distance < -minSwipeDistance) prevSlide();
   };
 
   // --- AUTOPLAY ---
   useEffect(() => {
-    // Note: By adding 'active' to the dependency array, the 5-second timer 
-    // perfectly resets itself every time the user manually swipes!
+    if (displayBanners.length === 0) return;
+    
     const timer = setInterval(() => {
       nextSlide();
     }, 5000);
     return () => clearInterval(timer);
   }, [displayBanners.length, active]);
 
+  // --- LOADING / SKELETON STATE ---
+  if (displayBanners.length === 0) {
+      return (
+          <section className="relative h-64 md:h-96 lg:h-120 w-full rounded-2xl overflow-hidden shadow-2xl bg-gradient-to-br from-background-secondary to-background-active animate-pulse" />
+      );
+  }
+
   return (
     <section 
-      // Attach the touch events directly to the wrapper container
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
       className="relative h-64 md:h-96 lg:h-120 w-full rounded-2xl overflow-hidden shadow-2xl bg-background-primary group animate-fade-in touch-pan-y"
     >
       {displayBanners.map((b, i) => {
-        const isLocalFallback = b.image_path.includes('static/media') || b.image_path.startsWith('data:');
-        const imageUrl = isLocalFallback ? b.image_path : (getMediaUrl(b.image_path));
+        const imageUrl = getMediaUrl(b.image_path);
         const gradientColor = overlayGradients[i % overlayGradients.length];
 
         return (
@@ -111,7 +101,6 @@ export default function HeroCarousel({ dbBanners }) {
         {displayBanners.map((_, i) => (
           <button 
             key={i} 
-            // Also stop propagation here so tapping a dot doesn't accidentally click the banner link
             onClick={(e) => { e.stopPropagation(); setActive(i); }}
             className={`h-1.5 rounded-full transition-all duration-300 ease-in-out ${
                 i === active 

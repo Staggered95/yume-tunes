@@ -7,12 +7,9 @@ import ShuffleButton from './ShuffleButton';
 
 const MediaControllers = ({ variant = 'bottomplayer', songId,  className = '' }) => {
     const { nextSong, prevSong } = useSongs(); 
-    // 1. Pull isBuffering into the component
     const { isPlaying, isBuffering, togglePlay } = usePlayback();
 
-    // ==========================================
     // VARIANT 1: FULLSCREEN (Minimal View)
-    // ==========================================
     if (variant === 'fullscreen') {
         return (
             <div className={`flex items-center gap-8 md:gap-12 ${className}`}>
@@ -59,9 +56,7 @@ const MediaControllers = ({ variant = 'bottomplayer', songId,  className = '' })
         );
     }
 
-    // ==========================================
     // VARIANT 2: UTILITY (Split-Pane View)
-    // ==========================================
     if (variant === 'utility') {
         return (
             <div className={`flex items-center justify-center gap-3 sm:gap-4 md:gap-6 px-4 sm:px-6 py-2.5 bg-background-secondary/40 backdrop-blur-xl border border-border/50 rounded-full shadow-2xl shadow-black/20 ${className}`}>
@@ -130,9 +125,7 @@ const MediaControllers = ({ variant = 'bottomplayer', songId,  className = '' })
         );
     }
 
-    // ==========================================
     // VARIANT 3: BOTTOM PLAYER (Default)
-    // ==========================================
     return (
         <div className={`flex gap-3 md:gap-8 items-center justify-center text-text-primary ${className}`}>
             

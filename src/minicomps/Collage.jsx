@@ -2,7 +2,6 @@ import React from 'react';
 import { getMediaUrl } from '../utils/media';
 
 const Collage = ({ covers }) => {
-  // Ensure we safely handle null/undefined arrays
   const validCovers = covers || [];
   const count = validCovers.length;
 

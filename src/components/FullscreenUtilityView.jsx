@@ -5,20 +5,17 @@ import { parseLRC } from '../utils/lyricsParser';
 import ProgressBar from '../minicomps/ProgressBar';
 import LiveLyrics from '../minicomps/LiveLyrics';
 import OptionsMenu from '../minicomps/OptionsMenu';
-import LikeButton from '../minicomps/LikeButton';
-import AddToPlaylistButton from '../minicomps/AddToPlaylistButton';
 import MediaControllers from '../minicomps/MediaControllerIcons';
 import { getMediaUrl } from '../utils/media';
 
 const FullscreenUtilityView = ({ isOpen, onClose, onToggle, song }) => {
   const { isPlaying } = usePlayback();
-  const { queue, currentIndex, playQueue, reorderQueue,isShuffle, toggleShuffle } = useSongs(); 
+  const { queue, currentIndex, playQueue, reorderQueue } = useSongs(); 
   
   const [activeTab, setActiveTab] = useState('queue'); 
   const [lyricLang, setLyricLang] = useState('EN');
   const [lyrics, setLyrics] = useState([]);
   
-  const [isRepeat, setIsRepeat] = useState(false);
 
   // === RESPONSIVE STATE ===
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);
@@ -181,13 +178,11 @@ const FullscreenUtilityView = ({ isOpen, onClose, onToggle, song }) => {
                     <ProgressBar variant="fullscreen" />
                 </div>
     
-                {/* --- UPGRADED PLAYBACK CONTROLS (Unified Pill) --- */}
+                {/* --- PLAYBACK CONTROLS (Unified Pill) --- */}
             <div className="flex items-center justify-center w-full max-w-[95%] sm:max-w-md mx-auto mb-4">
-                {/* Pass songId down so the LikeButton inside knows what to target! */}
                 <MediaControllers variant="utility" songId={song?.id} />
             </div>
     
-                {/* --- DESKTOP ONLY: UTILITY ACTION ROW (Only renders ONCE now!) --- */}
                 
     
               </div>

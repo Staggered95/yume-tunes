@@ -17,11 +17,9 @@ const formatSongType = (type) => {
     if (!type) return 'OST';
     const t = type.toUpperCase();
     
-    // If it starts with OP or ED, just return the letters and strip the numbers completely
     if (t.startsWith('OP')) return 'OP';
     if (t.startsWith('ED')) return 'ED';
     
-    // Fallback for OST, INSERTS, or anything else
     return t;
 };
 
@@ -39,7 +37,6 @@ const AnimePage = () => {
                 const { data } = await api.get(url);
                 const validSongs = Array.isArray(data.data || data) ? (data.data || data) : [];
 
-                // Clean Sort (No deduplication needed!)
                 const sortedSongs = [...validSongs].sort((a, b) => {
                     const seasonA = parseInt(a.season) || 1;
                     const seasonB = parseInt(b.season) || 1;
@@ -125,7 +122,6 @@ const AnimePage = () => {
                                                 <p className="text-xs md:text-sm text-text-secondary truncate mt-0.5">{song.artist}</p>
                                             </div>
 
-                                            {/* 🛡️ MOBILE CHIP FIX: Removed 'hidden'. It is now just 'flex' so it forces rendering on all screens! */}
                                             <div className="flex shrink-0 px-2 py-1 md:px-3 md:py-1 bg-accent-primary/10 border border-accent-primary/30 rounded-full">
                                                 <span className="text-[9px] md:text-xs font-black text-accent-primary uppercase tracking-wider">{formatSongType(song.song_type)}</span>
                                             </div>

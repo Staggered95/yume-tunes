@@ -6,25 +6,19 @@ import ConfirmDialog from '../../minicomps/ConfirmDialog';
 const ArtistAnimeManager = () => {
     const { addToast } = useToast();
     
-    // Core Data State
     const [activeTab, setActiveTab] = useState('artists');
     const [data, setData] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     
-    // --- NEW: Search State ---
     const [searchQuery, setSearchQuery] = useState('');
-
-    // Edit Modal State
     const [editingItem, setEditingItem] = useState(null);
     const [editName, setEditName] = useState('');
     const [isSaving, setIsSaving] = useState(false);
-
-    // --- NEW: Delete Confirmation State ---
     const [deleteMeta, setDeleteMeta] = useState({ isOpen: false, id: null, name: '' });
 
     useEffect(() => {
         fetchData();
-        setSearchQuery(''); // Reset search when switching tabs for better UX
+        setSearchQuery(''); 
     }, [activeTab]);
 
     const fetchData = async () => {
@@ -45,17 +39,14 @@ const ArtistAnimeManager = () => {
         }
     };
 
-    // --- NEW: Derived State for Filtering ---
     const filteredData = data.filter(item => 
         item.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
-    // --- NEW: Trigger the Confirm Dialog ---
     const handleDeleteClick = (id, name) => {
         setDeleteMeta({ isOpen: true, id, name });
     };
 
-    // --- NEW: Execute the Actual Deletion ---
     const confirmDelete = async () => {
         const { id, name } = deleteMeta;
         try {
@@ -71,7 +62,6 @@ const ArtistAnimeManager = () => {
         } catch (error) {
             addToast(error.response?.data?.message || "Cannot delete: Make sure no songs are linked to this item.", "error");
         }
-        // Close modal is handled by the ConfirmDialog component!
     };
 
     const handleEditClick = (item) => {
@@ -128,7 +118,7 @@ const ArtistAnimeManager = () => {
                 </div>
             </div>
 
-            {/* --- NEW: Search Bar --- */}
+            {/* --- Search Bar --- */}
             <div className="relative max-w-md">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                     <svg className="w-5 h-5 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -232,7 +222,7 @@ const ArtistAnimeManager = () => {
                 </div>
             )}
 
-            {/* --- NEW: The Confirm Dialog --- */}
+            {/* --- The Confirm Dialog --- */}
             <ConfirmDialog 
                 isOpen={deleteMeta.isOpen}
                 onClose={() => setDeleteMeta({ isOpen: false, id: null, name: '' })}

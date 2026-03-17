@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import api from '../api/axios'; // Native Axios instance
+import api from '../api/axios'; 
 import { useSongs } from '../context/SongContext';
 import Collage from '../minicomps/Collage';
 import { getMediaUrl } from '../utils/media';
@@ -18,7 +18,6 @@ const PlaylistPage = () => {
         const fetchPlaylistDetails = async () => {
             setIsLoading(true);
             try {
-                // Axios automatically handles the BaseURL and Auth Headers
                 const { data } = await api.get(`/playlists/${id}`);
                 
                 if (data.success) {
@@ -83,7 +82,6 @@ const PlaylistPage = () => {
 
             {/* 2. ACTION ROW */}
             <div className="sticky top-16 z-30 bg-background-primary/80 backdrop-blur-md border-b border-border/50">
-                {/* Added flex, items-center, and gap-4 to perfectly align the buttons */}
                 <div className="max-w-7xl mx-auto px-6 md:px-12 py-5 flex items-center gap-4">
         
                     {/* The Big Play Button */}
@@ -98,7 +96,6 @@ const PlaylistPage = () => {
                         </svg>
                     </button>
 
-                    {/* The New Shuffle Action Button */}
                     <ShuffleButton 
                         variant="action" 
                         onClick={() => { if (songs.length > 0) playShuffledQueue(songs);}}

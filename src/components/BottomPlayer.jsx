@@ -24,7 +24,6 @@ export default function BottomPlayer({ onExpand }) {
 
     return (
         <div 
-            // ADDED: isBuffering conditionally dims the entire player to 75% opacity
             className={`fixed left-0 right-0 bg-background-secondary/90 backdrop-blur-xl md:border-t border-border z-50 transition-all duration-300 safe-area-pb md:bottom-0 ${
                 scrollDirection === 'down' ? 'bottom-0' : 'bottom-14 md:bottom-0'
             } ${isBuffering ? 'opacity-75 grayscale-[10%]' : 'opacity-100'}`}
@@ -44,7 +43,7 @@ export default function BottomPlayer({ onExpand }) {
                             className="w-full h-full object-cover transition-transform duration-500 group-hover/cover:scale-110"
                         />
                         
-                        {/* ADDED: The Loading Spinner Overlay */}
+                        {/* Loading Spinner Overlay */}
                         {isBuffering && (
                             <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px] flex items-center justify-center z-10 animate-in fade-in duration-200">
                                 <svg className="animate-spin h-4 w-4 md:h-6 md:w-6 text-accent-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

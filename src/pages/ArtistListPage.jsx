@@ -1,12 +1,11 @@
 import React, { useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getMediaUrl } from '../utils/media';
-import { usePagination } from '../hooks/usePagination'; // <-- 1. Import the hook
+import { usePagination } from '../hooks/usePagination'; 
 
 const ArtistListPage = () => {
   const navigate = useNavigate();
 
-  // 2. One-liner state management
   const { 
     data: artists, 
     loading, 
@@ -14,7 +13,6 @@ const ArtistListPage = () => {
     loadNextPage 
   } = usePagination('/artists', {});
 
-  // 3. The Intersection Observer (Trigger 9 items early!)
   const observer = useRef();
   const lastArtistElementRef = useCallback(node => {
       if (loading) return;
@@ -29,7 +27,6 @@ const ArtistListPage = () => {
       if (node) observer.current.observe(node);
   }, [loading, hasMore, loadNextPage]);
 
-  // 4. Initial Full-Page Loading State
   if (loading && artists.length === 0) return (
     <div className="p-3 md:p-8 pt-24 min-h-screen">
       <h1 className="text-4xl font-black mb-10 text-white/10 uppercase italic">Artists</h1>
@@ -51,7 +48,6 @@ const ArtistListPage = () => {
       
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-8">
         {artists.map((artist, index) => {
-          // Trigger fetch when user is 9 items away from the bottom
           const isTriggerElement = index === artists.length - 9;
 
           return (
@@ -66,7 +62,7 @@ const ArtistListPage = () => {
                   src={getMediaUrl(artist.profile_pic)} 
                   alt={artist.name}
                   loading="lazy"
-                  decoding="async" /* Prevents scroll freeze when loading new profile pics! */
+                  decoding="async" 
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 bg-border/20"
                 />
               </div>
@@ -80,7 +76,6 @@ const ArtistListPage = () => {
           );
         })}
 
-        {/* 5. Appending Skeletons (Shows at the bottom while next page loads) */}
         {loading && artists.length > 0 && (
            [...Array(6)].map((_, i) => (
             <div key={`append-ghost-${i}`} className="flex flex-col items-center animate-pulse">
@@ -91,7 +86,6 @@ const ArtistListPage = () => {
         )}
       </div>
 
-      {/* 6. End of list indicator */}
       {!hasMore && artists.length > 0 && (
         <div className="text-center text-text-muted mt-16 italic text-sm w-full col-span-full">
             You've reached the end of the artist directory.

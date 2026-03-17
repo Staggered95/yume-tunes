@@ -10,13 +10,11 @@ export const ToastProvider = ({ children }) => {
         
         setToasts((prev) => [...prev, { id, message, type }]);
 
-        // Auto-remove after 3 seconds
         setTimeout(() => {
             setToasts((prev) => prev.filter((toast) => toast.id !== id));
         }, 3000);
     }, []);
 
-    // Theme-based style mapping
     const getTypeStyles = (type) => {
         switch (type) {
             case 'error':
@@ -25,7 +23,7 @@ export const ToastProvider = ({ children }) => {
                 return 'bg-warning/90 border-warning/20 text-background-primary shadow-warning/20';
             case 'info':
                 return 'bg-accent-tertiary/90 border-accent-tertiary/20 text-background-primary shadow-accent-tertiary/20';
-            default: // success
+            default: 
                 return 'bg-background-secondary/90 border-border text-text-primary shadow-accent-primary/10';
         }
     };

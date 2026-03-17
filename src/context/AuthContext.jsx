@@ -21,22 +21,19 @@ export const AuthProvider = ({children}) => {
             }
 
             try {
-                // We ping the backend to validate the token. 
-                // (Adjust this URL to match your actual backend route!)
                 const { data } = await api.get('/auth/me')
 
                 if (data.success) {
-                    setUser(data.data); // Token is valid! Set the user.
+                    setUser(data.data);
                 } else {
-                    // Backend said the token is expired or fake (401/403 status)
                     console.warn("Session expired. Logging out.");
                     logout(); 
                 }
             } catch (error) {
                 console.error("Failed to verify session:", error);
-                logout(); // If the server crashes, fail securely
+                logout(); 
             } finally {
-                setIsCheckingAuth(false); // We are done checking, safe to render the app!
+                setIsCheckingAuth(false); 
             }
         };
 
@@ -45,13 +42,12 @@ export const AuthProvider = ({children}) => {
 
     useEffect(() => {
         if (!token) {
-            setLikedSongIds(new Set()); // Clear if logged out
+            setLikedSongIds(new Set()); 
             return;
         }
 
         const fetchLikedIds = async () => {
             try {
-                // Point this to your getLikedSongsMinimalData route
                 const { data } = await api.get('/user/likedsongs/minimal');
                 if (data.success) {
                     setLikedSongIds(new Set(data.data));
@@ -66,7 +62,6 @@ export const AuthProvider = ({children}) => {
 
     const updateLikedSongsState = (songId, isNowLiked) => {
         setLikedSongIds(prev => {
-            // Create a copy of the Set (React requires new references for state updates)
             const newSet = new Set(prev); 
             if (isNowLiked) {
                 newSet.add(songId);
@@ -85,22 +80,20 @@ export const AuthProvider = ({children}) => {
         }
         localStorage.setItem('token', newToken);
         setToken(newToken);
-        //if (userData) setUser(userData);
     }
 
     const logout = async () => {
         try {
-            // 1. Tell the backend to destroy the 7-day Refresh Cookie
+            // destroy refresh cookie
             await api.post('/auth/logout'); 
         } catch (err) {
             console.error("Server logout failed, but we will still clear local data.");
         }
         
-        // 2. Destroy the 15-minute Access Token from the frontend
+        // destroy short lived token
         localStorage.removeItem('token');
         setToken(null);
         setUser(null);
-        //setLikedSongIds(new Set());
     }
 
     
@@ -116,7 +109,6 @@ export const AuthProvider = ({children}) => {
         setIsAuthModalOpen(false);
     }
 
-    // FIX 2: Added 'token' to the exported values
     const values = { isLoggedIn, user, token, likedSongIds, isCheckingAuth, isAuthModalOpen, authModalView, login, logout, updateLikedSongsState, openAuthModal, closeAuthModal }; 
 
     return (

@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import api from '../api/axios';
 
 const ResetPassword = () => {
-    const { id, token } = useParams(); // Grabs the variables from the URL
+    const { id, token } = useParams(); 
     const navigate = useNavigate();
 
     const [password, setPassword] = useState('');
@@ -26,7 +26,6 @@ const ResetPassword = () => {
         setLoading(true);
 
         try {
-            // Send the new password to our backend endpoint
             const { data } = await api.post(`/auth/reset-password/${id}/${token}`, { newPassword: password });
             
             if (data.success) {

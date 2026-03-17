@@ -1,5 +1,5 @@
 import './App.css';
-import { Route, Routes, Outlet } from 'react-router-dom'; // Added Outlet!
+import { Route, Routes, Outlet } from 'react-router-dom';
 import { useState } from 'react';
 
 import Navbar from './components/Navbar';
@@ -28,15 +28,9 @@ import Footer from './components/Footer';
 import ScrollToTop from './helpers/ScrollToTop';
 import ResetPassword from './pages/ResetPassword';
 import ContactPage from './pages/ContactPage';
-
-// IMPORT THE GUARDS
 import { ProtectedRoute, AdminRoute } from './components/ProtectedRoute';
 
-// ==========================================
-// 1. THE LAYOUT COMPONENT
-// This holds all your UI. It uses <Outlet /> to 
-// inject the current page right into the middle.
-// ==========================================
+
 const MainLayout = () => {
   const [isPlayerOpen, setIsPlayerOpen] = useState(false);
   const { currentSong } = useSongs();
@@ -49,7 +43,7 @@ const MainLayout = () => {
       <main className='md:px-8 md:ml-20 transition-all duration-300 flex flex-col min-h-screen'>
         <ScrollToTop />
         <div className="flex-grow">
-          <Outlet /> {/* <-- This is where HomePage, AnimePage, etc., get rendered! */}
+          <Outlet /> {/*  This is where HomePage, AnimePage, etc., get rendered! */}
         </div>
         <Footer />
       </main>
@@ -66,25 +60,22 @@ const MainLayout = () => {
   );
 };
 
-// ==========================================
-// 2. THE MAIN APP ROUTER
-// ==========================================
+//  THE MAIN APP ROUTER
 const App = () => {
   return (
     <>
       <GlobalProgressBar />
       
       <Routes>
-        {/* 🎬 ISOLATED ROUTE: No Sidebars, No Players */}
+        {/*  ISOLATED ROUTE: No Sidebars, No Players */}
         <Route path="/" element={<Landing />} />
         <Route path="/reset-password/:id/:token" element={<ResetPassword />} />
         
 
-        {/* 🎧 MAIN APP ROUTES: Wrapped inside the MainLayout */}
+        {/*  MAIN APP ROUTES: Wrapped inside the MainLayout */}
         <Route element={<MainLayout />}>
         <Route path="/contact" element={<ContactPage />} />
           
-          {/* Note: Moved HomePage to /home */}
           <Route path="/home" element={<HomePage />} />
           <Route path="/search" element={<SearchResultPage />} />
           <Route path="/artists" element={<ArtistListPage />} />

@@ -77,7 +77,6 @@ const Sidebar = () => {
 
   return (
     <aside 
-      // THE FIX: Added mouse events and rounded-br-3xl
       onMouseEnter={() => setIsOpen(true)}
       onMouseLeave={() => setIsOpen(false)}
       className={`hidden md:block fixed top-20 left-0 h-[calc(100vh-11rem)] bg-background-primary border-r border-b border-border z-30

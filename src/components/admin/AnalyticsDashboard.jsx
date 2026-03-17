@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useToast } from '../../context/ToastContext';
-import api from '../../api/axios'; // Native Axios import
+import api from '../../api/axios'; 
 
 const AnalyticsDashboard = () => {
     const { addToast } = useToast();
@@ -11,7 +11,6 @@ const AnalyticsDashboard = () => {
     useEffect(() => {
         const fetchStats = async () => {
             try {
-                // Axios handles the JSON parsing and token attachment!
                 const { data } = await api.get('/admin/analytics/dashboard');
                 if (data.success) {
                     setStats(data.data);
@@ -44,7 +43,7 @@ const AnalyticsDashboard = () => {
                 <p className="text-sm text-text-secondary mt-1">Real-time overview of YumeTunes telemetry</p>
             </div>
 
-            {/* Top Stat Cards - Added Hover Animations & Theme Colors */}
+            {/* Top Stat Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                 <div className="bg-background-secondary border border-border rounded-2xl p-6 flex flex-col justify-center items-center md:items-start hover:bg-background-hover hover:border-border-hover transition-all duration-300 ease-in-out">
                     <span className="text-text-secondary text-sm font-bold uppercase tracking-widest mb-2">Total Users</span>
@@ -70,7 +69,6 @@ const AnalyticsDashboard = () => {
                     <div className="space-y-6">
                         {stats.topSongs.map((song, index) => {
                             const plays = parseInt(song.play_count);
-                            // Ensure the bar has at least a 5% width so it's visible even with 0 plays
                             const widthPercent = Math.max((plays / maxPlays) * 100, 5); 
 
                             return (
@@ -83,7 +81,7 @@ const AnalyticsDashboard = () => {
                                     </div>
                                     {/* Background Track */}
                                     <div className="w-full h-3 bg-background-primary rounded-full overflow-hidden">
-                                        {/* Filled Bar - Utilizing Tailwind Gradients with your Theme Vars */}
+                                        {/*Gradient Filled Bar*/}
                                         <div 
                                             className="h-full bg-gradient-to-r from-accent-primary to-accent-secondary rounded-full transition-all duration-1000 ease-out opacity-80 group-hover:opacity-100"
                                             style={{ width: `${widthPercent}%` }}

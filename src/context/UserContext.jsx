@@ -9,7 +9,7 @@ export const UserProvider = ({ children }) => {
     const [likedSongIds, setLikedSongIds] = useState(new Set());
     const [isLoading, setIsLoading] = useState(false);
 
-    const { isLoggedIn, authFetch } = useAuth();
+    const { isLoggedIn } = useAuth();
 
     const fetchLikedSongIds = async () => {
         try {
@@ -70,7 +70,6 @@ export const UserProvider = ({ children }) => {
     useEffect(() => {
         if (isLoggedIn) {
             setIsLoading(true);
-            // Promise.all runs both fetches at the exact same time for maximum speed!
             Promise.all([fetchUserData(), fetchLikedSongIds()]).finally(() => {
                 setIsLoading(false);
             });

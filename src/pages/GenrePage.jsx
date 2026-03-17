@@ -3,15 +3,12 @@ import { useParams } from 'react-router-dom';
 import SongCard from '../components/SongCard';
 import SkeletonCard from '../components/loading/SkeletonCard';
 import { usePagination } from '../hooks/usePagination';
-
-// 1. Import our global audio hooks and the new decoupled Shuffle button
 import { useSongs } from '../context/SongContext';
-import ShuffleButton from '../minicomps/ShuffleButton'; // Adjust path if needed!
+import ShuffleButton from '../minicomps/ShuffleButton'; 
 
 const GenrePage = () => {
     const { genreName } = useParams(); 
     
-    // 2. Grab the play functions from Context
     const { playQueue, playShuffledQueue } = useSongs();
     
     const { 
@@ -56,7 +53,7 @@ const GenrePage = () => {
                     Showing {songs.length} tracks
                 </p>
 
-                {/* 3. THE ACTION BUTTONS */}
+                {/*  THE ACTION BUTTONS */}
                 {songs.length > 0 && (
                     <div className="flex items-center gap-4 md:gap-6">
                         {/* Play All Button */}

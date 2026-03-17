@@ -17,7 +17,6 @@ import AxiosInterceptorSetup from './helpers/AxiosInterceptorSetup.jsx'
 
 const updateSW = registerSW({
   onNeedRefresh() {
-    // Optional: You could show a toast here saying "New update available! Click to refresh."
     console.log("New content available, please refresh.");
   },
   onOfflineReady() {
@@ -29,7 +28,6 @@ createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
       <LoadingProvider>
-        {/* The Interceptor Bridge wraps everything else so it can access the LoadingContext */}
           <PlaybackProvider>
             <AuthProvider>
               <AxiosInterceptorSetup>

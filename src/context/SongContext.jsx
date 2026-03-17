@@ -1,16 +1,13 @@
 import { createContext, useContext, useEffect, useState, useCallback, useMemo } from "react";
 import { usePlayback } from "./PlaybackContext";
-import { useAuth } from "./AuthContext";
 import api from "../api/axios";
 import { getMediaUrl } from "../utils/media";
 
 const SongContext = createContext();
 
 export const SongProvider = ({children}) => {
-    //const [songs, setSongs] = useState([]);
-    //const [currentSong, setCurrentSong] = useState(null);
     const [queue, setQueue] = useState([]);
-    const [originalQueue, setOriginalQueue] = useState([]); // Keeps the un-shuffled backup
+    const [originalQueue, setOriginalQueue] = useState([]);
     const [isShuffle, setIsShuffle] = useState(false);
     const [currentIndex, setCurrentIndex] = useState(-1);
     const [loading, setLoading] = useState(true);
@@ -22,8 +19,6 @@ export const SongProvider = ({children}) => {
     if (!song || listenedSecs < 5) return; 
 
     try {
-        // Fire and forget with Axios!
-        // api.post(url, data)
         api.post('/user/telemetry', {
             songID: song.id,
             listenedSeconds: Math.floor(listenedSecs),
@@ -36,14 +31,12 @@ export const SongProvider = ({children}) => {
 }, []);
 
     const addToQueue = (song) => {
-    // If nothing is playing, just start playing it!
     if (queue.length === 0) {
       playQueue([song], 0);
       return;
     }
 
     setQueue(prevQueue => {
-      // Check if it's already in the queue to prevent duplicates (optional)
       const isDuplicate = prevQueue.some(s => s.id === song.id);
       if (isDuplicate) return prevQueue;
 
@@ -51,7 +44,6 @@ export const SongProvider = ({children}) => {
     });
 
     setOriginalQueue(prevQueue => {
-      // Check if it's already in the queue to prevent duplicates (optional)
       const isDuplicate = prevQueue.some(s => s.id === song.id);
       if (isDuplicate) return prevQueue;
 
@@ -64,8 +56,6 @@ export const SongProvider = ({children}) => {
             const newShuffleState = !prev;
         
             if (newShuffleState) {
-                // Turning Shuffle ON
-                // Keep the current song at the top, shuffle the rest!
                 const currentSongObj = queue[currentIndex];
                 const remainingSongs = queue.filter((_, idx) => idx !== currentIndex);
             
@@ -76,10 +66,9 @@ export const SongProvider = ({children}) => {
                 }
             
                 setQueue([currentSongObj, ...remainingSongs]);
-                setCurrentIndex(0); // We moved the current song to index 0
+                setCurrentIndex(0); 
             } else {
-                // Turning Shuffle OFF
-                // Restore the original queue, but we need to find where our current song went!
+                // Restore the original queue
                 const currentSongObj = queue[currentIndex];
                 const originalIndex = originalQueue.findIndex(s => s.id === currentSongObj?.id);
             
@@ -97,30 +86,26 @@ export const SongProvider = ({children}) => {
     const playShuffledQueue = useCallback((newSongs) => {
         if (!newSongs || newSongs.length === 0) return;
 
-        // 1. Save the untouched array so we can un-shuffle later
         setOriginalQueue(newSongs);
 
-        // 2. Perform a fresh Fisher-Yates Shuffle on a copy of the new songs
+        // Perform a fresh Fisher-Yates Shuffle on a copy of the new songs
         const shuffled = [...newSongs];
         for (let i = shuffled.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
         }
 
-        // 3. Mount the new shuffled queue to the state
+        // Mount the new shuffled queue to the state
         setQueue(shuffled);
         setCurrentIndex(0);
         setIsShuffle(true);
         
-        // 4. CRITICAL FIX: Play the first song directly from the new 'shuffled' array!
-        // Do NOT call playQueue(), because playQueue will overwrite originalQueue.
         const songToPlay = shuffled[0];
         if (songToPlay) {
-            // We use getMediaUrl exactly like you did in your playQueue function
             const fullUrl = getMediaUrl(songToPlay.file_path, 'audio');
             playSong(fullUrl);
         }
-    }, [playSong]); // Make sure to add playSong to the dependency array!
+    }, [playSong]); 
 
 
     const playQueue = useCallback((newQueue, startingIndex = 0) => {
@@ -141,34 +126,26 @@ export const SongProvider = ({children}) => {
             return;
         }
 
-        // We use the current state directly to calculate both accurately
         let newQueue = [...queue];
         let newIndex = currentIndex;
 
-        // 1. Find if the song is already in the queue
         const existingIndex = newQueue.findIndex(s => s.id === song.id);
 
         if (existingIndex !== -1) {
-            // If they clicked "Play Next" on the song that is currently playing, ignore it
             if (existingIndex === currentIndex) return; 
             
-            // Remove it from its old position
             newQueue.splice(existingIndex, 1);
             
-            // CRITICAL FIX: If we removed a song from BEFORE the currently playing song,
-            // the whole array shifted left. We must shift our index left to keep holding the right song!
             if (existingIndex < currentIndex) {
                 newIndex--;
             }
         }
 
-        // 2. Insert the song exactly one slot after the (potentially updated) playing index
         newQueue.splice(newIndex + 1, 0, song);
 
-        // 3. Update both states at the exact same time
         setQueue(newQueue);
         if (newIndex !== currentIndex) {
-            setCurrentIndex(newIndex); // Make sure you have access to setCurrentIndex here!
+            setCurrentIndex(newIndex); 
         }
     };
 
@@ -176,7 +153,6 @@ export const SongProvider = ({children}) => {
     const reorderQueue = (startIndex, endIndex) => {
     if (startIndex === endIndex) return;
 
-    // 1. Update the Queue Array
     setQueue(prevQueue => {
         const newQueue = [...prevQueue];
         const [draggedItem] = newQueue.splice(startIndex, 1);
@@ -184,15 +160,14 @@ export const SongProvider = ({children}) => {
         return newQueue;
     });
 
-    // 2. Safely Update the Current Index
     setCurrentIndex(prevIndex => {
         let newIndex = prevIndex;
         if (startIndex === prevIndex) {
-            newIndex = endIndex; // We dragged the currently playing song
+            newIndex = endIndex; 
         } else if (startIndex < prevIndex && endIndex >= prevIndex) {
-            newIndex--; // We dragged a past song into the future
+            newIndex--; 
         } else if (startIndex > prevIndex && endIndex <= prevIndex) {
-            newIndex++; // We dragged a future song into the past
+            newIndex++; 
         }
         return newIndex;
     });
@@ -203,11 +178,11 @@ export const SongProvider = ({children}) => {
         if (queue.length === 0) return;
         const audioNode = audioRef.current;
         if (isManualSkip && currentSong && audioNode) {
-            logTelemetry(currentSong, audioNode.currentTime, audioNode.duration, true); // true = wasSkipped
+            logTelemetry(currentSong, audioNode.currentTime, audioNode.duration, true); 
         }
 
         setCurrentIndex((prevIndex) => {
-            const nextIdx = (prevIndex + 1) % queue.length; // Loops back to start
+            const nextIdx = (prevIndex + 1) % queue.length; 
             const nextSongObj = queue[nextIdx];
             
             const fullUrl = getMediaUrl(nextSongObj.file_path, 'audio');
@@ -221,11 +196,11 @@ export const SongProvider = ({children}) => {
         if (queue.length === 0) return;
         const audioNode = audioRef.current;
         if (isManualSkip && currentSong && audioNode) {
-            logTelemetry(currentSong, audioNode.currentTime, audioNode.duration, true); // true = wasSkipped
+            logTelemetry(currentSong, audioNode.currentTime, audioNode.duration, true); 
         }
         
         setCurrentIndex((prevIndex) => {
-            const prevIdx = (prevIndex - 1 + queue.length) % queue.length; // Loops to end
+            const prevIdx = (prevIndex - 1 + queue.length) % queue.length; 
             const prevSongObj = queue[prevIdx];
             
             const fullUrl = getMediaUrl(prevSongObj.file_path);
@@ -238,7 +213,6 @@ export const SongProvider = ({children}) => {
     useEffect(() => {
         const audioNode = audioRef.current;
         if (isEnded && currentSong && audioNode) {
-            // Song ended naturally. listened = duration, skipped = false
             logTelemetry(currentSong, audioNode.duration, audioNode.duration, false);
             nextSong(false);
         }
@@ -260,44 +234,36 @@ export const SongProvider = ({children}) => {
         playShuffledQueue
     }), [queue, currentIndex, currentSong, playQueue, nextSong, prevSong]);
 
-    // Add this inside your context or player component
   useEffect(() => {
-    // 1. Check if the browser actually supports the Media Session API
     if ('mediaSession' in navigator && currentSong) {
       
-      // 2. Tell the OS what song is playing (Updates the Lock Screen / Media Hub)
       navigator.mediaSession.metadata = new MediaMetadata({
         title: currentSong.title,
         artist: currentSong.artist,
         album: currentSong.anime || 'YumeTunes',
         artwork: [
-          // Make sure this path resolves correctly to your backend image!
           { src: getMediaUrl(currentSong.cover_path), sizes: '512x512', type: 'image/jpeg' }
         ]
       });
 
-      // 3. Wire up the OS buttons to your React functions!
       navigator.mediaSession.setActionHandler('play', () => {
-        // Call whatever function you use to resume playback
         togglePlay(); 
       });
       
       navigator.mediaSession.setActionHandler('pause', () => {
-        // Call whatever function you use to pause playback
         togglePlay(); 
       });
       
       navigator.mediaSession.setActionHandler('previoustrack', () => {
-        prevSong(); // Your existing function
+        prevSong(); 
       });
       
       navigator.mediaSession.setActionHandler('nexttrack', () => {
-        nextSong(); // Your existing function
+        nextSong(); 
       });
       
     }
 
-    // Cleanup function when the song stops or unmounts
     return () => {
       if ('mediaSession' in navigator) {
         navigator.mediaSession.setActionHandler('play', null);
@@ -306,7 +272,7 @@ export const SongProvider = ({children}) => {
         navigator.mediaSession.setActionHandler('nexttrack', null);
       }
     };
-  }, [currentSong]); // Re-run this whenever the song changes!
+  }, [currentSong]);
 
     return (
         <SongContext.Provider value={values}>

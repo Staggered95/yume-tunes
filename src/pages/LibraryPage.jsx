@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../api/axios'; // Native Axios instance
+import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import Collage from '../minicomps/Collage';
 import PlaylistModal from '../components/PlaylistModal';
@@ -19,7 +19,6 @@ const LibraryPage = () => {
         const fetchLibrary = async () => {
             setIsLoading(true);
             try {
-                // Axios handles the JWT and base URL automatically
                 const { data } = await api.get('/playlists');
                 if (data.success) {
                     setPlaylists(data.data);

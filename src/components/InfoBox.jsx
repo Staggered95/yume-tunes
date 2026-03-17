@@ -13,7 +13,6 @@ const InfoBox = () => {
                     src={f2} 
                     alt="current song"
                 />
-                {/* Subtle gradient overlay to make it look premium */}
                 <div className="absolute inset-0 bg-gradient-to-t from-background-primary/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             </div>
 

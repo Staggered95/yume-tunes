@@ -1,7 +1,6 @@
 import React from 'react';
 
 const Spinner = ({ size = 'sm', className = '' }) => {
-  // Map our size props to actual Tailwind dimensions
   const sizes = {
     xs: 'w-3 h-3',
     sm: 'w-4 h-4',

@@ -25,9 +25,7 @@ const UserMenu = ({ user, onLogoutClick }) => {
 
     const imageSrc = user?.user_image ? getMediaUrl(user.user_image) : null;
     
-    // 1. UPDATED: Check for both roles, just like the Navbar!
     const hasAdminAccess = ['admin', 'moderator'].includes(user?.role);
-    // 2. UPDATED: Dynamic label based on the exact role
     const roleLabel = user?.role === 'moderator' ? 'Moderator Dashboard' : 'Admin Dashboard';
 
     return (
@@ -82,7 +80,7 @@ const UserMenu = ({ user, onLogoutClick }) => {
                             <ThemeToggle />
                         </div>
 
-                        {/* 3. UPDATED: Render if Admin OR Moderator */}
+                        {/* Render if Admin OR Moderator */}
                         {hasAdminAccess && (
                             <button 
                                 onClick={() => { navigate('/admin'); setIsOpen(false); }}

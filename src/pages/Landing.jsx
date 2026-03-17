@@ -20,7 +20,6 @@ const Landing = () => {
         navigate('/home'); 
     };
 
-    // 3. Your Optimized Cloudinary URLs
     const desktopVideo = "https://res.cloudinary.com/ddc6silap/video/upload/ac_none,f_auto,q_auto,w_1920,c_limit/v1773392627/one_hr2kqf.mp4";
     const mobileVideo = "https://res.cloudinary.com/ddc6silap/video/upload/ac_none,f_auto,q_auto,w_720,c_limit/v1773393443/grok-video-7fb3a9fa-5355-4d58-8358-8cebd2d5fcd4_jalu6m.mp4";
 

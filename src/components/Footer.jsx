@@ -13,7 +13,6 @@ export default function Footer() {
     
     const activeFamily = themeFamilies.find(f => f.id === themeFamily) || themeFamilies[0];
 
-    // Close menu if clicking outside
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -25,7 +24,6 @@ export default function Footer() {
     }, []);
 
     const handleThemeSelect = (theme) => {
-        // If they are not logged in and the theme is premium, hit them with the modal!
         if (!theme.isFree && !token) {
             setIsMenuOpen(false);
             openAuthModal('register');

@@ -3,10 +3,8 @@ import { createPortal } from 'react-dom';
 
 const BaseModal = ({ isOpen, onClose, title, children, maxWidth = "max-w-md" }) => {
     
-    // 1. Logic: Body Scroll Lock & Escape Key
     useEffect(() => {
         if (isOpen) {
-            // Prevent background scrolling
             document.body.style.overflow = 'hidden';
             
             const handleEsc = (e) => {
@@ -47,7 +45,7 @@ const BaseModal = ({ isOpen, onClose, title, children, maxWidth = "max-w-md" }) 
                             {title}
                         </h2>
                     ) : (
-                        <div /> // Spacer if no title
+                        <div /> 
                     )}
                     
                     <button 

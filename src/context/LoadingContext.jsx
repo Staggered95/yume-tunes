@@ -9,16 +9,13 @@ export const LoadingProvider = ({ children }) => {
 
     const startLoading = useCallback(() => {
         setIsLoading(true);
-        setProgress(15); // Start at 15% so it's instantly visible
+        setProgress(15); 
         
-        // Clear any old intervals just in case
         if (progressInterval.current) clearInterval(progressInterval.current);
         
-        // The Trickle Effect: slowly inch forward to 90% while waiting
         progressInterval.current = setInterval(() => {
             setProgress((prev) => {
                 if (prev >= 90) return prev;
-                // Move slower as it gets closer to 90%
                 const step = (100 - prev) * 0.1; 
                 return prev + step;
             });
@@ -28,19 +25,16 @@ export const LoadingProvider = ({ children }) => {
     const stopLoading = useCallback(() => {
         if (progressInterval.current) clearInterval(progressInterval.current);
         
-        // 1. Instantly shoot to 100%
         setProgress(100); 
         
-        // 2. Wait for the 100% CSS width transition to physically finish
         setTimeout(() => {
-            setIsLoading(false); // This triggers the opacity fade-out
+            setIsLoading(false); 
             
-            // 3. Wait for the fade-out to finish, THEN secretly reset width to 0
             setTimeout(() => {
                 setProgress(0);
-            }, 300); // 300ms matches the duration of our opacity transition
+            }, 300); 
 
-        }, 400); // Give the bar 400ms to visually slide to the end of the screen
+        }, 400); 
     }, []);
 
     return (

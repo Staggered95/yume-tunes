@@ -21,18 +21,14 @@ const ShuffleIcon = ({ className }) => (
 );
 
 const ShuffleButton = ({ variant = 'bottomplayer', className = '', onClick }) => {
-    // We only need the context for the player variants
-    const { isShuffle, toggleShuffle, playQueue } = useSongs();
+    const { isShuffle, toggleShuffle } = useSongs();
 
-    // ==========================================
     // VARIANT 1: PLAYLIST ACTION (Big Hero Button)
-    // This is an ACTION, not a state toggle. It should never light up based on global state.
-    // ==========================================
     if (variant === 'action') {
         return (
             <button 
                 type="button"
-                onClick={onClick} // Just fires the action passed from the page
+                onClick={onClick} 
                 className={`flex items-center justify-center gap-2 px-6 py-3 md:px-8 md:py-4 rounded-full font-bold tracking-widest uppercase transition-all duration-300 active:scale-95 shadow-lg bg-background-secondary text-text-primary border border-border hover:bg-background-hover hover:text-accent-primary hover:border-accent-primary/50 ${className}`}
             >
                 <ShuffleIcon className="w-4 h-4 md:w-5 md:h-5" />
@@ -41,21 +37,15 @@ const ShuffleButton = ({ variant = 'bottomplayer', className = '', onClick }) =>
         );
     }
 
-    // ==========================================
     // PLAYER TOGGLE LOGIC (For variants 2 & 3)
-    // ==========================================
     const handleToggleClick = (e) => {
         e.stopPropagation();
         toggleShuffle();
         if (onClick) onClick(e); 
     };
 
-    // ==========================================
+    
     // VARIANT 2: FULLSCREEN (Minimal / Utility View)
-    // ==========================================
-    // ==========================================
-    // VARIANT 2: FULLSCREEN (Minimal / Utility View)
-    // ==========================================
     if (variant === 'fullscreen') {
         return (
             <button 
@@ -74,9 +64,7 @@ const ShuffleButton = ({ variant = 'bottomplayer', className = '', onClick }) =>
         );
     }
 
-    // ==========================================
     // VARIANT 3: BOTTOM PLAYER (Default)
-    // ==========================================
     return (
         <button 
             type="button"

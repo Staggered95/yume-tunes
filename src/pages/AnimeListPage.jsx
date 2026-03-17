@@ -1,18 +1,16 @@
 import React, { useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import Collage from '../minicomps/Collage';
-import { usePagination } from '../hooks/usePagination'; // <-- 1. Import your custom hook!
+import { usePagination } from '../hooks/usePagination';
 
 const AnimeListPage = () => {
-  // 2. Replace all the manual state and useEffects with ONE line
   const { 
     data: animes, 
     loading, 
     hasMore, 
     loadNextPage 
-  } = usePagination('/animes', {}); // No extra query params needed for this endpoint
+  } = usePagination('/animes', {}); 
 
-  // 3. The Intersection Observer (Triggering 9 items early!)
   const observer = useRef();
   const lastAnimeElementRef = useCallback(node => {
       if (loading) return;
@@ -27,7 +25,6 @@ const AnimeListPage = () => {
       if (node) observer.current.observe(node);
   }, [loading, hasMore, loadNextPage]);
 
-  // 4. Initial Full-Page Loading State (Only shows on Page 1)
   if (loading && animes.length === 0) return (
     <div className="p-3 md:p-8 pt-24 min-h-screen bg-background-primary">
       <div className="h-10 w-64 bg-border/60 rounded-lg animate-pulse mb-10" />
@@ -50,7 +47,6 @@ const AnimeListPage = () => {
 
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
         {animes.map((anime, index) => {
-          // Attach the trigger to the 9th-to-last item for that buttery smooth pre-fetch
           const isTriggerElement = index === animes.length - 9;
           
           return (
@@ -58,7 +54,6 @@ const AnimeListPage = () => {
               to={`/anime/${encodeURIComponent(anime.title)}`} 
               key={`anime-${anime.id}-${index}`} // Bulletproof key
               ref={isTriggerElement ? lastAnimeElementRef : null}
-              // Added animation and performance hint here!
               className="group relative bg-background-secondary rounded-2xl overflow-hidden border border-border hover:border-accent-primary/50 transition-all duration-300 animate-fade-in will-change-transform"
             >
               <Collage covers={anime.collage_covers}/>
@@ -72,7 +67,6 @@ const AnimeListPage = () => {
           );
         })}
 
-        {/* 5. Appending Skeletons (Shows at the bottom of the grid while Page 2+ loads) */}
         {loading && animes.length > 0 && (
           [...Array(6)].map((_, i) => (
             <div 
@@ -83,7 +77,6 @@ const AnimeListPage = () => {
         )}
       </div>
 
-      {/* 6. End of list indicator */}
       {!hasMore && animes.length > 0 && (
           <div className="text-center text-text-muted mt-16 italic text-sm w-full col-span-full">
               You've reached the end of the catalog.

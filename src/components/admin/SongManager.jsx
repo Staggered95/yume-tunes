@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import api from '../../api/axios'; 
 import { useToast } from '../../context/ToastContext';
-import { useAuth } from '../../context/AuthContext'; // <-- 1. Import useAuth
+import { useAuth } from '../../context/AuthContext'; 
 import ConfirmDialog from '../../minicomps/ConfirmDialog';
 import { getMediaUrl } from '../../utils/media';
 
 const SongManager = ({ onAddNew, onEditSong, onSyncLyrics }) => {
     const { addToast } = useToast();
-    const { user } = useAuth(); // <-- 2. Grab the logged-in user
+    const { user } = useAuth(); 
 
-    // 3. Create our RBAC flag
     const isAdmin = user?.role === 'admin';
 
     const [songs, setSongs] = useState([]);

@@ -2,7 +2,6 @@ import React from 'react';
 
 const SongSkeleton = () => {
     return (
-        // The animate-pulse class makes the whole row gently fade in and out!
         <div className="flex items-center gap-4 md:gap-6 p-3 md:p-4 rounded-xl md:rounded-2xl animate-pulse">
             
             {/* 1. Ghost Index Number */}

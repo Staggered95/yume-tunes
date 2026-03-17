@@ -36,8 +36,7 @@ export default defineConfig({
         ]
       },
       workbox: {
-        // CRITICAL FOR YUMETUNES: 
-        // Prevents the service worker from trying to cache your heavy media files
+        // Prevents the service worker from trying to cache heavy media files
         globIgnores: ['**/media/**', '**/audio/**', '**/images/**'],
         // Increase file size limit if some of your bundled JS chunks are large
         maximumFileSizeToCacheInBytes: 3000000 

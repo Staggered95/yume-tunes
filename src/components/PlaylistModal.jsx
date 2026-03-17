@@ -16,7 +16,7 @@ const PlaylistModal = ({ isOpen, onClose, initialView = 'list', songId }) => {
     useEffect(() => {
         if (isOpen) {
             setView(initialView);
-            setNewPlaylistName(''); // Clean up previous form data
+            setNewPlaylistName(''); 
             setNewPlaylistDesc('');
         }
     }, [isOpen, initialView]);
@@ -30,7 +30,6 @@ const PlaylistModal = ({ isOpen, onClose, initialView = 'list', songId }) => {
         const fetchPlaylists = async () => {
             setIsLoading(true);
             try {
-                // Axios handles token and JSON automatically
                 const { data } = await api.get('/playlists');
                 if (data.success) {
                     setPlaylists(data.data);

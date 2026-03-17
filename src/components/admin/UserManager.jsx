@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import api from '../../api/axios'; // Native Axios import
+import api from '../../api/axios'; 
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { getMediaUrl } from '../../utils/media';
 
 const UserManager = () => {
-    const { user } = useAuth(); // Only grabbing 'user' now, authFetch is gone!
+    const { user } = useAuth();
     const { addToast } = useToast();
 
     const [users, setUsers] = useState([]);
@@ -19,7 +19,6 @@ const UserManager = () => {
     const fetchUsers = async () => {
         setIsLoading(true);
         try {
-            // Axios automatically handles the headers and JSON parsing
             const { data } = await api.get('/admin/users');
             if (data.success) {
                 setUsers(data.data);
@@ -35,12 +34,10 @@ const UserManager = () => {
 
     const handleRoleChange = async (userId, newRole) => {
         try {
-            // Axios automatically stringifies the body!
             const { data } = await api.put(`/admin/users/${userId}/role`, { newRole });
 
             if (data.success) {
                 addToast("Role updated successfully!", "success");
-                // Update local state so UI reflects the change instantly
                 setUsers(users.map(u => u.id === userId ? { ...u, role: newRole } : u));
             } else {
                 addToast(data.message || "Failed to update role", "error");
@@ -50,7 +47,6 @@ const UserManager = () => {
         }
     };
 
-    // Local Search Filter
     const filteredUsers = users.filter(u => {
         const query = searchQuery.toLowerCase();
         return (
@@ -101,12 +97,12 @@ const UserManager = () => {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-border">
-                                {/* Using slice(0, 50) to prevent laptop fan takeoff! */}
+                                {/* Using slice(0, 50) */}
                                 {filteredUsers.slice(0, 50).map(u => (
                                     <tr key={u.id} className="hover:bg-background-hover transition-colors duration-300 ease-in-out group">
                                         
                                         <td className="p-4 flex items-center gap-4 min-w-[200px]">
-                                            {/* Profile Picture / Avatar Wrapper */}
+                                            {/* Profile Picture */}
                                             <div className="w-8 h-8 rounded-full shrink-0 overflow-hidden bg-background-primary border border-border flex items-center justify-center text-background-primary font-bold text-xs">
                                                 {u.user_image ? (
                                                     <img 
@@ -135,7 +131,7 @@ const UserManager = () => {
                                             <select 
                                                 value={u.role || 'user'}
                                                 onChange={(e) => handleRoleChange(u.id, e.target.value)}
-                                                disabled={user?.id === u.id} // Disable changing own role
+                                                disabled={user?.id === u.id} 
                                                 className={`bg-background-primary border rounded-lg px-3 py-1.5 text-sm focus:border-accent-primary focus:outline-none transition-all duration-300 appearance-none text-center cursor-pointer shadow-sm ${
                                                     u.role === 'admin' ? 'text-error border-error/30 bg-error/5' : 
                                                     u.role === 'moderator' ? 'text-accent-primary border-accent-primary/30 bg-accent-primary/5' : 

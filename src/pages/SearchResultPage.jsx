@@ -4,7 +4,6 @@ import api from '../api/axios';
 import SongCard from '../components/SongCard'; 
 import { getMediaUrl } from '../utils/media';
 
-// 1. EXTRACTED COMPONENT: Sleek, responsive filter pills
 const FilterPill = ({ active, label, onClick }) => (
     <button
         onClick={onClick}
@@ -56,7 +55,6 @@ const SearchResultPage = () => {
 
     const updateFilter = (key, value) => {
         const newParams = new URLSearchParams(searchParams);
-        // Toggle off if clicking the already active pill
         if (searchParams.get(key) === value) newParams.delete(key);
         else if (value) newParams.set(key, value);
         else newParams.delete(key);
@@ -66,7 +64,6 @@ const SearchResultPage = () => {
     const hasNoResults = !results.songs.length && !results.artists.length && !results.animes.length;
 
     return (
-        // Added pb-32 to clear the mobile nav and bottom player!
         <div className="flex flex-col md:flex-row gap-6 md:gap-10 px-4 md:px-10 pt-20 md:pt-24 pb-32 text-text-primary max-w-7xl mx-auto min-h-screen bg-background-primary">
             
             {/* 1. FILTER SIDEBAR (Responsive) */}

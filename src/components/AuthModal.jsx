@@ -10,7 +10,7 @@ const AuthModal = () => {
     first_name: '', last_name: '', username: '', email: '', password: ''
   });
   const [error, setError] = useState('');
-  const [successMsg, setSuccessMsg] = useState(''); // Added success state for the email
+  const [successMsg, setSuccessMsg] = useState(''); 
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -41,16 +41,15 @@ const AuthModal = () => {
     let endpoint = '';
     if (authModalView === 'login') endpoint = '/auth/login';
     else if (authModalView === 'register') endpoint = '/auth/register';
-    else if (authModalView === 'forgotPassword') endpoint = '/auth/forgot-password'; // The new endpoint
+    else if (authModalView === 'forgotPassword') endpoint = '/auth/forgot-password'; 
     
     try {
       const { data } = await api.post(endpoint, formData);
 
       if (data.success) {
         if (authModalView === 'forgotPassword') {
-          // If it's a reset request, just show the success message, don't close the modal
           setSuccessMsg(data.message);
-          setFormData({...formData, email: ''}); // clear the email input
+          setFormData({...formData, email: ''}); 
         } else {
           login(data.token);
           closeAuthModal();
@@ -65,7 +64,6 @@ const AuthModal = () => {
     }
   };
 
-  // Determine the title based on the view
   const getTitle = () => {
     if (authModalView === 'login') return 'Welcome Back';
     if (authModalView === 'register') return 'Join the Club';
@@ -157,7 +155,7 @@ const AuthModal = () => {
                     <div className="relative w-full flex flex-col">
                         <input type="password" name="password" placeholder="Password" onChange={handleChange} className="w-full p-4 pr-8 bg-background-primary border border-border rounded-xl text-text-primary focus:outline-none focus:border-accent-tertiary" required />
                         
-                        {/* 🛡️ THE NEW FORGOT PASSWORD LINK */}
+                        {/* FORGOT PASSWORD LINK */}
                         {authModalView === 'login' && (
                           <button 
                             type="button" 
