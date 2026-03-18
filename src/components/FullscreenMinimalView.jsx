@@ -56,7 +56,7 @@ const FullscreenMinimalView = ({ isOpen, onClose, onToggle, song }) => {
       )}
 
       {/* 2. TOP NAV  */}
-      <div className="relative z-10 shrink-0 flex justify-between items-center w-full max-w-[98vw] mx-auto">
+      <div className="relative z-40 shrink-0 flex justify-between items-center w-full max-w-[98vw] mx-auto">
         <button onClick={onClose} className="p-3 bg-background-secondary rounded-full hover:bg-background-hover text-text-secondary hover:text-text-primary transition-all duration-300 group shrink-0" title="Close fullscreen">
            <svg className="w-6 h-6 group-hover:-translate-y-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
@@ -94,7 +94,7 @@ const FullscreenMinimalView = ({ isOpen, onClose, onToggle, song }) => {
         </div>
       </div>
 
-      <div className="relative z-20 flex-1 min-h-0 w-full max-w-[95vw] 2xl:max-w-screen-2xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8 md:gap-16 lg:gap-24 overflow-visible py-8 md:py-12 mt-4 md:mt-0 px-2 lg:px-8">
+      <div className="relative z-10 flex-1 min-h-0 w-full max-w-[95vw] 2xl:max-w-screen-2xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8 md:gap-16 lg:gap-24 overflow-visible py-8 md:py-12 mt-4 md:mt-0 px-2 lg:px-8">
         
         {/* ARTWORK WRAPPER */}
         <div className="w-56 md:w-full md:max-w-md lg:max-w-[28rem] xl:max-w-[32rem] shrink-0 flex flex-col items-center md:items-start relative z-30">
@@ -138,7 +138,7 @@ const FullscreenMinimalView = ({ isOpen, onClose, onToggle, song }) => {
         </div>
       </div>
 
-      <div className="relative z-10 shrink-0 flex flex-col items-center gap-6 md:gap-8 lg:gap-2 pb-2 md:pb-4">
+      <div className="relative z-40 shrink-0 flex flex-col items-center gap-6 md:gap-8 lg:gap-2 pb-2 md:pb-4">
         <MediaControllers variant="fullscreen" />
         <ProgressBar variant="fullscreen" />
       </div>
