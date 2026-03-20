@@ -96,7 +96,7 @@ const FullscreenMinimalView = ({ isOpen, onClose, onToggle, song }) => {
 
       <div className="relative z-10 flex-1 min-h-0 w-full max-w-[95vw] 2xl:max-w-screen-2xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8 md:gap-16 lg:gap-24 overflow-visible py-8 md:py-12 mt-4 md:mt-0 px-2 lg:px-8">
         
-        {/* ARTWORK WRAPPER  */}
+        {/* ARTWORK WRAPPER */}
         <div className="w-56 md:w-full md:max-w-md lg:max-w-[28rem] xl:max-w-[32rem] shrink-0 flex flex-col items-center md:items-start relative z-30">
           
           <div className="relative group w-full aspect-square rounded-2xl shadow-2xl overflow-hidden transition-transform duration-700 hover:scale-[1.05] border border-border">
