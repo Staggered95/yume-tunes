@@ -48,7 +48,7 @@ const FullscreenMinimalView = ({ isOpen, onClose, onToggle, song }) => {
       isOpen ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0 pointer-events-none'
     }`}>
       
-      {/* 1. AMBIENT BACKDROP */}
+      {/* 1. AMBIENT BACKDROP  */}
       {song?.cover_path && (
         <div className="absolute inset-0 opacity-25 blur-[120px] scale-150 pointer-events-none overflow-hidden">
            <img src={getMediaUrl(song.cover_path)} className="w-full h-full object-cover" alt="" />
