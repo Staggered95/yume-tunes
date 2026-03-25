@@ -15,7 +15,7 @@ const getPublicHomeData = async (req, res) => {
             AND lh.created_at >= NOW() - INTERVAL '30 days'
         GROUP BY s.id, s.title, s.cover_path, s.file_path, s.lyrics, ar.name, a.title
         ORDER BY recent_plays DESC, s.id DESC 
-        LIMIT 10
+        LIMIT 21
     `;
 
     // 2. This Season (Randomized OPs/EDs)
@@ -28,7 +28,7 @@ const getPublicHomeData = async (req, res) => {
         JOIN animes a ON s.anime_id = a.id
         WHERE s.song_type IN ('OP', 'ED') 
         ORDER BY RANDOM() 
-        LIMIT 10
+        LIMIT 14
     `;
 
     // 3. Quotes (Optimized Mixed Pool)
