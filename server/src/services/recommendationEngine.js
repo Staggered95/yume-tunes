@@ -1,7 +1,7 @@
 import { query } from '../config/db.js'; 
 
 export const generateRecommendations = async () => {
-    console.log("⚙️ Starting V1 Recommendation Engine...");
+    console.log("⚙️ Starting Recommendation Engine...");
 
     try {
         const activeUsersRes = await query(`SELECT DISTINCT user_id FROM listening_history`);
