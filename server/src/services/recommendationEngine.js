@@ -55,7 +55,7 @@ export const generateRecommendations = async () => {
         console.log("✅ Recommendation Engine run complete!");
 
     } catch (err) {
-        console.error("❌ Recommendation Engine Failed:", err);
+        console.error("❌ Recommendation Engine Failed: ", err);
     }
 };
 
