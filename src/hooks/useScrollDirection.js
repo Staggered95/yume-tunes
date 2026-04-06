@@ -8,7 +8,7 @@ export const useScrollDirection = () => {
         const toggleScrollDirection = () => {
             let scrollY = window.scrollY;
             
-            // If we are at the very top, always show the nav
+            // If we are at the very top, always show the nav 
             if (scrollY === 0) {
                 setScrollDirection("up");
             } 
