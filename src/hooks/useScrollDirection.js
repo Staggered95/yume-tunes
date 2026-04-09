@@ -13,7 +13,7 @@ export const useScrollDirection = () => {
                 setScrollDirection("up");
             } 
             // Scrolling down
-            else if (scrollY > prevOffset && scrollY > 50) { // 50px buffer so it doesn't trigger on tiny accidental scrolls
+            else if (scrollY > prevOffset && scrollY > 50) { // 50px buffer so it doesn't trigger on tiny accidental scrolls 
                 setScrollDirection("down");
             } 
             // Scrolling up
