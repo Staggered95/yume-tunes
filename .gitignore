@@ -17,6 +17,8 @@ server/src/.env
 server/.env
 .env
 
+docker-compose.override.yml
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
