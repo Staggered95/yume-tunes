@@ -23,6 +23,7 @@
 
 ---
 
+
 ## ✨ Features & Architecture
 
 YumeTunes is a highly modular, responsive, full-stack PERN application designed with performance, UX, and robust DevOps practices in mind.
