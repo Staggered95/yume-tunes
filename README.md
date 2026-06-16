@@ -119,5 +119,5 @@ The infrastructure of YumeTunes is built for production, heavily utilizing Docke
 
 <div align="center">
   <b>Built with <span style="color:#F87171">♥</span> for Anime Fans</b><br>
-  <sub>Designed and developed by Staggered95</sub>
+  <sub>Designed and developed by Staggered95 </sub>
 </div>
