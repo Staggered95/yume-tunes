@@ -7,16 +7,31 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-public/audio
-public/images
-dist
-dist-ssr
-*.local
-server/src/.env
-server/.env
-.env
+# Dependencies
+node_modules/
 
+# Frontend Build Outputs
+frontend/dist/
+frontend/dist-ssr/
+frontend/.eslintcache
+
+# Media & Uploads (Ignored to prevent committing large audio/image files)
+frontend/public/audio/
+frontend/public/images/
+server/public/audio/
+server/public/images/
+
+# Environment Variables
+.env
+.env.*
+!.env.example
+*.local
+server/.env
+server/src/.env
+frontend/.env
+frontend/.env.*
+
+# Docker
 docker-compose.override.yml
 
 # Editor directories and files
