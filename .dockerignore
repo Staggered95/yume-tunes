@@ -1,9 +1,0 @@
-node_modules
-dist
-.env
-.git
-server
-
-# Ignore the massive media directories so they don't bloat the build
-public/audio
-public/images
