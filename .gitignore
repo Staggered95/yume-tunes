@@ -11,6 +11,7 @@ lerna-debug.log*
 node_modules/
 
 # Frontend Build Outputs
+frontend/.vite/
 frontend/dist/
 frontend/dist-ssr/
 frontend/.eslintcache
