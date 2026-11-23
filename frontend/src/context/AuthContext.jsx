@@ -9,7 +9,6 @@ export const AuthProvider = ({ children }) => {
     const [isCheckingAuth, setIsCheckingAuth] = useState(true);
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
     const [authModalView, setAuthModalView] = useState('login');
-    const [likedSongIds, setLikedSongIds] = useState(new Set());
 
     const login = useCallback((newToken) => {
         if (!newToken) {
@@ -62,37 +61,7 @@ export const AuthProvider = ({ children }) => {
         verifySession();
     }, [token, logout]);
 
-    useEffect(() => {
-        if (!token) {
-            setLikedSongIds(new Set());
-            return;
-        }
 
-        const fetchLikedIds = async () => {
-            try {
-                const { data } = await api.get('/user/likedsongs/minimal');
-                if (data.success) {
-                    setLikedSongIds(new Set(data.data));
-                }
-            } catch (err) {
-                console.error("Failed to fetch liked IDs", err);
-            }
-        };
-
-        fetchLikedIds();
-    }, [token]);
-
-    const updateLikedSongsState = (songId, isNowLiked) => {
-        setLikedSongIds((prev) => {
-            const newSet = new Set(prev);
-            if (isNowLiked) {
-                newSet.add(songId);
-            } else {
-                newSet.delete(songId);
-            }
-            return newSet;
-        });
-    };
 
     const isLoggedIn = !!user;
 
@@ -109,13 +78,11 @@ export const AuthProvider = ({ children }) => {
         isLoggedIn,
         user,
         token,
-        likedSongIds,
         isCheckingAuth,
         isAuthModalOpen,
         authModalView,
         login,
         logout,
-        updateLikedSongsState,
         openAuthModal,
         closeAuthModal,
     };

@@ -11,32 +11,10 @@ export const UserProvider = ({ children }) => {
 
     const { isLoggedIn } = useAuth();
 
-    const fetchLikedSongIds = async () => {
-        try {
-            const { data } = await api.get('/user/likedsongs/minimal');
-            
-            if (data.success) {
-                setLikedSongIds(new Set(data.data));
-            }
-        } catch (err) {
-            console.error("Error fetching the liked song ids", err);
-        }
-    }
-
-    const fetchUserData = async () => {
-        try {
-            const { data } = await api.get('/user');
-            
-            if (data.success) {
-                setUserProfile(data.data[0]);
-            }
-        } catch (err) {
-            console.error("Error fetching the user details", err);
-        }
-    }
-
     const toggleLike = async (songId) => {
-        setLikedSongIds(prevSet => {
+        if (!isLoggedIn) return false;
+
+        setLikedSongIds((prevSet) => {
             const newSet = new Set(prevSet);
             if (newSet.has(songId)) {
                 newSet.delete(songId);
@@ -48,14 +26,15 @@ export const UserProvider = ({ children }) => {
 
         try {
             const { data } = await api.post(`/user/likedsongs/${songId}`);
-            
             if (!data.success) {
                 throw new Error("Server failed to update");
             }
+            return true;
         } catch (err) {
             console.error("Error changing like status", err);
-            
-            setLikedSongIds(prevSet => {
+
+            // Rollback optimistic update
+            setLikedSongIds((prevSet) => {
                 const newSet = new Set(prevSet);
                 if (newSet.has(songId)) {
                     newSet.delete(songId);
@@ -64,20 +43,59 @@ export const UserProvider = ({ children }) => {
                 }
                 return newSet;
             });
+            return false;
         }
-    }
+    };
 
     useEffect(() => {
-        if (isLoggedIn) {
-            setIsLoading(true);
-            Promise.all([fetchUserData(), fetchLikedSongIds()]).finally(() => {
-                setIsLoading(false);
-            });
-        } else {
+        if (!isLoggedIn) {
             setLikedSongIds(new Set());
             setUserProfile(null);
+            setIsLoading(false);
+            return;
         }
+
+        let isCancelled = false;
+
+        const loadUserData = async () => {
+            setIsLoading(true);
+            try {
+                const [userRes, likedRes] = await Promise.all([
+                    api.get('/user').catch((err) => {
+                        console.error("Error fetching user details", err);
+                        return null;
+                    }),
+                    api.get('/user/likedsongs/minimal').catch((err) => {
+                        console.error("Error fetching liked song ids", err);
+                        return null;
+                    }),
+                ]);
+
+                if (isCancelled) return;
+
+                if (userRes?.data?.success) {
+                    const payload = userRes.data.data;
+                    const normalizedProfile = Array.isArray(payload)
+                        ? (payload[0] ?? null)
+                        : (payload ?? null);
+                    setUserProfile(normalizedProfile);
+                }
+
+                if (likedRes?.data?.success) {
+                    setLikedSongIds(new Set(likedRes.data.data));
+                }
+            } finally {
+                if (!isCancelled) setIsLoading(false);
+            }
+        };
+
+        loadUserData();
+
+        return () => {
+            isCancelled = true;
+        };
     }, [isLoggedIn]);
+
     const values = { userProfile, likedSongIds, isLoading, toggleLike, setUserProfile };
 
     return (
@@ -85,7 +103,7 @@ export const UserProvider = ({ children }) => {
             {children}
         </UserContext.Provider>
     );
-}
+};
 
 export const useUser = () => {
     const context = useContext(UserContext);
@@ -93,4 +111,4 @@ export const useUser = () => {
         throw new Error("useUser must be within a UserProvider");
     }
     return context;
-}
+};
