@@ -1,67 +1,76 @@
 import { useEffect } from 'react';
 import api from '../api/axios';
 import { useLoading } from '../context/LoadingContext';
-import { useAuth } from '../context/AuthContext'; // 
+import { useAuth } from '../context/AuthContext';
+
+const AUTH_SKIP_URLS = ['/auth/refresh', '/auth/logout', '/auth/login'];
 
 const AxiosInterceptorSetup = ({ children }) => {
     const { startLoading, stopLoading } = useLoading();
-    const { login, logout } = useAuth(); 
+    const { login, logout } = useAuth();
 
     useEffect(() => {
-        let activeRequests = 0;
+        let refreshPromise = null;
 
-        // --- REQUEST INTERCEPTOR (Handles Loading State) ---
-        const requestInterceptor = api.interceptors.request.use((config) => {
-            activeRequests++;
-            if (activeRequests === 1) startLoading();
-            return config;
-        }, (error) => {
-            activeRequests--;
-            if (activeRequests === 0) stopLoading();
-            return Promise.reject(error);
-        });
+        const requestInterceptor = api.interceptors.request.use(
+            (config) => {
+                startLoading();
+                return config;
+            },
+            (error) => Promise.reject(error)
+        );
 
-        // --- RESPONSE INTERCEPTOR (Handles Loading & 401 Silent Refresh) ---
-        const responseInterceptor = api.interceptors.response.use((response) => {
-            activeRequests--;
-            if (activeRequests === 0) stopLoading();
-            return response;
-        }, async (error) => {
-            activeRequests--;
-            if (activeRequests === 0) stopLoading();
+        const responseInterceptor = api.interceptors.response.use(
+            (response) => {
+                stopLoading();
+                return response;
+            },
+            async (error) => {
+                stopLoading();
 
-            const originalRequest = error.config;
+                const originalRequest = error.config;
+                const requestUrl = originalRequest?.url || '';
+                const isAuthEndpoint = AUTH_SKIP_URLS.some((url) => requestUrl.includes(url));
 
-            // The Retry Logic
-            if (error.response && error.response.status === 401 && !originalRequest._retry) {
-                originalRequest._retry = true; 
+                if (
+                    error.response?.status === 401 &&
+                    originalRequest &&
+                    !originalRequest._retry &&
+                    !isAuthEndpoint
+                ) {
+                    originalRequest._retry = true;
 
-                try {
-                    const { data } = await api.get('/auth/refresh', {
-                        withCredentials: true 
-                    });
-                    
-                    const newAccessToken = data.token;
-                    
-                    login(newAccessToken);
-                    
+                    // If a refresh is already running, reuse it instead of calling /auth/refresh twice
+                    if (!refreshPromise) {
+                        refreshPromise = api
+                            .get('/auth/refresh', { withCredentials: true })
+                            .then(({ data }) => {
+                                login(data.token);
+                                return data.token;
+                            })
+                            .catch((refreshError) => {
+                                logout();
+                                return Promise.reject(refreshError);
+                            })
+                            .finally(() => {
+                                refreshPromise = null;
+                            });
+                    }
+
+                    const newAccessToken = await refreshPromise;
                     originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
                     return api(originalRequest);
-                    
-                } catch (refreshError) {
-                    logout(); 
-                    return Promise.reject(refreshError);
                 }
-            }
 
-            return Promise.reject(error);
-        });
+                return Promise.reject(error);
+            }
+        );
 
         return () => {
             api.interceptors.request.eject(requestInterceptor);
             api.interceptors.response.eject(responseInterceptor);
         };
-    }, [startLoading, stopLoading, login, logout]); 
+    }, [startLoading, stopLoading, login, logout]);
 
     return children;
 };
