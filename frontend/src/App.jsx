@@ -29,6 +29,9 @@ import ScrollToTop from './helpers/ScrollToTop';
 import ResetPassword from './pages/ResetPassword';
 import ContactPage from './pages/ContactPage';
 import { ProtectedRoute, AdminRoute } from './components/ProtectedRoute';
+import DmcaPage from './pages/secondary/DmcaPage';
+import TermsPage from './pages/secondary/TermsPage';
+import PrivacyPage from './pages/secondary/PrivacyPage';
 
 
 const MainLayout = () => {
@@ -84,6 +87,10 @@ const App = () => {
           <Route path="/genre/:genreName" element={<GenrePage />} />
           <Route path="/animes" element={<AnimeListPage />} />
           <Route path="/anime/:title" element={<AnimePage />} />
+
+          <Route path="/dmca" element={<DmcaPage />} />
+          <Route path="/terms" element={<TermsPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
 
           {/* PROTECTED ROUTES */}
           <Route element={<ProtectedRoute />}>
