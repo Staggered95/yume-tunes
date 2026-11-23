@@ -1,6 +1,5 @@
 name: YumeTunes Production Deploy
 
-# 1. This tells GitHub to run this script EVERY time you push to the 'main' branch
 on:
   push:
     branches:
@@ -11,14 +10,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: SSH into EC2 and Deploy
-        uses: appleboy/ssh-action@v1.0.3
+      - name: SSH into Azure VM and Deploy
+        uses: appleboy/ssh-action@v1.2.5
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          # 2. These are the exact commands the action will type into your EC2 terminal!
+          host: ${{ secrets.AZURE_HOST }}
+          username: ${{ secrets.AZURE_USERNAME }}
+          key: ${{ secrets.AZURE_SSH_KEY }}
           script: |
+            set -e
             echo "🚀 Starting Deployment..."
             cd ~/yume-tunes
             
@@ -26,6 +25,9 @@ jobs:
             git pull origin main
             
             echo "🐳 Rebuilding and restarting Docker containers..."
-            sudo docker compose up -d --build
+            docker compose up -d --build
+            
+            echo "🧹 Cleaning up old dangling images..."
+            docker image prune -f
             
             echo "✅ Deployment Successful!"
