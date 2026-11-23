@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios'; 
 import { getMediaUrl } from '../utils/media';
+import { GoogleLogin } from '@react-oauth/google';
 
 const AuthModal = () => {
   const { isAuthModalOpen, closeAuthModal, login, authModalView, openAuthModal } = useAuth();
@@ -61,6 +62,21 @@ const AuthModal = () => {
       setError(err.response?.data?.error || err.response?.data?.message || 'Network error. Is the server running?');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+        const { data } = await api.post('/auth/google', {
+            credential: credentialResponse.credential,
+        });
+        if (data.success && data.token) {
+            login(data.token);
+            closeAuthModal();
+        }
+    } catch (err) {
+        console.error('Google sign-in failed:', err);
+        setError(err.response?.data?.message || 'Google sign-in failed. Please try again.');
     }
   };
 
@@ -176,6 +192,26 @@ const AuthModal = () => {
                 >
                     {loading ? 'Processing...' : (authModalView === 'login' ? 'Log In' : authModalView === 'register' ? 'Sign Up' : 'Send Reset Link')}
                 </button>
+                
+                <div className="relative my-3 sm:my-4 flex items-center">
+                  <div className="flex-grow border-t border-border"></div>
+                    <span className="mx-3 shrink-0 text-xs font-semibold uppercase tracking-wider text-text-muted">
+                      or
+                    </span>
+                  <div className="flex-grow border-t border-border"></div>
+                </div>
+
+                <div className="flex justify-center">
+                  <GoogleLogin
+                    onSuccess={handleGoogleSuccess}
+                    onError={() => setError('Google sign-in was cancelled or failed.')}
+                    text="continue_with"
+                    shape="pill"
+                    theme="filled_black"
+                    size="large"
+                  />
+                </div>
+
             </form>
 
             {/* Bottom Toggle Footer */}

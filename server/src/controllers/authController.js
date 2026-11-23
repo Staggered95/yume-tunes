@@ -185,7 +185,7 @@ const forgotPassword = async (req, res) => {
         }
 
         const user = userResult.rows[0];
-        
+
         //If they only have google login, they may not have password set up
         if (!user.password_hash) {
             return res.status(400).json({
@@ -310,7 +310,7 @@ const generateUniqueUsername = async (email, givenName) => {
 
     let candidate = base;
     for (let i = 0; i < 5; i++) {
-        const { rows } = await pool.query(
+        const { rows } = await query(
             'SELECT 1 FROM users WHERE username = $1',
             [candidate]
         );
@@ -343,7 +343,7 @@ const googleAuth = async (req, res) => {
         const normalizedEmail = email.toLowerCase();
 
         // 1. Check if user exists by google_id OR matching email
-        const existing = await pool.query(
+        const existing = await query(
             'SELECT * FROM users WHERE google_id = $1 OR LOWER(email) = $2 LIMIT 1',
             [googleId, normalizedEmail]
         );
@@ -356,7 +356,7 @@ const googleAuth = async (req, res) => {
             // Link google_id if they originally signed up with email/password.
             // COALESCE preserves any custom Cloudinary avatar they already uploaded.
             if (!user.google_id) {
-                const updated = await pool.query(
+                const updated = await query(
                     `UPDATE users
                      SET google_id = $1,
                          user_image = COALESCE(user_image, $2)
@@ -370,7 +370,7 @@ const googleAuth = async (req, res) => {
             // 2. First-time user: auto-generate a unique username and insert
             const username = await generateUniqueUsername(normalizedEmail, given_name);
 
-            const inserted = await pool.query(
+            const inserted = await query(
                 `INSERT INTO users (first_name, last_name, username, email, google_id, user_image)
                  VALUES ($1, $2, $3, $4, $5, $6)
                  RETURNING *`,

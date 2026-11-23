@@ -12,6 +12,7 @@ import { UserProvider } from './context/UserContext.jsx'
 import { ToastProvider } from './context/ToastContext.jsx'
 import { LoadingProvider } from './context/LoadingContext.jsx'
 import { ThemeProvider } from './context/ThemeContext.jsx'
+import { GoogleOAuthProvider } from '@react-oauth/google'
 // Helpers
 import AxiosInterceptorSetup from './helpers/AxiosInterceptorSetup.jsx'
 
@@ -24,6 +25,8 @@ const updateSW = registerSW({
   },
 })
 
+const id = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
@@ -35,7 +38,9 @@ createRoot(document.getElementById('root')).render(
                   <SongProvider>
                     <UserProvider>
                       <ThemeProvider>
-                        <App />
+                        <GoogleOAuthProvider clientId={id}>
+                          <App />
+                        </GoogleOAuthProvider>
                       </ThemeProvider>
                     </UserProvider>
                   </SongProvider>

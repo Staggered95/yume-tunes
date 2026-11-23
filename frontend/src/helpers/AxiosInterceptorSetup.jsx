@@ -3,7 +3,7 @@ import api from '../api/axios';
 import { useLoading } from '../context/LoadingContext';
 import { useAuth } from '../context/AuthContext';
 
-const AUTH_SKIP_URLS = ['/auth/refresh', '/auth/logout', '/auth/login'];
+const AUTH_SKIP_URLS = ['/auth/refresh', '/auth/logout', '/auth/login', '/auth/google'];
 
 const AxiosInterceptorSetup = ({ children }) => {
     const { startLoading, stopLoading } = useLoading();
