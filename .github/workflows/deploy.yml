@@ -29,5 +29,6 @@ jobs:
             
             echo "🧹 Cleaning up old dangling images..."
             docker image prune -f
+            docker builder prune -f --keep-storage=1GB
             
             echo "✅ Deployment Successful!"
