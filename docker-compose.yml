@@ -33,20 +33,13 @@ services:
     volumes:
       - ./server/public:/public
 
-  web:
+  
+
+  gateway:
     build:
       context: ./frontend
-      dockerfile: Dockerfile
       args:
         VITE_API_BASE_URL: ${VITE_API_BASE_URL}
-    container_name: yumetunes-web
-    restart: unless-stopped
-    # Ports are gone. Nginx will talk to this container internally on port 80.
-    depends_on:
-      - api
-
-  nginx:
-    image: nginx:alpine
     container_name: yumetunes-gateway
     restart: unless-stopped
     ports:
@@ -60,7 +53,6 @@ services:
       - /etc/letsencrypt:/etc/letsencrypt:ro
       - /var/www/certbot:/var/www/certbot
     depends_on:
-      - web
       - api
 
 volumes:
