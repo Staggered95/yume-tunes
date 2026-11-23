@@ -115,6 +115,17 @@ const UserMenu = ({ user, onLogoutClick }) => {
                             Account Settings
                         </button>
 
+                        {/* Mobile Only Contact Us Link */}
+                        <button 
+                            onClick={() => { navigate('/contact'); setIsOpen(false); }}
+                            className="md:hidden w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-text-primary hover:bg-background-hover rounded-xl transition-all duration-300 group"
+                        >
+                        <svg className="w-4 h-4 text-text-secondary group-hover:text-accent-secondary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                        Contact Us
+                        </button>
+
                         <div className="h-px bg-border my-1 mx-2"></div>
 
                         <button 
