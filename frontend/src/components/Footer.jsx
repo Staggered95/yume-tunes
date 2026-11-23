@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext';
 
 export default function Footer() {
     const { themeFamily, setThemeFamily, themeMode, themeFamilies } = useTheme();
-    const { token, openAuthModal } = useAuth(); 
+    const { isLoggedIn, openAuthModal } = useAuth(); 
     
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const menuRef = useRef(null);
@@ -24,7 +24,7 @@ export default function Footer() {
     }, []);
 
     const handleThemeSelect = (theme) => {
-        if (!theme.isFree && !token) {
+        if (!theme.isFree && !isLoggedIn) {
             setIsMenuOpen(false);
             openAuthModal('register');
             return;
@@ -96,7 +96,7 @@ export default function Footer() {
                                     Select Theme
                                 </div>
                                 {themeFamilies.map((theme) => {
-                                    const isLocked = !theme.isFree && !token;
+                                    const isLocked = !theme.isFree && !isLoggedIn;
                                     const isSelected = theme.id === themeFamily;
                                     return (
                                         <button 

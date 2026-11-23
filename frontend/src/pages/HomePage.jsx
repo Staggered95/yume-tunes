@@ -19,7 +19,7 @@ function HomePage() {
   const [isPublicLoading, setIsPublicLoading] = useState(true);
   const [isPrivateLoading, setIsPrivateLoading] = useState(true);
 
-  const { isLoggedIn, token } = useAuth(); 
+  const { isLoggedIn } = useAuth(); 
   const { userProfile } = useUser();
 
   // PUBLIC DATA FETCH
@@ -47,7 +47,7 @@ function HomePage() {
   // PRIVATE DATA FETCH 
   useEffect(() => {
     const fetchPrivateData = async () => {
-      if (!isLoggedIn || !token) {
+      if (!isLoggedIn) {
         setContinueListening([]); 
         setRecommendedSongs([]);
         setIsPrivateLoading(false);
@@ -68,7 +68,7 @@ function HomePage() {
       }
     };
     fetchPrivateData();
-  }, [isLoggedIn, token]);
+  }, [isLoggedIn]);
 
   return (
     <div className="flex flex-col gap-8 pb-32 animate-fade-in">
