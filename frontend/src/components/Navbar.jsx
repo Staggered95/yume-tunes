@@ -11,7 +11,7 @@ import InstallButton from '../utils/InstallButton';
 
 export default function Navbar() {
     const navigate = useNavigate();
-    const { token, logout, openAuthModal } = useAuth();
+    const { isLoggedIn, isCheckingAuth, logout, openAuthModal } = useAuth();
     const { userProfile } = useUser();
     
     const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
@@ -99,7 +99,9 @@ export default function Navbar() {
                                 <ThemeToggle/>
                             </div>
 
-                            {!token ? (
+                            {isCheckingAuth ? (
+                                <div className="w-10 h-10 rounded-full bg-background-active animate-pulse" />
+                            ) : !isLoggedIn ? (
                                 <div className="flex items-center gap-2 lg:gap-4 font-bold">
                                     <button 
                                         onClick={() => openAuthModal('login')} 
@@ -115,9 +117,9 @@ export default function Navbar() {
                                     </button>
                                 </div>
                             ) : (
-                                <UserMenu 
-                                    user={userProfile} 
-                                    onLogoutClick={() => setIsLogoutModalOpen(true)} 
+                                <UserMenu
+                                    user={userProfile}
+                                    onLogoutClick={() => setIsLogoutModalOpen(true)}
                                 />
                             )}
                         </div>
