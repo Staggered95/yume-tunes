@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useUser } from '../context/UserContext';
 import { useToast } from '../context/ToastContext';
 import api from '../api/axios';
 import Spinner from '../minicomps/Spinner';
 
 const ContactPage = () => {
-    const { userProfile, token } = useAuth();
+    const { isLoggedIn } = useAuth();
+    const { userProfile } = useUser();
     const { addToast } = useToast();
 
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -18,14 +20,14 @@ const ContactPage = () => {
 
     // Auto-fill the form if the user is already logged in!
     useEffect(() => {
-        if (userProfile && token) {
+        if (isLoggedIn && userProfile) {
             setFormData(prev => ({
                 ...prev,
                 name: userProfile.username || '',
                 email: userProfile.email || ''
             }));
         }
-    }, [userProfile, token]);
+    }, [isLoggedIn, userProfile]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
