@@ -1,7 +1,10 @@
 import { query } from '../config/db.js';
 import { sendEmail } from '../utils/sendEmail.js';
+import { OAuth2Client } from 'google-auth-library';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // Helper function to generate tokens so we keep our code DRY!
 const generateTokens = (userId) => {
@@ -79,6 +82,15 @@ const login = async (req, res) => {
         }
         
         const user = userQuery.rows[0];
+        
+        //If they only have google login, they may not have password set up
+        if (!user.password_hash) {
+            return res.status(400).json({
+                success: false,
+                message: 'This account uses Google Sign-In. Please continue with Google.',
+            });
+        }
+
         const verified = await bcrypt.compare(password, user.password_hash);
 
         if (verified) {
@@ -162,7 +174,7 @@ const refresh = async (req, res) => {
     }
 }
 
-export const forgotPassword = async (req, res) => {
+const forgotPassword = async (req, res) => {
     const { email } = req.body;
 
     try {
@@ -173,6 +185,14 @@ export const forgotPassword = async (req, res) => {
         }
 
         const user = userResult.rows[0];
+        
+        //If they only have google login, they may not have password set up
+        if (!user.password_hash) {
+            return res.status(400).json({
+                success: false,
+                message: 'This account uses Google Sign-In. Please continue with Google.',
+            });
+        }
 
         const secret = process.env.JWT_SECRET + user.password_hash;
 
@@ -234,7 +254,7 @@ export const forgotPassword = async (req, res) => {
 
 
 
-export const resetPassword = async (req, res) => {
+const resetPassword = async (req, res) => {
     const { id, token } = req.params;
     const { newPassword } = req.body;
 
@@ -279,4 +299,112 @@ export const resetPassword = async (req, res) => {
     }
 };
 
-export default { register, login, refresh, logout, me, forgotPassword, resetPassword };
+
+
+//GOOGLE
+const generateUniqueUsername = async (email, givenName) => {
+    const base = (email.split('@')[0] || givenName || 'user')
+        .toLowerCase()
+        .replace(/[^a-z0-9_]/g, '')
+        .slice(0, 20) || 'user';
+
+    let candidate = base;
+    for (let i = 0; i < 5; i++) {
+        const { rows } = await pool.query(
+            'SELECT 1 FROM users WHERE username = $1',
+            [candidate]
+        );
+        if (rows.length === 0) return candidate;
+        candidate = `${base}_${Math.floor(1000 + Math.random() * 9000)}`;
+    }
+    return `${base}_${Date.now().toString().slice(-6)}`;
+};
+
+const googleAuth = async (req, res) => {
+    const { credential } = req.body;
+
+    if (!credential) {
+        return res.status(400).json({ success: false, message: 'Google credential is required' });
+    }
+
+    try {
+        const ticket = await googleClient.verifyIdToken({
+            idToken: credential,
+            audience: process.env.GOOGLE_CLIENT_ID, // later can be an array [WEB_ID, ANDROID_ID]
+        });
+
+        const payload = ticket.getPayload();
+        const { sub: googleId, email, email_verified, given_name, family_name, picture } = payload;
+
+        if (!email || !email_verified) {
+            return res.status(401).json({ success: false, message: 'Google account email is not verified' });
+        }
+
+        const normalizedEmail = email.toLowerCase();
+
+        // 1. Check if user exists by google_id OR matching email
+        const existing = await pool.query(
+            'SELECT * FROM users WHERE google_id = $1 OR LOWER(email) = $2 LIMIT 1',
+            [googleId, normalizedEmail]
+        );
+
+        let user;
+
+        if (existing.rows.length > 0) {
+            user = existing.rows[0];
+
+            // Link google_id if they originally signed up with email/password.
+            // COALESCE preserves any custom Cloudinary avatar they already uploaded.
+            if (!user.google_id) {
+                const updated = await pool.query(
+                    `UPDATE users
+                     SET google_id = $1,
+                         user_image = COALESCE(user_image, $2)
+                     WHERE id = $3
+                     RETURNING *`,
+                    [googleId, picture || null, user.id]
+                );
+                user = updated.rows[0];
+            }
+        } else {
+            // 2. First-time user: auto-generate a unique username and insert
+            const username = await generateUniqueUsername(normalizedEmail, given_name);
+
+            const inserted = await pool.query(
+                `INSERT INTO users (first_name, last_name, username, email, google_id, user_image)
+                 VALUES ($1, $2, $3, $4, $5, $6)
+                 RETURNING *`,
+                [
+                    given_name || username,
+                    family_name || null,
+                    username,
+                    normalizedEmail,
+                    googleId,
+                    picture || null,
+                ]
+            );
+            user = inserted.rows[0];
+        }
+
+        // Match the exact payload fields and cookie options from your login() controller
+        const { accessToken, refreshToken } = generateTokens(user.id)
+
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'Strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000,
+        });
+
+        return res.status(200).json({
+            success: true,
+            token: accessToken,
+        });
+    } catch (err) {
+        console.error('Google auth error:', err);
+        return res.status(401).json({ success: false, message: 'Invalid Google token' });
+    }
+};
+
+
+export default { register, login, refresh, logout, me, googleAuth, forgotPassword, resetPassword };
