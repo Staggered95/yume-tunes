@@ -45,3 +45,4 @@ docker-compose.override.yml
 *.njsproj
 *.sln
 *.sw?
+frontend/.vite
