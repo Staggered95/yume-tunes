@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const Landing = () => {
     const navigate = useNavigate();
@@ -76,11 +76,20 @@ const Landing = () => {
             </div>
 
             {/* ✨ SUBTLE FOOTER ✨ */}
-            <div className="absolute bottom-6 left-0 w-full flex justify-center z-20 pointer-events-none">
-                <p className="text-text-muted/60 text-xs font-semibold tracking-widest uppercase">
-                    v1.0 Production Build • PERN Stack Architecture
-                </p>
-            </div>
+<div className="absolute bottom-6 left-0 w-full flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4 z-20 px-4">
+    <p className="text-text-muted/60 text-xs font-semibold tracking-widest uppercase">
+        v2.0 Production Build
+    </p>
+    <span className="hidden sm:inline text-text-muted/30">•</span>
+    <div className="flex items-center gap-4 text-xs font-semibold tracking-wider uppercase text-text-muted/70">
+        <Link to="/privacy" className="hover:text-accent-primary transition-colors">
+            Privacy Policy
+        </Link>
+        <Link to="/terms" className="hover:text-accent-primary transition-colors">
+            Terms of Service
+        </Link>
+    </div>
+</div>
 
         </div>
     );
