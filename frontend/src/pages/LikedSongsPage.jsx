@@ -80,7 +80,7 @@ const LikedSongsPage = () => {
             </div>
 
             {/* 2. ACTION BAR */}
-            <div className="sticky top-16 z-30 bg-background-primary/80 backdrop-blur-md border-b border-border/50">
+            <div className="sticky top-16 bg-background-primary/80 backdrop-blur-md border-b border-border/50">
                 <div className="max-w-7xl mx-auto px-6 md:px-12 py-4 flex items-center gap-6">
                     <button 
                         onClick={() => playQueue(songs, 0)}
