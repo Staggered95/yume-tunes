@@ -87,7 +87,7 @@ const login = async (req, res) => {
         if (!user.password_hash) {
             return res.status(400).json({
                 success: false,
-                message: 'This account uses Google Sign-In. Please continue with Google.',
+                error: 'This account uses Google Sign-In. Please continue with Google.',
             });
         }
 
@@ -190,7 +190,7 @@ const forgotPassword = async (req, res) => {
         if (!user.password_hash) {
             return res.status(400).json({
                 success: false,
-                message: 'This account uses Google Sign-In. Please continue with Google.',
+                error: 'This account uses Google Sign-In. Please continue with Google.',
             });
         }
 
@@ -389,7 +389,7 @@ const googleAuth = async (req, res) => {
         // Match the exact payload fields and cookie options from your login() controller
         const { accessToken, refreshToken } = generateTokens(user.id)
 
-        res.cookie('refreshToken', refreshToken, {
+        res.cookie('jwt', refreshToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'Strict',
