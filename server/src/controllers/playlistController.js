@@ -187,4 +187,41 @@ const deletePlaylist = async (req, res) => {
     }
 }
 
-export default { createPlaylist, getPlaylists, getPlaylistById, addToPlaylist, deleteFromPlaylist, deletePlaylist };
+const updatePlaylist = async (req, res) => {
+    const playlistID = req.params.id;
+    const userID = req.user.id;
+    const { name, description } = req.body;
+
+    if (!name || !name.trim()) {
+        return res.status(400).json({ success: false, error: "Playlist name is required" });
+    }
+
+    const text = `
+        UPDATE playlists
+        SET name = $1,
+            description = COALESCE($2, description)
+        WHERE id = $3 AND user_id = $4
+        RETURNING *
+    `;
+    const values = [
+        name.trim(),
+        description !== undefined ? description.trim() : null,
+        playlistID,
+        userID
+    ];
+
+    try {
+        const result = await query(text, values);
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ success: false, error: "Playlist not found or not authorized" });
+        }
+
+        res.status(200).json({ success: true, data: result.rows[0] });
+    } catch (err) {
+        console.error("Error updating Playlist", err);
+        res.status(500).json({ success: false, error: "Server error" });
+    }
+};
+
+export default { createPlaylist, getPlaylists, getPlaylistById, addToPlaylist, deleteFromPlaylist, deletePlaylist, updatePlaylist };

@@ -6,11 +6,13 @@ import Collage from '../minicomps/Collage';
 import { getMediaUrl } from '../utils/media';
 import ShuffleButton from '../minicomps/ShuffleButton';
 import OptionsMenu from '../minicomps/OptionsMenu';
+import PlaylistModal from '../components/PlaylistModal';
+
 
 const PlaylistPage = () => {
     const { id } = useParams();
     const { playQueue, playShuffledQueue } = useSongs();
-
+    const [modalMode, setModalMode] = useState(null); // null | 'edit' | 'delete'
     const [playlistMeta, setPlaylistMeta] = useState(null);
     const [songs, setSongs] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -104,6 +106,29 @@ const PlaylistPage = () => {
                         variant="action"
                         onClick={() => { if (songs.length > 0) playShuffledQueue(songs); }}
                     />
+
+                    <div className="ml-auto flex items-center gap-2">
+    <button
+        onClick={() => setModalMode('edit')}
+        title="Rename Playlist"
+        className="p-3 rounded-full bg-background-secondary border border-border text-text-secondary hover:text-text-primary hover:bg-background-hover hover:border-border-hover transition-all duration-300"
+    >
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+        </svg>
+    </button>
+
+    <button
+        onClick={() => setModalMode('delete')}
+        title="Delete Playlist"
+        className="p-3 rounded-full bg-background-secondary border border-border text-text-secondary hover:text-red-400 hover:border-red-500/40 hover:bg-red-500/10 transition-all duration-300"
+    >
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+        </svg>
+    </button>
+</div>
+
                 </div>
             </div>
 
@@ -176,6 +201,25 @@ const PlaylistPage = () => {
                     )}
                 </div>
             </div>
+
+            <PlaylistModal
+                isOpen={Boolean(modalMode)}
+                onClose={() => setModalMode(null)}
+                initialView={modalMode || 'edit'}
+                playlist={playlistMeta}
+                onSuccess={(result) => {
+                    if (modalMode === 'edit') {
+                        setPlaylistMeta(prev => ({
+                            ...prev,
+                            name: result.name,
+                            description: result.description
+                    }));
+                    } else if (modalMode === 'delete') {
+                        navigate('/home');
+                    }
+                }}  
+            />
+
         </div>
     );
 };
