@@ -158,7 +158,7 @@ export default function Footer() {
                     <div className="flex items-center gap-3">
                         <p className="text-xs font-semibold text-text-muted">&copy; {new Date().getFullYear()} YumeTunes. All rights reserved.</p>
                         <span className="text-text-muted/30">·</span>
-                        <span className="text-xs font-semibold text-text-muted/50">v1.0</span>
+                        <span className="text-xs font-semibold text-text-muted/50">v2.0</span>
                     </div>
                     <p className="text-xs font-semibold text-text-muted flex items-center gap-1.5">
                         Built with <span className="text-error animate-pulse">♥</span> for Anime Fans

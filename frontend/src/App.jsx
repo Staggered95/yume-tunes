@@ -32,6 +32,7 @@ import { ProtectedRoute, AdminRoute } from './components/ProtectedRoute';
 import DmcaPage from './pages/secondary/DmcaPage';
 import TermsPage from './pages/secondary/TermsPage';
 import PrivacyPage from './pages/secondary/PrivacyPage';
+import ReleaseChip from './minicomps/ReleaseChip';
 
 
 const MainLayout = () => {
@@ -50,6 +51,8 @@ const MainLayout = () => {
         </div>
         <Footer />
       </main>
+
+      <ReleaseChip/>
       
       <BottomPlayer onExpand={() => setIsPlayerOpen(true)} />
       <FullscreenPlayer 
