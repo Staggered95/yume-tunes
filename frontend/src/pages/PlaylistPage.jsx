@@ -194,7 +194,12 @@ const PlaylistPage = () => {
                                     onClick={(e) => e.stopPropagation()}
                                     className="flex items-center justify-end opacity-100 md:opacity-0 group-hover:opacity-100 transition-all"
                                 >
-                                    <OptionsMenu song={song} />
+                                    <OptionsMenu
+                                        song={song}
+                                        variant="playlistSong"
+                                        playlistId={id}
+                                        onRemove={(removedId) => setSongs(prev => prev.filter(s => s.id !== removedId))}
+                                    />
                                 </div>
                             </div>
                         ))
