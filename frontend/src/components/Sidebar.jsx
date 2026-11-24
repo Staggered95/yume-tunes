@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import api from '../api/axios'; 
-import { useAuth } from '../context/AuthContext';
+import { usePlaylists } from '../context/PlaylistContext';
 
 /* ---------- Theme-Aware Icons ---------- */
 const HamburgerIcon = ({ className }) => (
@@ -54,26 +54,7 @@ const Sidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   
-  const { isLoggedIn } = useAuth();
-  const [userPlaylists, setUserPlaylists] = useState([]);
-
-  useEffect(() => {
-    if (!isLoggedIn) {
-        setUserPlaylists([]);
-        return;
-    }
-    const fetchPlaylists = async () => {
-        try {
-            const { data } = await api.get('/playlists');
-            if (data.success) {
-                setUserPlaylists(data.data);
-            }
-        } catch (error) {
-            console.error("Failed to fetch sidebar playlists", error);
-        }
-    };
-    fetchPlaylists();
-  }, [isLoggedIn]);
+  const { playlists: userPlaylists } = usePlaylists();
 
   return (
     <aside 
@@ -139,7 +120,13 @@ const Sidebar = () => {
         
       {/* Footer Settings */}
       <div className="absolute bottom-6 w-full">
-        <SidebarItem icon={SettingsIcon} label="Settings" isOpen={isOpen} active={location.pathname === '/settings'} onClick={() => navigate('/settings')} />
+        <SidebarItem
+  icon={SettingsIcon}
+  label="Settings"
+  isOpen={isOpen}
+  active={location.pathname === '/user' && location.state?.activeTab === 'settings'}
+  onClick={() => navigate('/user', { state: { activeTab: 'settings' } })}
+/>
       </div>
     </aside>
   );

@@ -6,6 +6,7 @@ import './index.css'
 import App from './App.jsx'
 // Contexts
 import { SongProvider } from './context/SongContext.jsx'
+import { PlaylistProvider } from './context/PlaylistContext.jsx'
 import { PlaybackProvider } from './context/PlaybackContext.jsx'
 import { AuthProvider } from './context/AuthContext.jsx'
 import { UserProvider } from './context/UserContext.jsx'
@@ -37,11 +38,13 @@ createRoot(document.getElementById('root')).render(
                 <ToastProvider>
                   <SongProvider>
                     <UserProvider>
-                      <ThemeProvider>
-                        <GoogleOAuthProvider clientId={id}>
-                          <App />
-                        </GoogleOAuthProvider>
-                      </ThemeProvider>
+                      <PlaylistProvider>
+                        <ThemeProvider>
+                          <GoogleOAuthProvider clientId={id}>
+                            <App />
+                          </GoogleOAuthProvider>
+                        </ThemeProvider>
+                      </PlaylistProvider>
                     </UserProvider>
                   </SongProvider>
                 </ToastProvider>

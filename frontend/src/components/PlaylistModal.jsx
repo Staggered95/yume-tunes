@@ -1,86 +1,73 @@
 import React, { useState, useEffect } from 'react';
 import api from '../api/axios'; // Native Axios import
 import { useToast } from '../context/ToastContext';
+import { usePlaylists } from '../context/PlaylistContext';
 import BaseModal from '../minicomps/BaseModal';
 
 const PlaylistModal = ({ isOpen, onClose, initialView = 'list', songId }) => {
     const { addToast } = useToast(); 
+    const { playlists, setPlaylists, isLoading, refreshPlaylists } = usePlaylists();        
     
     const [view, setView] = useState(initialView); 
-    const [isLoading, setIsLoading] = useState(true);
-    
-    const [playlists, setPlaylists] = useState([]);
     const [newPlaylistName, setNewPlaylistName] = useState('');
     const [newPlaylistDesc, setNewPlaylistDesc] = useState('');
 
     useEffect(() => {
         if (isOpen) {
             setView(initialView);
-            setNewPlaylistName(''); 
+            setNewPlaylistName('');
             setNewPlaylistDesc('');
-        }
-    }, [isOpen, initialView]);
-
-    useEffect(() => {
-        if (!isOpen) {
+            refreshPlaylists();
+        } else {
             setView('list');
-            return;
         }
+    }, [isOpen, initialView, refreshPlaylists]);
 
-        const fetchPlaylists = async () => {
-            setIsLoading(true);
-            try {
-                const { data } = await api.get('/playlists');
-                if (data.success) {
-                    setPlaylists(data.data);
-                }
-            } catch (error) {
-                addToast("Failed to fetch playlists", "error");
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchPlaylists();
-    }, [isOpen, addToast]);
 
     const handleAddToPlaylist = async (playlistId) => {
         try {
-            const { data } = await api.post(`/playlists/${playlistId}/songs`, { 
-                songID: songId, 
-                positionOrder: 1 
+            const { data } = await api.post(`/playlists/${playlistId}/songs`, {
+                songID: songId,
+                positionOrder: 1
             });
-            
+
             if (data.success) {
-                addToast('Added to playlist! 🎵', "success"); 
-                onClose(); 
+                addToast('Added to playlist! 🎵', 'success');
+                refreshPlaylists(); // keeps song_count up to date everywhere
+                onClose();
             } else {
-                addToast(data.message || 'Song already in playlist', "warning");
+                addToast(data.message || 'Song already in playlist', 'warning');
                 onClose();
             }
         } catch (error) {
-            addToast('Failed to add song.', "error");
+            addToast('Failed to add song.', 'error');
         }
     };
 
     const handleCreatePlaylist = async (e) => {
         e.preventDefault();
         try {
-            const { data } = await api.post('/playlists', { 
-                name: newPlaylistName, 
-                description: newPlaylistDesc 
+            const { data } = await api.post('/playlists', {
+                name: newPlaylistName,
+                description: newPlaylistDesc
             });
-            
+
             if (data.success) {
                 const newPlaylist = data.data;
-                setPlaylists([newPlaylist, ...playlists]);
+                setPlaylists(prev => [newPlaylist, ...prev]); // updates Sidebar immediately
                 setNewPlaylistName('');
                 setNewPlaylistDesc('');
-                setView('list');
-                addToast(`Created ${newPlaylist.name}!`, "success");
+                addToast(`Created ${newPlaylist.name}!`, 'success');
+
+                // If opened purely to create a playlist (no songId), close right away
+                if (!songId) {
+                    onClose();
+                } else {
+                    setView('list');
+                }
             }
         } catch (error) {
-            addToast('Failed to create playlist.', "error");
+            addToast('Failed to create playlist.', 'error');
         }
     };
 
