@@ -6,6 +6,12 @@ const Landing = () => {
     
     // 1. Check if the screen is mobile-sized
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+    const [loadVideo, setLoadVideo] = useState(false);
+
+useEffect(() => {
+    const timer = setTimeout(() => setLoadVideo(true), 200);
+    return () => clearTimeout(timer);
+}, []);
 
     // 2. Listen for screen resizing
     useEffect(() => {
@@ -27,7 +33,8 @@ const Landing = () => {
         <div className="relative w-full h-screen overflow-hidden flex items-center justify-center bg-background-primary">
             
             {/* THE BACKGROUND VIDEO */}
-            <video
+            {loadVideo && (
+                <video
                 key={isMobile ? 'mobile-vid' : 'desktop-vid'}
                 autoPlay
                 loop
@@ -37,6 +44,7 @@ const Landing = () => {
             >
                 <source src={isMobile ? mobileVideo : desktopVideo} type="video/mp4" />
             </video>
+            )}
 
             {/* THE OVERLAY: A gradient to darken the video so the text pops */}
             <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-black/40 via-black/60 to-background-primary z-10"></div>
@@ -82,9 +90,9 @@ const Landing = () => {
     </p>
     <span className="hidden sm:inline text-text-muted/30">•</span>
     <div className="flex items-center gap-4 text-xs font-semibold tracking-wider uppercase text-text-muted/70">
-        <Link to="/privacy" className="hover:text-accent-primary transition-colors">
+        <a href="https://yumetunes.duckdns.org/privacy.html" className="hover:text-accent-primary transition-colors">
             Privacy Policy
-        </Link>
+        </a>
         <Link to="/terms" className="hover:text-accent-primary transition-colors">
             Terms of Service
         </Link>
